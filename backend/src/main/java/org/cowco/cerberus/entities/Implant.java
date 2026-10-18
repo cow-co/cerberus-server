@@ -1,17 +1,16 @@
 package org.cowco.cerberus.entities;
 
-import org.springframework.data.annotation.Id;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 
 @Entity
 public class Implant {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     private String ipAddr;  // TODO Swap to using an actual IP Address type
     private String hostname;
