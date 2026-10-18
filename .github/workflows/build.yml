@@ -1,0 +1,71 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [master]
+  merge_group:
+    branches: [master]
+
+permissions:
+  # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
+  actions: read
+  # Require writing security events to upload SARIF file to security tab
+  security-events: write
+  contents: read
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 25
+      uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: '25'
+    - name: Run Backend Tests via Maven
+      run: mvn -B clean test --file backend/pom.xml
+    - name: Scan Backend Dependencies
+      uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@v2.7.0"
+    - name: Set up Docker Buildx
+      if: github.ref_type == 'tag'
+      uses: docker/setup-buildx-action@v4
+    - name: Build Docker Image
+      if: github.ref_type == 'tag'
+      uses: docker/build-push-action@v7
+      with:
+        push: false
+        tags: cerberus/backend:latest
+    - name: Export Image
+      if: github.ref_type == 'tag'
+      run: docker save -o cerberus-backend.tar cerberus/backend:latest
+    - name: Upload Backend Image
+      if: github.ref_type == 'tag'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release create ${{github.ref_name}} -t ${{github.ref_name}} -d cerberus-backend.tar
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up PNPM
+      uses: pnpm/setup@v3
+    - name: Build Prod Release of Frontend
+      run: pnpm build
+    - name: Set up Docker Buildx
+      if: github.ref_type == 'tag'
+      uses: docker/setup-buildx-action@v4
+    - name: Build Docker Image
+      if: github.ref_type == 'tag'
+      uses: docker/build-push-action@v7
+      with:
+        push: false
+        tags: cerberus/frontend:latest
+    - name: Export Image
+      if: github.ref_type == 'tag'
+      run: docker save -o cerberus-frontend.tar cerberus/frontend:latest
+    - name: Upload Frontend Image
+      if: github.ref_type == 'tag'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release create ${{github.ref_name}} -t ${{github.ref_name}} -d cerberus-frontend.tar
