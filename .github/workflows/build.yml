@@ -30,13 +30,13 @@ jobs:
     - name: Set up Docker Buildx
       if: github.ref_type == 'tag'
       uses: docker/setup-buildx-action@v4
-    - name: Build Docker Image
+    - name: Build Backend Docker Image
       if: github.ref_type == 'tag'
       uses: docker/build-push-action@v7
       with:
         push: false
         tags: cerberus/backend:latest
-    - name: Export Image
+    - name: Export Backend Image
       if: github.ref_type == 'tag'
       run: docker save -o cerberus-backend.tar cerberus/backend:latest
     - name: Upload Backend Image
@@ -44,24 +44,17 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: gh release create ${{github.ref_name}} -t ${{github.ref_name}} -d cerberus-backend.tar
-  build-frontend:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
     - name: Set up PNPM
       uses: pnpm/setup@v3
     - name: Build Prod Release of Frontend
       run: pnpm build
-    - name: Set up Docker Buildx
-      if: github.ref_type == 'tag'
-      uses: docker/setup-buildx-action@v4
-    - name: Build Docker Image
+    - name: Build Frontend Docker Image
       if: github.ref_type == 'tag'
       uses: docker/build-push-action@v7
       with:
         push: false
         tags: cerberus/frontend:latest
-    - name: Export Image
+    - name: Export Frontend Image
       if: github.ref_type == 'tag'
       run: docker save -o cerberus-frontend.tar cerberus/frontend:latest
     - name: Upload Frontend Image
