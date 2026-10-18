@@ -3,8 +3,10 @@ name: CERBERUS CI
 on:
   pull_request:
     branches: ["master"]
-  merge_group:
-    branches: ["master"]
+  push:
+    branches: [ "master" ]
+    tags:
+      - v*
 
 jobs:
   build-backend:
