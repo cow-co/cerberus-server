@@ -12,7 +12,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 public interface ImplantRepository extends PagingAndSortingRepository<Implant, Long>, CrudRepository<Implant, Long> {
     List<Implant> findByHostname(@Param("hostname") String hostname);
     List<Implant> findByIpAddr(@Param("ipaddr") String ipaddr);
-    List<Implant> findByIsActive(@Param("isactive") boolean isActive);
+    List<Implant> findByIsActive(@Param("isactive") Boolean isActive);
 
     // TODO Ones for CIDR ranges, hostname wildcards, version numbers/ranges, and compound searches
 }
