@@ -61,7 +61,7 @@ jobs:
       with:
         version: 12.0.0
     - name: Build Prod Release of Frontend
-      run: cd frontend && pnpm run build
+      run: ls -la && pnpm run build
     - name: Build Frontend Docker Image
       if: github.ref_type == 'tag'
       uses: docker/build-push-action@v7
