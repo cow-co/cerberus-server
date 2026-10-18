@@ -6,16 +6,17 @@ on:
   merge_group:
     branches: [master]
 
-permissions:
-  # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
-  actions: read
-  # Require writing security events to upload SARIF file to security tab
-  security-events: write
-  contents: read
-
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+
+    permissions:
+      # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
+      actions: read
+      # Require writing security events to upload SARIF file to security tab
+      security-events: write
+      contents: write
+
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 25
