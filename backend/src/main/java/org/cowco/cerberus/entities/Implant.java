@@ -16,6 +16,7 @@ public class Implant {
     private String hostname;
     private int implantMajorVersion;
     private int implantMinorVersion;
+    private boolean isActive;
 
     public String getIPAddr() {
         return ipAddr;
@@ -47,5 +48,13 @@ public class Implant {
 
     public void setImplantMinorVersion(int implantMinorVersion) {
         this.implantMinorVersion = implantMinorVersion;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 }
