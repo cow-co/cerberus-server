@@ -11,4 +11,5 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource(collectionResourceRel = "implants", path = "implants")
 public interface ImplantRepository extends PagingAndSortingRepository<Implant, Long>, CrudRepository<Implant, Long> {
     List<Implant> findByHostname(@Param("hostname") String hostname);
+    List<Implant> findByIpAddr(@Param("ipaddr") String ipaddr);
 }
