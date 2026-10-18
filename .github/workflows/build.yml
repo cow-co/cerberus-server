@@ -1,4 +1,4 @@
-name: Run Tests
+name: CERBERUS CI
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
     branches: [master]
 
 jobs:
-  build-backend:
+  build:
     runs-on: ubuntu-latest
 
     permissions:
