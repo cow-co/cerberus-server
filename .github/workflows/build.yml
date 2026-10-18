@@ -38,7 +38,7 @@ jobs:
         output: backend-results.sarif
     - name: Upload SARIF file
       if: always()
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v4
       with:
         sarif_file: backend-results.sarif
     - name: Set up Docker Buildx
@@ -62,6 +62,10 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./frontend
 
     permissions:
       contents: write
@@ -80,7 +84,7 @@ jobs:
         output: frontend-results.sarif
     - name: Upload SARIF file
       if: always()
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v4
       with:
         sarif_file: frontend-results.sarif
     - name: Build Frontend Docker Image
