@@ -64,7 +64,8 @@ jobs:
     - name: Set up PNPM
       uses: pnpm/setup@v3
     - name: Build Prod Release of Frontend
-      run: cd frontend && pnpm build
+      run: pnpm build
+      working-directory: ./frontend
     - name: Build Frontend Docker Image
       if: github.ref_type == 'tag'
       uses: docker/build-push-action@v7
