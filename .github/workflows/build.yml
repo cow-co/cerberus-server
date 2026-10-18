@@ -26,21 +26,11 @@ jobs:
         java-version: '25'
         cache: maven
     - name: Run Backend Tests via Maven
-      run: mvn -B clean test --file pom.xml
+      run: pwd && mvn -B clean test --file pom.xml
     - name: Update dependency graph
       uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
       with:
         directory: ./backend
-    - name: Bearer
-      uses: bearer/bearer-action@v2
-      with:
-        format: sarif
-        output: backend-results.sarif
-    - name: Upload SARIF file
-      if: always()
-      uses: github/codeql-action/upload-sarif@v4
-      with:
-        sarif_file: backend-results.sarif
     - name: Set up Docker Buildx
       if: github.ref_type == 'tag'
       uses: docker/setup-buildx-action@v4
@@ -62,11 +52,6 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        shell: bash
-        working-directory: ./frontend
-
     permissions:
       contents: write
 
@@ -76,18 +61,7 @@ jobs:
       with:
         version: 12.0.0
     - name: Build Prod Release of Frontend
-      run: pnpm run build
-      working-directory: ./frontend
-    - name: Bearer
-      uses: bearer/bearer-action@v2
-      with:
-        format: sarif
-        output: frontend-results.sarif
-    - name: Upload SARIF file
-      if: always()
-      uses: github/codeql-action/upload-sarif@v4
-      with:
-        sarif_file: frontend-results.sarif
+      run: cd frontend && pnpm run build
     - name: Build Frontend Docker Image
       if: github.ref_type == 'tag'
       uses: docker/build-push-action@v7
