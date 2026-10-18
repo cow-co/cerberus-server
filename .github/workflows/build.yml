@@ -63,11 +63,11 @@ jobs:
     steps:
     - name: Set up PNPM
       uses: pnpm/setup@v3
+      with:
+        version: 12.0.0
     - name: Build Prod Release of Frontend
       run: pnpm build
       working-directory: ./frontend
-      with:
-        version: 12.0.0
     - name: Build Frontend Docker Image
       if: github.ref_type == 'tag'
       uses: docker/build-push-action@v7
