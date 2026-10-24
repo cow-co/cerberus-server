@@ -1,5 +1,6 @@
 package org.cowco.cerberus.rest;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -12,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 @SpringBootTest 
@@ -53,7 +54,7 @@ public class ImplantApiTests {
             .exchange()
             .expectStatus()
             .isOk()
-            .expectBody(List.class)
-            .isEqualTo(expected);
+            .expectBody(new ParameterizedTypeReference<List<Implant>>(){})
+            .value(implants -> assertEquals(expected, implants));
     }
 }
