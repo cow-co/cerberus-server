@@ -50,7 +50,7 @@ public class Implant {
         this.implantMinorVersion = implantMinorVersion;
     }
 
-    public boolean isActive() {
+    public boolean getIsActive() {
         return isActive;
     }
 
@@ -73,34 +73,46 @@ public class Implant {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         Implant other = (Implant) obj;
         if (id == null) {
-            if (other.id != null)
+            if (other.id != null) {
                 return false;
-        } else if (!id.equals(other.id))
+            }
+        } else if (!id.equals(other.id)) {
             return false;
+        }
         if (ipAddr == null) {
-            if (other.ipAddr != null)
+            if (other.ipAddr != null) {
                 return false;
-        } else if (!ipAddr.equals(other.ipAddr))
+            }
+        } else if (!ipAddr.equals(other.ipAddr)) {
             return false;
+        }
         if (hostname == null) {
-            if (other.hostname != null)
+            if (other.hostname != null) {
                 return false;
-        } else if (!hostname.equals(other.hostname))
+            }
+        } else if (!hostname.equals(other.hostname)) {
             return false;
-        if (implantMajorVersion != other.implantMajorVersion)
+        }
+        if (implantMajorVersion != other.implantMajorVersion) {
             return false;
-        if (implantMinorVersion != other.implantMinorVersion)
+        }
+        if (implantMinorVersion != other.implantMinorVersion) {
             return false;
-        if (isActive != other.isActive)
+        }
+        if (isActive != other.isActive) {
             return false;
+        }
         return true;
     }
 
