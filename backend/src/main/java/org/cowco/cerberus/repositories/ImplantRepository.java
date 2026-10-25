@@ -11,6 +11,8 @@ public interface ImplantRepository extends PagingAndSortingRepository<Implant, L
     List<Implant> findByHostname(@Param("hostname") String hostname);
     List<Implant> findByIpAddr(@Param("ipaddr") String ipaddr);
     List<Implant> findByIsActive(@Param("isactive") Boolean isActive);
+    List<Implant> findByImplantMajorVersion(@Param("majorversion") int implantMajorVersion);
+    List<Implant> findByImplantMinorVersion(@Param("minorversion") int implantMinorVersion);
 
     // TODO Ones for CIDR ranges, hostname wildcards, version numbers/ranges, and compound searches
 }

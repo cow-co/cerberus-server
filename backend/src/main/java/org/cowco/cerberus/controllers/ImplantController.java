@@ -8,10 +8,13 @@ import java.util.Set;
 import org.cowco.cerberus.entities.Implant;
 import org.cowco.cerberus.repositories.ImplantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.websocket.server.PathParam;
 
@@ -28,8 +31,10 @@ public class ImplantController {
 
     @GetMapping(path="/{id}", produces = "application/json")
     public Implant getImplantById(@PathVariable long id) {
-        // TODO Raise exception if not found
         Optional<Implant> maybeImplant = implantRepository.findById(id);
+        if (maybeImplant.isEmpty()) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Could not find an implant with that ID!");
+        }
         return maybeImplant.get();
     }
 
@@ -37,21 +42,35 @@ public class ImplantController {
     public Iterable<Implant> searchForImplant(
         @PathParam("hostname") String hostname, 
         @PathParam("isActive") Boolean isActive, 
-        @PathParam("ipAddr") String ipAddr
+        @PathParam("ipAddr") String ipAddr,
+        @PathParam("majorVersion") Integer majorVersion,
+        @PathParam("minorVersion") Integer minorVersion
     ) {
         Set<Implant> foundImplants = new HashSet<>();
+        foundImplants.addAll((List)implantRepository.findAll());
         
         if (hostname != null) {
             List<Implant> hostnameMatched = implantRepository.findByHostname(hostname);
-            foundImplants.addAll(hostnameMatched);
+            foundImplants.retainAll(hostnameMatched);
         } if (isActive != null) {
             List<Implant> isActiveMatched = implantRepository.findByIsActive(isActive);
-            foundImplants.addAll(isActiveMatched);
+            foundImplants.retainAll(isActiveMatched);
         } if (ipAddr != null) {
             List<Implant> ipMatched = implantRepository.findByIpAddr(ipAddr);
-            foundImplants.addAll(ipMatched);
+            foundImplants.retainAll(ipMatched);
+        } if (majorVersion != null) {
+            List<Implant> majorsMatched = implantRepository.findByImplantMajorVersion(majorVersion);
+            foundImplants.retainAll(majorsMatched);
+        } if (minorVersion != null) {
+            List<Implant> minorsMatched = implantRepository.findByImplantMinorVersion(minorVersion);
+            foundImplants.retainAll(minorsMatched);
         }
 
         return foundImplants;
+    }
+
+    @PostMapping(path="/beacon", produces = "application/json")
+    public void beacon() {
+
     }
 }
