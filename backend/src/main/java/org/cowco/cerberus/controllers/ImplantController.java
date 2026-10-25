@@ -10,7 +10,6 @@ import org.cowco.cerberus.entities.Implant;
 import org.cowco.cerberus.repositories.ImplantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,7 +49,7 @@ public class ImplantController {
         @PathParam("minorVersion") Integer minorVersion
     ) {
         Set<Implant> foundImplants = new HashSet<>();
-        foundImplants.addAll((List)implantRepository.findAll());
+        foundImplants.addAll((List<Implant>)implantRepository.findAll());
         
         if (hostname != null) {
             List<Implant> hostnameMatched = implantRepository.findByHostname(hostname);
@@ -76,13 +75,12 @@ public class ImplantController {
     public void beacon(@RequestBody Beacon beacon) {
         // The first beacon from an implant will have no ID
         if (beacon.getImplantId() == null) {
-            Implant newImp = new Implant(
-                beacon.getIpAddr(),
-                beacon.getHostname(),
-                beacon.getMajorVer(),
-                beacon.getMinorVer(),
-                true
-            );
+            Implant newImp = new Implant();
+            newImp.setHostname(beacon.getHostname());
+            newImp.setIPAddr(beacon.getHostname());
+            newImp.setImplantMajorVersion(beacon.getMajorVer());
+            newImp.setImplantMinorVersion(beacon.getMinorVer());
+            newImp.setIsActive(true);
             implantRepository.save(newImp);
         } else {
             Optional<Implant> maybeImplant = implantRepository.findById(beacon.getImplantId());

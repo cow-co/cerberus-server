@@ -18,38 +18,6 @@ public class Implant {
     private Integer implantMinorVersion;
     private Boolean isActive;
 
-    
-
-    public Implant(
-        String ipAddr, 
-        String hostname, 
-        Integer implantMajorVersion, 
-        Integer implantMinorVersion,
-        Boolean isActive
-    ) {
-        this.ipAddr = ipAddr;
-        this.hostname = hostname;
-        this.implantMajorVersion = implantMajorVersion;
-        this.implantMinorVersion = implantMinorVersion;
-        this.isActive = isActive;
-    }
-
-    public Implant(
-        Long id, 
-        String ipAddr, 
-        String hostname, 
-        Integer implantMajorVersion, 
-        Integer implantMinorVersion,
-        Boolean isActive
-    ) {
-        this.id = id;
-        this.ipAddr = ipAddr;
-        this.hostname = hostname;
-        this.implantMajorVersion = implantMajorVersion;
-        this.implantMinorVersion = implantMinorVersion;
-        this.isActive = isActive;
-    }
-
     public String getIPAddr() {
         return ipAddr;
     }
