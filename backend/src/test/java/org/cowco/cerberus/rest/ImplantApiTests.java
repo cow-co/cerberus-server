@@ -12,8 +12,8 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.cowco.cerberus.entities.Beacon;
 import org.cowco.cerberus.entities.Implant;
+import org.cowco.cerberus.entities.requests.Beacon;
 import org.cowco.cerberus.repositories.ImplantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

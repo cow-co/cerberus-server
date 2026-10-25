@@ -3,6 +3,7 @@ package org.cowco.cerberus.entities;
 
 import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,6 +13,7 @@ public class TaskType {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Column(unique = true)
     private String taskName;
     private List<TaskParameter> params;
     

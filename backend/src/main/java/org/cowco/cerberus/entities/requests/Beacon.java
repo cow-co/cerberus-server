@@ -1,4 +1,4 @@
-package org.cowco.cerberus.entities;
+package org.cowco.cerberus.entities.requests;
 
 public class Beacon {
     private Long implantId;
