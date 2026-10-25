@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface ImplantRepository extends PagingAndSortingRepository<Implant, Long>, CrudRepository<Implant, Long> {
     List<Implant> findByHostname(@Param("hostname") String hostname);
     List<Implant> findByIpAddr(@Param("ipaddr") String ipaddr);
-    List<Implant> findByIsActive(@Param("isactive") Boolean isActive);
+    List<Implant> findByIsActive(@Param("isactive") boolean isActive);
     List<Implant> findByImplantMajorVersion(@Param("majorversion") int implantMajorVersion);
     List<Implant> findByImplantMinorVersion(@Param("minorversion") int implantMinorVersion);
 
