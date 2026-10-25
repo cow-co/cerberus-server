@@ -127,4 +127,68 @@ public class ImplantRepositoryTests {
 
         assertThat(returned).hasSize(2);
     }
+
+    @Test 
+    void getByActivity_NoActivityImplant() {
+        Implant imp = new Implant();
+        entityManager.persist(imp);
+        entityManager.flush();
+
+        List<Implant> returned = implantRepository.findByIsActive(true);
+
+        assertThat(returned).hasSize(0);
+    }
+
+    @Test 
+    void getByActivity_NoActivityImplant_SearchByFalse() {
+        Implant imp = new Implant();
+        entityManager.persist(imp);
+        entityManager.flush();
+
+        List<Implant> returned = implantRepository.findByIsActive(false);
+
+        assertThat(returned).hasSize(1);
+    }
+
+    @Test 
+    void getByActivity_OneImplantWithActivityNoMatch() {
+        Implant imp = new Implant();
+        imp.setIsActive(false);
+        entityManager.persist(imp);
+        entityManager.flush();
+
+        List<Implant> returned = implantRepository.findByIsActive(true);
+
+        assertThat(returned).hasSize(0);
+    }
+
+    @Test 
+    void getByActivity_OneImplantWithActivityMatched() {
+        Implant imp = new Implant();
+        imp.setIsActive(true);
+        entityManager.persist(imp);
+        entityManager.flush();
+
+        List<Implant> returned = implantRepository.findByIsActive(true);
+
+        assertThat(returned).hasSize(1);
+    }
+
+    @Test 
+    void getByActivity_MultipleImplantsWithActivityMatched() {
+        Implant imp1 = new Implant();
+        imp1.setIsActive(true);
+        Implant imp2 = new Implant();
+        imp2.setIsActive(true);
+        Implant imp3 = new Implant();
+        imp3.setIsActive(false);
+        entityManager.persist(imp1);
+        entityManager.persist(imp2);
+        entityManager.persist(imp3);
+        entityManager.flush();
+
+        List<Implant> returned = implantRepository.findByIsActive(true);
+
+        assertThat(returned).hasSize(2);
+    }
 }
