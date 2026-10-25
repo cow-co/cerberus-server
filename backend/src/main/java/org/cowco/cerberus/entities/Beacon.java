@@ -1,13 +1,13 @@
 package org.cowco.cerberus.entities;
 
 public class Beacon {
-    private long implantId;
+    private Long implantId;
     private String hostname;
     private String ipAddr;
-    private int majorVer;
-    private int minorVer;
+    private Integer majorVer;
+    private Integer minorVer;
 
-    public Beacon(long implantId, String hostname, String ipAddr, int majorVer, int minorVer) {
+    public Beacon(Long implantId, String hostname, String ipAddr, Integer majorVer, Integer minorVer) {
         this.implantId = implantId;
         this.hostname = hostname;
         this.ipAddr = ipAddr;
@@ -15,10 +15,10 @@ public class Beacon {
         this.minorVer = minorVer;
     }
     
-    public long getImplantId() {
+    public Long getImplantId() {
         return implantId;
     }
-    public void setImplantId(long implantId) {
+    public void setImplantId(Long implantId) {
         this.implantId = implantId;
     }
     public String getHostname() {
@@ -33,16 +33,16 @@ public class Beacon {
     public void setIpAddr(String ipAddr) {
         this.ipAddr = ipAddr;
     }
-    public int getMajorVer() {
+    public Integer getMajorVer() {
         return majorVer;
     }
-    public void setMajorVer(int majorVer) {
+    public void setMajorVer(Integer majorVer) {
         this.majorVer = majorVer;
     }
-    public int getMinorVer() {
+    public Integer getMinorVer() {
         return minorVer;
     }
-    public void setMinorVer(int minorVer) {
+    public void setMinorVer(Integer minorVer) {
         this.minorVer = minorVer;
     }
 }

@@ -14,17 +14,33 @@ public class Implant {
 
     private String ipAddr;  // TODO Swap to using an actual IP Address type
     private String hostname;
-    private int implantMajorVersion;
-    private int implantMinorVersion;
-    private boolean isActive;
+    private Integer implantMajorVersion;
+    private Integer implantMinorVersion;
+    private Boolean isActive;
+
+    
+
+    public Implant(
+        String ipAddr, 
+        String hostname, 
+        Integer implantMajorVersion, 
+        Integer implantMinorVersion,
+        Boolean isActive
+    ) {
+        this.ipAddr = ipAddr;
+        this.hostname = hostname;
+        this.implantMajorVersion = implantMajorVersion;
+        this.implantMinorVersion = implantMinorVersion;
+        this.isActive = isActive;
+    }
 
     public Implant(
         Long id, 
         String ipAddr, 
         String hostname, 
-        int implantMajorVersion, 
-        int implantMinorVersion,
-        boolean isActive
+        Integer implantMajorVersion, 
+        Integer implantMinorVersion,
+        Boolean isActive
     ) {
         this.id = id;
         this.ipAddr = ipAddr;
@@ -50,27 +66,27 @@ public class Implant {
         this.hostname = hostname;
     }
 
-    public int getImplantMajorVersion() {
+    public Integer getImplantMajorVersion() {
         return implantMajorVersion;
     }
 
-    public void setImplantMajorVersion(int implantMajorVersion) {
+    public void setImplantMajorVersion(Integer implantMajorVersion) {
         this.implantMajorVersion = implantMajorVersion;
     }
 
-    public int getImplantMinorVersion() {
+    public Integer getImplantMinorVersion() {
         return implantMinorVersion;
     }
 
-    public void setImplantMinorVersion(int implantMinorVersion) {
+    public void setImplantMinorVersion(Integer implantMinorVersion) {
         this.implantMinorVersion = implantMinorVersion;
     }
 
-    public boolean getIsActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(boolean isActive) {
+    public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
     }
 
