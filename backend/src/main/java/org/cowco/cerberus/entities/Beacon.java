@@ -7,6 +7,9 @@ public class Beacon {
     private Integer majorVer;
     private Integer minorVer;
 
+    public Beacon() {
+    }
+
     public Beacon(Long implantId, String hostname, String ipAddr, Integer majorVer, Integer minorVer) {
         this.implantId = implantId;
         this.hostname = hostname;
