@@ -14,55 +14,57 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.test.web.servlet.MockMvc;
 
-// @SpringBootTest 
-// @AutoConfigureMockMvc 
-// @AutoConfigureRestTestClient
-// public class TaskTypeApiTests {
-//     Logger LOGGER = LogManager.getLogger(getClass());
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+
+@SpringBootTest 
+@AutoConfigureMockMvc 
+@AutoConfigureRestTestClient
+public class TaskTypeApiTests {
+    Logger LOGGER = LogManager.getLogger(getClass());
     
-//     @Autowired 
-//     private RestTestClient client;
-
-//     @Autowired 
-//     @MockitoBean 
-//     private TaskTypeRepository taskTypeRepository;
+    @Autowired 
+    private MockMvc mvc;
 
 
-//     @Test 
-//     @WithMockUser(roles = "ADMIN")
-//     void testNoTaskTypeFound() {
-//         when(taskTypeRepository.findById(1L)).thenReturn(Optional.empty());
-//         client
-//             .get()
-//             .uri("/task-types/1")
-//             .exchange()
-//             .expectStatus()
-//             .isNotFound();
-//     }
 
-//     @Test 
-//     void testAuthRequired() {
-//         client
-//             .get()
-//             .uri("/task-types/1")
-//             .exchange()
-//             .expectStatus()
-//             .isForbidden();
+    @Autowired 
+    @MockitoBean 
+    private TaskTypeRepository taskTypeRepository;
+
+
+    @Test 
+    @WithMockUser(roles = "ADMIN")
+    void testNoTaskTypeFound() throws Exception {
+        when(taskTypeRepository.findById(1L)).thenReturn(Optional.empty());
+        mvc.perform(get("/task-types/1"))
+            .andExpect(status().isNotFound())
+            .andDo(print());
+    }
+
+    @Test 
+    void testAuthRequired() throws Exception {
+        mvc.perform(get("/task-types"))
+            .andExpect(status().isUnauthorized())
+            .andDo(print());
         
-//         client
-//             .get()
-//             .uri("/task-types")
-//             .exchange()
-//             .expectStatus()
-//             .isForbidden();
+        mvc.perform(get("/task-types/1"))
+            .andExpect(status().isUnauthorized())
+            .andDo(print());
 
-//         client
-//             .post()
-//             .uri("/task-types")
-//             .exchange()
-//             .expectStatus()
-//             .isForbidden();
-//     }
-// }
+        mvc.perform(post("/task-types").with(csrf()))
+            .andExpect(status().isUnauthorized())
+            .andDo(print());
+    }
+
+    @Test 
+    void testAntiCSRFRequired() throws Exception {
+        mvc.perform(post("/task-types").with(csrf().useInvalidToken()))
+            .andExpect(status().isForbidden())
+            .andDo(print());
+    }
+}

@@ -3,11 +3,15 @@ package org.cowco.cerberus.entities;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
+@Entity
 public class TaskType {
     @Id 
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -15,6 +19,8 @@ public class TaskType {
 
     @Column(unique = true)
     private String taskName;
+
+    @OneToMany(mappedBy = "taskType", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskParameter> params;
     
     public TaskType() {
