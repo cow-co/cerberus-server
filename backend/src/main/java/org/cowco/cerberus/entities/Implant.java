@@ -14,9 +14,9 @@ public class Implant {
 
     private String ipAddr;  // TODO Swap to using an actual IP Address type
     private String hostname;
-    private Integer implantMajorVersion;
-    private Integer implantMinorVersion;
-    private Boolean isActive;
+    private int implantMajorVersion;
+    private int implantMinorVersion;
+    private boolean isActive;
 
     public String getIPAddr() {
         return ipAddr;
@@ -34,27 +34,27 @@ public class Implant {
         this.hostname = hostname;
     }
 
-    public Integer getImplantMajorVersion() {
+    public int getImplantMajorVersion() {
         return implantMajorVersion;
     }
 
-    public void setImplantMajorVersion(Integer implantMajorVersion) {
+    public void setImplantMajorVersion(int implantMajorVersion) {
         this.implantMajorVersion = implantMajorVersion;
     }
 
-    public Integer getImplantMinorVersion() {
+    public int getImplantMinorVersion() {
         return implantMinorVersion;
     }
 
-    public void setImplantMinorVersion(Integer implantMinorVersion) {
+    public void setImplantMinorVersion(int implantMinorVersion) {
         this.implantMinorVersion = implantMinorVersion;
     }
 
-    public Boolean getIsActive() {
+    public boolean getIsActive() {
         return isActive;
     }
 
-    public void setIsActive(Boolean isActive) {
+    public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
 
