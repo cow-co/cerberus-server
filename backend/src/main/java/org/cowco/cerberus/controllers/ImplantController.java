@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,7 +46,7 @@ public class ImplantController {
         @PathParam("minorVersion") Integer minorVersion
     ) {
         Set<Implant> foundImplants = new HashSet<>();
-        foundImplants.addAll((List)implantRepository.findAll());
+        foundImplants.addAll((List<Implant>)implantRepository.findAll());
         
         if (hostname != null) {
             List<Implant> hostnameMatched = implantRepository.findByHostname(hostname);
@@ -67,10 +66,5 @@ public class ImplantController {
         }
 
         return foundImplants;
-    }
-
-    @PostMapping(path="/beacon", produces = "application/json")
-    public void beacon() {
-
     }
 }
