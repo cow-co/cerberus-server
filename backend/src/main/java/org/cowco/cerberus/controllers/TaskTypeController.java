@@ -11,7 +11,9 @@ import org.cowco.cerberus.repositories.TaskParameterRepository;
 import org.cowco.cerberus.repositories.TaskTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -56,5 +58,32 @@ public class TaskTypeController {
             taskType.getTaskName(),
             createdParams
         ));
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public void deleteTaskType(@PathVariable Long id) {
+        taskTypeRepository.deleteById(id);
+    }
+
+    @PatchMapping(path = "/{id}", produces = "application/json")
+    public TaskType updateTaskType(@PathVariable Long id, @RequestBody TaskTypeRequest request) {
+        Optional<TaskType> maybeExisting = taskTypeRepository.findById(id);
+        if (maybeExisting.isEmpty()) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Task Type not Found");
+        }
+        TaskType existing = maybeExisting.get();
+        taskTypeRepository.delete(existing);
+        List<TaskParameter> createdParams = new ArrayList<>();
+        request.getParams().forEach(param -> {
+            createdParams.add(taskParameterRepository.save(
+                new TaskParameter(
+                    param.getName(),
+                    param.getType()
+                )
+            ));
+        });
+        TaskType newTT = new TaskType(request.getTaskName(), createdParams);
+        newTT.setId(id);
+        return taskTypeRepository.save(newTT);
     }
 }

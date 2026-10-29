@@ -18,7 +18,7 @@ public class TaskType {
     private Long id;
 
     @Column(unique = true)
-    private String taskName;
+    private String taskTypeName;
 
     @OneToMany(mappedBy = "taskType", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskParameter> params;
@@ -27,7 +27,7 @@ public class TaskType {
     }
 
     public TaskType(String taskName, List<TaskParameter> params) {
-        this.taskName = taskName;
+        this.taskTypeName = taskName;
         this.params = params;
     }
     
@@ -37,11 +37,11 @@ public class TaskType {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getTaskName() {
-        return taskName;
+    public String getTaskTypeName() {
+        return taskTypeName;
     }
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setTaskTypeName(String taskTypeName) {
+        this.taskTypeName = taskTypeName;
     }
     public List<TaskParameter> getParams() {
         return params;
