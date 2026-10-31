@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.cowco.cerberus.entities.Task;
 import org.cowco.cerberus.entities.TaskParameter;
 import org.cowco.cerberus.entities.TaskType;
+import org.cowco.cerberus.entities.requests.TaskRequest;
 import org.cowco.cerberus.entities.requests.TaskTypeRequest;
 import org.cowco.cerberus.repositories.TaskParameterRepository;
 import org.cowco.cerberus.repositories.TaskParameterValueRepository;
@@ -51,8 +52,13 @@ public class TaskController {
     }
 
     @PostMapping (produces = "application/json")
-    public TaskType createTask(@RequestBody TaskTypeRequest taskType) {
-        
+    public Task createTask(@RequestBody TaskRequest task) {
+        // TODO Find the task type
+        // TODO Find the implant
+        // TODO For each parameter, find the param type and create the param instance
+        // TODO create the task (set to not-sent)
+        // TODO Return the created task
+        return new Task();
     }
 
     @DeleteMapping(path = "/{id}")
@@ -61,7 +67,8 @@ public class TaskController {
     }
 
     @PatchMapping(path = "/{id}", produces = "application/json")
-    public TaskType updateTask(@PathVariable Long id, @RequestBody TaskTypeRequest request) {
-        
+    public Task updateTask(@PathVariable Long id, @RequestBody TaskRequest request) {
+        // XXX How much do we want to allow the user to modify a task? Versus just making them delete and re-create?
+        return new Task();
     }
 }
