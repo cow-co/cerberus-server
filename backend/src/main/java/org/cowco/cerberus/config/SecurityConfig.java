@@ -30,7 +30,9 @@ public class SecurityConfig {
                 "/implants", 
                 "/implants/**",
                 "/task-types",
-                "/task-types/**"
+                "/task-types/**",
+                "/tasks",
+                "/tasks/**"
             )
             .authorizeHttpRequests((auth) -> auth
                 .anyRequest()
