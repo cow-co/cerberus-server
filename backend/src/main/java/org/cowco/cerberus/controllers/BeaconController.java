@@ -8,9 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import org.cowco.cerberus.entities.Beacon;
 import org.cowco.cerberus.entities.Implant;
+import org.cowco.cerberus.entities.requests.Beacon;
 import org.cowco.cerberus.repositories.ImplantRepository;
 
 @RestController
@@ -19,7 +18,7 @@ public class BeaconController {
     private ImplantRepository implantRepository;
 
     @PostMapping(path="/beacon", produces = "application/json")
-    public void beacon(@RequestBody Beacon beacon) {
+    public Implant beacon(@RequestBody Beacon beacon) {
         // The first beacon from an implant will have no ID
         if (beacon.getImplantId() == null) {
             Implant newImp = new Implant();
@@ -28,7 +27,8 @@ public class BeaconController {
             newImp.setImplantMajorVersion(beacon.getMajorVer());
             newImp.setImplantMinorVersion(beacon.getMinorVer());
             newImp.setIsActive(true);
-            implantRepository.save(newImp);
+            newImp = implantRepository.save(newImp);
+            return newImp;
         } else {
             Optional<Implant> maybeImplant = implantRepository.findById(beacon.getImplantId());
             if (maybeImplant.isEmpty()) {
@@ -48,7 +48,8 @@ public class BeaconController {
                 imp.setImplantMinorVersion(beacon.getMinorVer());
             }
             imp.setIsActive(true);
-            implantRepository.save(imp);
+            imp = implantRepository.save(imp);
+            return imp;
         }
     }
 }

@@ -24,8 +24,14 @@ public class SecurityConfig {
     }
 
     @Bean 
-    public SecurityFilterChain implantSec(HttpSecurity http) throws Exception {
-        http.securityMatcher("/implants", "/implants/**")
+    public SecurityFilterChain defaultSec(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher(
+                "/implants", 
+                "/implants/**",
+                "/task-types",
+                "/task-types/**"
+            )
             .authorizeHttpRequests((auth) -> auth
                 .anyRequest()
                 .authenticated()

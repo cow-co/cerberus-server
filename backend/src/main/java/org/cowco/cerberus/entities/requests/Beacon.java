@@ -1,4 +1,4 @@
-package org.cowco.cerberus.entities;
+package org.cowco.cerberus.entities.requests;
 
 public class Beacon {
     private Long implantId;
@@ -6,6 +6,9 @@ public class Beacon {
     private String ipAddr;
     private Integer majorVer;
     private Integer minorVer;
+
+    public Beacon() {
+    }
 
     public Beacon(Long implantId, String hostname, String ipAddr, Integer majorVer, Integer minorVer) {
         this.implantId = implantId;

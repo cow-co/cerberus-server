@@ -12,8 +12,8 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.cowco.cerberus.entities.Beacon;
 import org.cowco.cerberus.entities.Implant;
+import org.cowco.cerberus.entities.requests.Beacon;
 import org.cowco.cerberus.repositories.ImplantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTe
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -186,12 +185,13 @@ public class ImplantApiTests {
     @Test 
     @WithMockUser(roles = "ADMIN")
     void testSearchesByAllFactors() {
-        Implant imp1 = new Implant();
-        imp1.setIsActive(true);
-        imp1.setHostname("test");
-        imp1.setIPAddr("127.0.0.1");
-        imp1.setImplantMajorVersion(1);
-        imp1.setImplantMinorVersion(2);
+        Implant imp1 = new Implant(
+            "127.0.0.1",
+            "test",
+            1,
+            2,
+            true
+        );
         Implant imp2 = new Implant();
         imp2.setIsActive(true);
         Implant imp3 = new Implant();
