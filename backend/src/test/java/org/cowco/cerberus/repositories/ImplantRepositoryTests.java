@@ -89,7 +89,7 @@ public class ImplantRepositoryTests {
     @Test 
     void getByIP_OneImplantWithIPNoMatch() {
         Implant imp = new Implant();
-        imp.setIPAddr("127.0.0.1");
+        imp.setIpAddr("127.0.0.1");
         entityManager.persist(imp);
         entityManager.flush();
 
@@ -101,7 +101,7 @@ public class ImplantRepositoryTests {
     @Test 
     void getByIP_OneImplantWithIPMatched() {
         Implant imp = new Implant();
-        imp.setIPAddr("127.0.0.1");
+        imp.setIpAddr("127.0.0.1");
         entityManager.persist(imp);
         entityManager.flush();
 
@@ -113,11 +113,11 @@ public class ImplantRepositoryTests {
     @Test 
     void getByIP_MultipleImplantsWithIPMatched() {
         Implant imp1 = new Implant();
-        imp1.setIPAddr("127.0.0.1");
+        imp1.setIpAddr("127.0.0.1");
         Implant imp2 = new Implant();
-        imp2.setIPAddr("127.0.0.1");
+        imp2.setIpAddr("127.0.0.1");
         Implant imp3 = new Implant();
-        imp3.setIPAddr("127.0.0.2");
+        imp3.setIpAddr("127.0.0.2");
         entityManager.persist(imp1);
         entityManager.persist(imp2);
         entityManager.persist(imp3);

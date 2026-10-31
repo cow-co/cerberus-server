@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.cowco.cerberus.entities.Implant;
 import org.cowco.cerberus.entities.Task;
 import org.cowco.cerberus.entities.requests.Beacon;
@@ -18,6 +20,8 @@ import org.cowco.cerberus.repositories.TaskRepository;
 
 @RestController
 public class BeaconController {
+    Logger LOGGER = LogManager.getLogger(getClass());
+
     @Autowired 
     private ImplantRepository implantRepository;
     @Autowired 
@@ -41,6 +45,7 @@ public class BeaconController {
         } else {
             Optional<Implant> maybeImplant = implantRepository.findById(beacon.getImplantId());
             if (maybeImplant.isEmpty()) {
+                LOGGER.warn("Could not find implant with ID %s from beacon".formatted(beacon.getImplantId()));
                 throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Could not find an implant with that ID!");
             }
             imp = maybeImplant.get();
