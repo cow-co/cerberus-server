@@ -52,12 +52,8 @@ public class BeaconController {
             if (beacon.getIpAddr() != null) {
                 imp.setHostname(beacon.getIpAddr());
             }
-            if (beacon.getMajorVer() != null) {
-                imp.setImplantMajorVersion(beacon.getMajorVer());
-            }
-            if (beacon.getMinorVer() != null) {
-                imp.setImplantMinorVersion(beacon.getMinorVer());
-            }
+            imp.setImplantMajorVersion(beacon.getMajorVer());
+            imp.setImplantMinorVersion(beacon.getMinorVer());
             imp.setIsActive(true);
             imp = implantRepository.save(imp);
         }

@@ -7,15 +7,15 @@ public class Beacon {
     private Long implantId;
     private String hostname;
     private String ipAddr;
-    private Integer majorVer;
-    private Integer minorVer;
+    private int majorVer;
+    private int minorVer;
     private List<Long> successfulTasks = new ArrayList<>();
     private List<Long> failedTasks = new ArrayList<>();
 
     public Beacon() {
     }
 
-    public Beacon(Long implantId, String hostname, String ipAddr, Integer majorVer, Integer minorVer) {
+    public Beacon(Long implantId, String hostname, String ipAddr, int majorVer, int minorVer) {
         this.implantId = implantId;
         this.hostname = hostname;
         this.ipAddr = ipAddr;
@@ -23,7 +23,7 @@ public class Beacon {
         this.minorVer = minorVer;
     }
     
-    public Beacon(Long implantId, String hostname, String ipAddr, Integer majorVer, Integer minorVer,
+    public Beacon(Long implantId, String hostname, String ipAddr, int majorVer, int minorVer,
             List<Long> successfulTasks, List<Long> failedTasks) {
         this.implantId = implantId;
         this.hostname = hostname;
@@ -52,16 +52,16 @@ public class Beacon {
     public void setIpAddr(String ipAddr) {
         this.ipAddr = ipAddr;
     }
-    public Integer getMajorVer() {
+    public int getMajorVer() {
         return majorVer;
     }
-    public void setMajorVer(Integer majorVer) {
+    public void setMajorVer(int majorVer) {
         this.majorVer = majorVer;
     }
-    public Integer getMinorVer() {
+    public int getMinorVer() {
         return minorVer;
     }
-    public void setMinorVer(Integer minorVer) {
+    public void setMinorVer(int minorVer) {
         this.minorVer = minorVer;
     }
 
