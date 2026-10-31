@@ -22,6 +22,10 @@ public class Task {
     private TaskType taskType;
     private boolean hasBeenSent;
 
+    @OneToOne 
+    @JoinColumn(name = "implant_id")
+    private Implant implant;
+
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskParameterValue> params;
 
