@@ -1,11 +1,11 @@
 package org.cowco.cerberus.repositories;
 
-import java.util.List;
+import java.util.Optional;
 
-import org.cowco.cerberus.entities.User;
+import org.cowco.cerberus.entities.UserEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
-public interface UserRepository extends PagingAndSortingRepository<User, Long>, CrudRepository<User, Long> {
-    List<User> findByUsername(String username);
+public interface UserRepository extends PagingAndSortingRepository<UserEntity, Long>, CrudRepository<UserEntity, Long> {
+    Optional<UserEntity> findByUsername(String username);
 }
