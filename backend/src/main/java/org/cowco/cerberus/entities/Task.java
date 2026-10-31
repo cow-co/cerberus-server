@@ -29,6 +29,8 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TaskParameterValue> params;
 
+    private Boolean success = null;
+
     public Task() {
     }
 
@@ -37,6 +39,15 @@ public class Task {
         this.hasBeenSent = hasBeenSent;
         this.params = params;
         this.implant = implant;
+    }
+
+    public Task(TaskType taskType, boolean hasBeenSent, Implant implant, List<TaskParameterValue> params,
+            Boolean success) {
+        this.taskType = taskType;
+        this.hasBeenSent = hasBeenSent;
+        this.implant = implant;
+        this.params = params;
+        this.success = success;
     }
 
     public Long getId() {
@@ -79,5 +90,11 @@ public class Task {
         this.implant = implant;
     }
 
-    
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
 }

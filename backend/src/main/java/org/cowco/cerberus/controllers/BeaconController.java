@@ -27,9 +27,6 @@ public class BeaconController {
     @Autowired 
     private TaskRepository taskRepository;
 
-    // TODO Beacon body should contain the list of successful and failed tasks from the previous beacon
-    // TODO Task should have a success/fail/null Boolean on it. In the beacon response, 
-    // this can be used by the implant to determine if it's being told to retry a previous command 
     @PostMapping(path="/beacon", produces = "application/json")
     public BeaconResponse beacon(@RequestBody Beacon beacon) {
         Implant imp;
@@ -64,6 +61,29 @@ public class BeaconController {
             imp.setIsActive(true);
             imp = implantRepository.save(imp);
         }
+
+        beacon.getSuccessfulTasks().forEach(taskId -> {
+            Optional<Task> maybeCompleted = taskRepository.findById(taskId);
+            if (maybeCompleted.isEmpty()) {
+                LOGGER.warn("Task not found, could not set to successful");
+            } else {
+                Task completed = maybeCompleted.get();
+                completed.setSuccess(true);
+                taskRepository.save(completed);
+            }
+        });
+
+        beacon.getFailedTasks().forEach(taskId -> {
+            Optional<Task> maybeCompleted = taskRepository.findById(taskId);
+            if (maybeCompleted.isEmpty()) {
+                LOGGER.warn("Task not found, could not set to failed");
+            } else {
+                Task completed = maybeCompleted.get();
+                completed.setSuccess(false);
+                taskRepository.save(completed);
+            }
+        });
+
         List<Task> tasksForImplant = taskRepository.findByImplantAndHasBeenSent(imp, false);
         tasksForImplant.forEach(task -> {
             task.setHasBeenSent(true);
