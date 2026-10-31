@@ -94,6 +94,9 @@ public class TaskTypeApiTests {
 
         mvc.perform(post("/task-types").with(csrf()))
             .andExpect(status().isUnauthorized());
+
+        mvc.perform(patch("/task-types/1").with(csrf()))
+            .andExpect(status().isUnauthorized());
     }
 
     @Test 
