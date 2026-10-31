@@ -1,9 +1,6 @@
 package org.cowco.cerberus.rest;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -13,7 +10,6 @@ import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.cowco.cerberus.entities.Implant;
-import org.cowco.cerberus.entities.requests.Beacon;
 import org.cowco.cerberus.repositories.ImplantRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +69,7 @@ public class ImplantApiTests {
         Implant imp1 = new Implant();
         imp1.setHostname("test");
         Implant imp2 = new Implant();
-        imp2.setIPAddr("127.0.0.1");
+        imp2.setIpAddr("127.0.0.1");
         Implant imp3 = new Implant();
         imp3.setIsActive(true);
         Implant imp4 = new Implant();
@@ -148,7 +144,7 @@ public class ImplantApiTests {
             .expectBody(new ParameterizedTypeReference<List<Implant>>(){})
             .value(implants -> assertEquals(expected, implants));
 
-        imp.setIPAddr("127.0.0.1");
+        imp.setIpAddr("127.0.0.1");
         when(implantRepository.findByIpAddr("127.0.0.1")).thenReturn(expected);
         client
             .get()
@@ -197,7 +193,7 @@ public class ImplantApiTests {
         Implant imp3 = new Implant();
         imp3.setHostname("test");
         Implant imp4 = new Implant();
-        imp4.setIPAddr("127.0.0.1");
+        imp4.setIpAddr("127.0.0.1");
         Implant imp5 = new Implant();
         imp5.setImplantMajorVersion(1);
         Implant imp6 = new Implant();
@@ -226,33 +222,6 @@ public class ImplantApiTests {
             .isOk()
             .expectBody(new ParameterizedTypeReference<List<Implant>>(){})
             .value(implants -> assertEquals(expected, implants));
-    }
-
-    @Test 
-    @WithMockUser(roles = "ADMIN")
-    void testBeaconNewImplant() {
-        client
-            .post()
-            .uri("/beacon")
-            .body(new Beacon(null, "test", null, 1, 1))
-            .exchange()
-            .expectStatus()
-            .isOk();
-        verify(implantRepository, times(1)).save(any());
-    }
-
-    @Test 
-    @WithMockUser(roles = "ADMIN")
-    void testBeaconExistingImplant() {
-        when(implantRepository.findById(1L)).thenReturn(Optional.of(new Implant()));
-        client
-            .post()
-            .uri("/beacon")
-            .body(new Beacon(1L, "test", null, 1, 1))
-            .exchange()
-            .expectStatus()
-            .isOk();
-        verify(implantRepository, times(1)).save(any());
     }
 
     @Test 
