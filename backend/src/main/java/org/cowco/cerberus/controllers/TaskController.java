@@ -95,10 +95,4 @@ public class TaskController {
     public void deleteTask(@PathVariable Long id) {
         taskRepository.deleteById(id);
     }
-
-    @PatchMapping(path = "/{id}", produces = "application/json")
-    public Task updateTask(@PathVariable Long id, @RequestBody TaskRequest request) {
-        // XXX How much do we want to allow the user to modify a task? Versus just making them delete and re-create?
-        return new Task();
-    }
 }
