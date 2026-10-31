@@ -23,6 +23,13 @@ public class SecurityConfig {
     }
 
     @Bean 
+    public SecurityFilterChain csrfSec(HttpSecurity http) throws Exception {
+        http.securityMatcher("/csrf")
+            .authorizeHttpRequests((auth) -> auth.anyRequest().permitAll()).csrf(AbstractHttpConfigurer::disable);
+        return http.build();
+    }
+
+    @Bean 
     public SecurityFilterChain defaultSec(HttpSecurity http) throws Exception {
         http
             .securityMatcher(
@@ -36,7 +43,7 @@ public class SecurityConfig {
             .authorizeHttpRequests((auth) -> auth
                 .anyRequest()
                 .authenticated()
-            ).httpBasic(Customizer.withDefaults());
+            );
         return http.build();
     }
 }

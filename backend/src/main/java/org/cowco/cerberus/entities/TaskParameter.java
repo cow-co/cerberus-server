@@ -16,6 +16,8 @@ public class TaskParameter {
     private String name;
     private TaskParamType type;
 
+    // TODO There should be a unqiue constraint on (name, taskType_id)
+
     @ManyToOne
     @JoinColumn(name = "taskType_id")
     private TaskType taskType;
