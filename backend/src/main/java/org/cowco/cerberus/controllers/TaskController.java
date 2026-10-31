@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.cowco.cerberus.entities.Implant;
 import org.cowco.cerberus.entities.Task;
 import org.cowco.cerberus.entities.TaskParameter;
+import org.cowco.cerberus.entities.TaskParameterValue;
 import org.cowco.cerberus.entities.TaskType;
 import org.cowco.cerberus.entities.requests.TaskRequest;
 import org.cowco.cerberus.entities.requests.TaskTypeRequest;
+import org.cowco.cerberus.repositories.ImplantRepository;
 import org.cowco.cerberus.repositories.TaskParameterRepository;
 import org.cowco.cerberus.repositories.TaskParameterValueRepository;
 import org.cowco.cerberus.repositories.TaskRepository;
@@ -36,6 +39,8 @@ public class TaskController {
     private TaskParameterRepository taskParameterRepository;
     @Autowired 
     private TaskParameterValueRepository taskParameterValueRepository;
+    @Autowired 
+    private ImplantRepository implantRepository;
 
     @GetMapping(produces = "application/json")
     public Iterable<Task> getTasks() {
@@ -53,12 +58,37 @@ public class TaskController {
 
     @PostMapping (produces = "application/json")
     public Task createTask(@RequestBody TaskRequest task) {
-        // TODO Find the task type
-        // TODO Find the implant
-        // TODO For each parameter, find the param type and create the param instance
-        // TODO create the task (set to not-sent)
-        // TODO Return the created task
-        return new Task();
+        Optional<TaskType> maybeTT = taskTypeRepository.findById(task.getTypeId());
+        if (maybeTT.isEmpty()) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Could not find that task type!");
+        }
+        Optional<Implant> maybeImp = implantRepository.findById(task.getImplantId());
+        if (maybeImp.isEmpty()) {
+            throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Could not find that implant!");
+        }
+
+
+        List<TaskParameterValue> paramValues = new ArrayList<>();
+        task.getParams().forEach(param -> {
+            Optional<TaskParameter> maybePar = taskParameterRepository.findById(param.getParamId());
+            if (maybePar.isEmpty()) {
+                throw new ResponseStatusException(HttpStatusCode.valueOf(404), "Could not find that parameter type!");
+            }
+            paramValues.add(taskParameterValueRepository.save(
+                new TaskParameterValue(
+                    param.getParamId(), 
+                    maybePar.get().getType(), 
+                    param.getStringValue()
+                )
+            ));
+        });
+
+        return taskRepository.save(new Task(
+            maybeTT.get(),
+            false,
+            paramValues,
+            maybeImp.get()
+        ));
     }
 
     @DeleteMapping(path = "/{id}")

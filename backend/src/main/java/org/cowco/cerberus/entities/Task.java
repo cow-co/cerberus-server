@@ -32,10 +32,11 @@ public class Task {
     public Task() {
     }
 
-    public Task(TaskType taskType, boolean hasBeenSent, List<TaskParameterValue> params) {
+    public Task(TaskType taskType, boolean hasBeenSent, List<TaskParameterValue> params, Implant implant) {
         this.taskType = taskType;
         this.hasBeenSent = hasBeenSent;
         this.params = params;
+        this.implant = implant;
     }
 
     public Long getId() {
@@ -68,6 +69,14 @@ public class Task {
 
     public void setParams(List<TaskParameterValue> params) {
         this.params = params;
+    }
+
+    public Implant getImplant() {
+        return implant;
+    }
+
+    public void setImplant(Implant implant) {
+        this.implant = implant;
     }
 
     
