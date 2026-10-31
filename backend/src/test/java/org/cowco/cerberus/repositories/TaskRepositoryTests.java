@@ -12,8 +12,6 @@ import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * ImplantRepositoryTests
- * 
  * Note we don't test auto-generated methods since that should be tested adequately by Spring themselves
  */
 @DataJpaTest 

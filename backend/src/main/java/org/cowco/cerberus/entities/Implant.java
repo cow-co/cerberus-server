@@ -30,11 +30,15 @@ public class Implant {
         this.isActive = isActive;
     }
 
-    public String getIPAddr() {
+    public Long getId() {
+        return id;
+    }
+
+    public String getIpAddr() {
         return ipAddr;
     }
 
-    public void setIPAddr(String ipAddr) {
+    public void setIpAddr(String ipAddr) {
         this.ipAddr = ipAddr;
     }
 
@@ -127,6 +131,4 @@ public class Implant {
         }
         return true;
     }
-
-    
 }
