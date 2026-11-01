@@ -57,7 +57,6 @@ dependencies = [
     { name = "fastapi-csrf-protect" },
     { name = "psycopg" },
     { name = "pyjwt" },
-    { name = "sqlalchemy" },
     { name = "sqlmodel" },
 ]
 
@@ -75,7 +74,6 @@ requires-dist = [
     { name = "fastapi-csrf-protect", specifier = ">=1.0.7" },
     { name = "psycopg", specifier = ">=3.3.6" },
     { name = "pyjwt", specifier = ">=2.15.1" },
-    { name = "sqlalchemy", specifier = ">=2.1.6" },
     { name = "sqlmodel", specifier = ">=0.0.48" },
 ]
 

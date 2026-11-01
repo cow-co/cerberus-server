@@ -12,7 +12,7 @@ class Beacon(BaseModel):
 
 
 class ImplantResponseDTO(BaseModel):
-    implant_id: uuid.UUID
+    implant_id: uuid.UUID | None
     hostname: str | None = None
     ip_addr: str | None = None
     major_ver: int
@@ -20,5 +20,5 @@ class ImplantResponseDTO(BaseModel):
     is_active: bool
 
 class BeaconResponseDTO(BaseModel):
-    implant_id: uuid.UUID
+    implant_id: uuid.UUID | None
     tasks: list[Task] = []
