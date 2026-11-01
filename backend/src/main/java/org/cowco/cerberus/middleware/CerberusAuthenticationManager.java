@@ -1,5 +1,6 @@
 package org.cowco.cerberus.middleware;
 
+import org.cowco.cerberus.config.InitialAdminLoader;
 import org.cowco.cerberus.entities.UserEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,10 +21,16 @@ public class CerberusAuthenticationManager implements AuthenticationManager {
     private CerberusUserDetailsService userDetailsService;
     @Autowired 
     private PasswordEncoder passwordEncoder;
+    @Autowired 
+    private InitialAdminLoader loader;
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
             logger.info("Authenticating with username %s".formatted(authentication.getName()));
+            if (userDetailsService.getCountOfUsers() == 0) {
+                logger.info("Loading Initial Admin into DB...");
+                loader.load();
+            }
             UserEntity userEntity = (UserEntity)userDetailsService.loadUserByUsername(authentication.getName());
             if (passwordEncoder.matches(authentication.getCredentials().toString(), userEntity.getPassword())) {
                 return authentication;
