@@ -26,5 +26,6 @@ build-backend = "uv_build"
 dev = [
     "bandit>=1.9.4",
     "pyrefly>=1.4.0",
+    "pytest>=9.2.0",
     "ruff>=0.17.3",
 ]
