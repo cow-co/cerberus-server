@@ -1,12 +1,10 @@
-package org.cowco.cerberus.services;
+package org.cowco.cerberus.middleware;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.cowco.cerberus.entities.UserEntity;
 import org.cowco.cerberus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -23,6 +21,6 @@ public class CerberusUserDetailsService implements UserDetailsService {
         if (maybeUser.isEmpty()) {
             throw new UsernameNotFoundException("Incorrect credentials!");
         }
-        return new User(maybeUser.get().getUsername(), maybeUser.get().getHashedPassword(), new ArrayList<>());
+        return maybeUser.get();
     }
 }
