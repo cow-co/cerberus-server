@@ -8,6 +8,10 @@ import org.cowco.cerberus.middleware.CerberusUserDetailsService;
 import org.cowco.cerberus.middleware.JwtManager;
 import org.cowco.cerberus.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatusCode;
@@ -31,11 +35,13 @@ public class AuthController {
     @Autowired 
     private CerberusUserDetailsService userDetailsService;
     @Autowired 
+    private UserRepository userRepository;
+    @Autowired 
     private CerberusAuthenticationManager authManager;
     @Autowired 
     private JwtManager jwtManager;
 
-    @PostMapping
+    @PostMapping(path = "/login")
     public LoginResponse login(@RequestBody AuthenticationRequest authRequest) {
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword()));
@@ -45,6 +51,23 @@ public class AuthController {
         } catch (DisabledException ex) {
             logger.warn("User is locked out!");
             throw new ResponseStatusException(HttpStatusCode.valueOf(401), "Locked Out!");
+        } catch (BadCredentialsException | UsernameNotFoundException ex) {
+            logger.warn("Could not authenticate user!");
+            throw new ResponseStatusException(HttpStatusCode.valueOf(401), "Incorrect Credentials!");
+        }
+    }
+
+    @PostMapping(path = "/logout")
+    public void logout() {
+        try {
+            if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                throw new BadCredentialsException("Could not authenticate!");
+            }
+            final UserEntity userEntity = (UserEntity)userDetailsService.loadUserByUsername(
+                SecurityContextHolder.getContext().getAuthentication().getName()
+            );
+            userEntity.setLogoutTimestamp(Timestamp.from(Instant.now()));
+            userRepository.save(userEntity);
         } catch (BadCredentialsException | UsernameNotFoundException ex) {
             logger.warn("Could not authenticate user!");
             throw new ResponseStatusException(HttpStatusCode.valueOf(401), "Incorrect Credentials!");

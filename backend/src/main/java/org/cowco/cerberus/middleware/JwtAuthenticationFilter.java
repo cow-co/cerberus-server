@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,14 +41,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
             try {
                 logger.info("Validating JWT");
-                String userIdString = jwtManager.verifyJWT(token);
+                DecodedJWT jwtContent = jwtManager.verifyJWT(token);
+                String userIdString = jwtContent.getSubject();
                 UserEntity user = (UserEntity)userDetailsService.loadUserById(userIdString);
+                if (user.getLogoutTimestamp() != null && user.getLogoutTimestamp().compareTo(jwtContent.getIssuedAt()) > 0) {
+                    logger.warn("Reusing a token from before logout!");
+                    res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Incorrect Credentials!");
+                }
                 UsernamePasswordAuthenticationToken internalToken = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                 internalToken.setDetails(new WebAuthenticationDetails(req));
                 SecurityContextHolder.getContext().setAuthentication(internalToken);
             } catch (JWTVerificationException ex) {
                 logger.warn("Failed to validate JWT!");
-                throw new IOException();
+                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Incorrect Credentials!");
             }
         }
         filterChain.doFilter(req, res);

@@ -42,9 +42,9 @@ public class JwtManager {
     /**
      * Verifies and decodes the JWT
      * @param jwt
-     * @return The JWT subject (user ID, in string form)
+     * @return The JWT content
      */
-    public String verifyJWT(String jwt) throws JWTVerificationException {
+    public DecodedJWT verifyJWT(String jwt) throws JWTVerificationException {
         if (alg == null) {
             alg = Algorithm.HMAC256(jwtSecret);
         }
@@ -52,6 +52,6 @@ public class JwtManager {
             verifier = JWT.require(alg).withIssuer(ISSUER).build();
         }
         DecodedJWT decoded = verifier.verify(jwt);
-        return decoded.getSubject();
+        return decoded;
     }
 }
