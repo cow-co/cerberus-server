@@ -1,4 +1,4 @@
-from cerberus_backend.model.implant import Implant
+from cerberus_backend.model.db.implant import Implant
 
 
 def main() -> None:
