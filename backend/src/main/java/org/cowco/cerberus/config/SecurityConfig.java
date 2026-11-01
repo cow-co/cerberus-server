@@ -42,6 +42,7 @@ public class SecurityConfig {
 
     @Bean 
     public SecurityFilterChain defaultSec(HttpSecurity http) throws Exception {
+        // TODO Require admin permissions for create/delete/modify user
         http
             .securityMatcher(
                 "/implants", 
@@ -49,7 +50,9 @@ public class SecurityConfig {
                 "/task-types",
                 "/task-types/**",
                 "/tasks",
-                "/tasks/**"
+                "/tasks/**",
+                "/users",
+                "/users/**"
             )
             .authorizeHttpRequests((auth) -> auth
                 .anyRequest()
