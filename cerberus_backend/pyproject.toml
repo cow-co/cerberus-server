@@ -24,6 +24,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "bandit>=1.9.4",
+    "cyclonedx-bom>=7.6.0",
     "pyrefly>=1.4.0",
     "pytest>=9.2.0",
     "ruff>=0.17.3",

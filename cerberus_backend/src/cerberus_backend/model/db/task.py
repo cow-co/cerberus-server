@@ -1,6 +1,7 @@
 import uuid
 
-from sqlmodel import Field, SQLModel, select, Session
+from sqlmodel import Field, Session, SQLModel, select
+
 from cerberus_backend.model.common.enums import ParamType
 from cerberus_backend.model.db.db_setup import engine
 

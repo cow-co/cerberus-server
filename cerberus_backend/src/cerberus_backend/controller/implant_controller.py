@@ -1,10 +1,10 @@
 import uuid
 
 from cerberus_backend.model.db.implant import (
+    Implant,
+    create_db_implant,
     get_all_db_implants,
     get_db_implant_by_id,
-    create_db_implant,
-    Implant,
 )
 from cerberus_backend.model.http.implant import (
     Beacon,

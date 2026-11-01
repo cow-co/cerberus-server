@@ -1,7 +1,8 @@
 import uuid
 
-from cerberus_backend.model.http.task import Task
 from pydantic import BaseModel
+
+from cerberus_backend.model.http.task import Task
 
 
 class Beacon(BaseModel):
