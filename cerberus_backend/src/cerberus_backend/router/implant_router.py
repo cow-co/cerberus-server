@@ -13,7 +13,7 @@ from cerberus_backend.utils.exceptions import NotFoundException
 router = APIRouter()
 
 
-@router.get()
+@router.get("")
 def get_implants() -> list[ImplantResponseDTO]:
     return implant_controller.get_all_implants()
 

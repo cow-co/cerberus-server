@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel
 
-from cerberus_backend.model.http.task import Task
+from cerberus_backend.model.http.task import TaskDTO
 
 
 class Beacon(BaseModel):
@@ -24,4 +24,4 @@ class ImplantResponseDTO(BaseModel):
 
 class BeaconResponseDTO(BaseModel):
     implant_id: uuid.UUID | None
-    tasks: list[Task] = []
+    tasks: list[TaskDTO] = []
