@@ -22,7 +22,7 @@ from cerberus_backend.model.http.task import (
 
 
 def create_task_type(task_type: TaskTypeDTO) -> TaskTypeDTO:
-    created = create_db_task_type(
+    tt = create_db_task_type(
         TaskType(
             name=task_type.name,
             params=[
@@ -35,53 +35,43 @@ def create_task_type(task_type: TaskTypeDTO) -> TaskTypeDTO:
         )
     )
     return TaskTypeDTO(
-        task_type_id=cast(uuid.UUID, created.id),
-        name=created.name,
-        params=[
-            TaskParamDTO(
-                param_id=p.id,
-                name=p.name,
-                param_type=p.param_type,
-            )
-            for p in created.params
-        ],
+        id=tt.id,
+        name=tt.name,
+        params=[TaskParamDTO(
+            param_id=p.id,
+            name=p.name,
+            param_type=p.param_type,
+        ) for p in tt.params]
     )
 
 
 def get_all_task_types() -> list[TaskTypeDTO]:
     response = []
     for tt in get_all_db_task_types():
-        response.append(
-            TaskTypeDTO(
-                task_type_id=cast(uuid.UUID, tt.id),
-                name=tt.name,
-                params=[
-                    TaskParamDTO(
-                        param_id=p.id,
-                        name=p.name,
-                        param_type=p.param_type,
-                    )
-                    for p in tt.params
-                ],
-            )
-        )
+        print(tt)
+        response.append(TaskTypeDTO(
+            id=tt.id,
+            name=tt.name,
+            params=[TaskParamDTO(
+                param_id=p.id,
+                name=p.name,
+                param_type=p.param_type,
+            ) for p in tt.params]
+        ))
     return response
 
 
-def get_task_type(tt_id: uuid.UUID) -> TaskTypeDTO | None:
+def get_task_type(tt_id: uuid.UUID) -> TaskType | None:
     tt = get_db_task_type_by_id(tt_id)
     if tt:
         return TaskTypeDTO(
-            task_type_id=cast(uuid.UUID, tt.id),
+            id=tt.id,
             name=tt.name,
-            params=[
-                TaskParamDTO(
-                    param_id=p.id,
-                    name=p.name,
-                    param_type=p.param_type,
-                )
-                for p in tt.params
-            ],
+            params=[TaskParamDTO(
+                param_id=p.id,
+                name=p.name,
+                param_type=p.param_type,
+            ) for p in tt.params]
         )
     return None
 

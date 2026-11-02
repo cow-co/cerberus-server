@@ -13,8 +13,10 @@ class TaskParamDTO(BaseModel):
     param_type: ParamType
 
 
-class TaskTypeRequestDTO(BaseModel):
-    tt_id: uuid.UUID | None = None
+class TaskTypeDTO(BaseModel):
+    id: uuid.UUID | None = (
+        None  # We want the ID in responses/update requests so that the user can update params
+    )
     name: str
     params: list[TaskParamDTO] = []
 

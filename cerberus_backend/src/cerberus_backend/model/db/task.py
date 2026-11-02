@@ -1,33 +1,41 @@
 import uuid
 
-from sqlmodel import Field, Session, SQLModel, select
+from sqlmodel import Field, Relationship, Session, SQLModel, select
 
 from cerberus_backend.model.common.enums import ParamType
 from cerberus_backend.model.db.db_setup import engine
+
+
+class TaskType(SQLModel, table=True):
+    id: uuid.UUID | None = Field(default=None, primary_key=True)
+    name: str = Field(index=True)
+
+    params: list["TaskParam"] = Relationship(back_populates="tasktype")
 
 
 class TaskParam(SQLModel, table=True):
     id: uuid.UUID | None = Field(default=None, primary_key=True)
     name: str
     param_type: ParamType
-
-
-class TaskType(SQLModel, table=True):
-    id: uuid.UUID | None = Field(default=None, primary_key=True)
-    name: str
-    params: list[TaskParam] = []
-
-
-class TaskArg(SQLModel, table=True):
-    id: uuid.UUID | None = Field(default=None, primary_key=True)
-    spec: TaskParam
-    value: str | int | bool
+    tasktype_id: uuid.UUID = Field(foreign_key="tasktype.id")
+    tasktype: TaskType = Relationship(back_populates="params")
 
 
 class Task(SQLModel, table=True):
     id: uuid.UUID | None = Field(default=None, primary_key=True)
     name: str
-    task_args: list[TaskArg] = []
+
+    args: list["TaskArg"] = Relationship(back_populates="task")
+
+
+class TaskArg(SQLModel, table=True):
+    id: uuid.UUID | None = Field(default=None, primary_key=True)
+    param_id: uuid.UUID | None = Field(default=None, foreign_key="taskparam.id")
+    value_str: str | None = None
+    value_int: int | None = None
+    value_bool: bool | None = None
+    task_id: uuid.UUID | None = Field(default=None, foreign_key="task.id")
+    task: Task = Relationship(back_populates="args")
 
 
 def get_all_db_task_types() -> list[TaskType]:
@@ -45,9 +53,7 @@ def get_db_task_type_by_id(imp_id: uuid.UUID) -> TaskType | None:
     with Session(engine) as sesh:
         statement = select(TaskType).where(TaskType.id == imp_id)
         results = sesh.exec(statement)
-        res = results.all()
-        if len(res) > 0:
-            tt = res[0]
+        tt = results.first()
     return tt
 
 
@@ -74,9 +80,7 @@ def get_db_task_by_id(task_id: uuid.UUID) -> Task | None:
     with Session(engine) as sesh:
         statement = select(Task).where(Task.id == task_id)
         results = sesh.exec(statement)
-        res = results.all()
-        if len(res) > 0:
-            task = res[0]
+        task = results.first()
     return task
 
 

@@ -13,6 +13,7 @@ class NotFoundException(Exception):
     def __str__(self) -> str:
         return self.msg
 
+
 def not_found_exception_handler(request: Request, ex: NotFoundException):
     return JSONResponse(
         status_code=404,

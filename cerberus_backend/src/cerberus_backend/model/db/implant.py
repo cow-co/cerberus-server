@@ -29,9 +29,7 @@ def get_db_implant_by_id(imp_id: uuid.UUID) -> Implant | None:
     with Session(engine) as sesh:
         statement = select(Implant).where(Implant.id == imp_id)
         results = sesh.exec(statement)
-        res = results.all()
-        if len(res) > 0:
-            imp = res[0]
+        imp = results.first()
     return imp
 
 
