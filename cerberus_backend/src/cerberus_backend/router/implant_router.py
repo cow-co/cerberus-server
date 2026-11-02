@@ -22,7 +22,7 @@ def get_implants() -> list[ImplantResponseDTO]:
 def get_implant(implant_id: uuid.UUID) -> ImplantResponseDTO:
     imp = implant_controller.get_implant(implant_id)
     if not imp:
-        raise NotFoundException(f"Could not find implant with ID {implant_id}!")
+        raise NotFoundException(msg=f"Could not find implant with ID {implant_id}!")
     return imp
 
 
