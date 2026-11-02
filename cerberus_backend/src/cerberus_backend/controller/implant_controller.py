@@ -18,7 +18,7 @@ def handle_beacon(beacon: Beacon) -> BeaconResponseDTO:
     if beacon.implant_id:
         imp = get_db_implant_by_id(beacon.implant_id)
         if not imp:
-            raise NotFoundException()
+            raise NotFoundException(msg="Implant could not be found for beacon!")
         imp.hostname = beacon.hostname if beacon.hostname else imp.hostname
         imp.ip_addr = beacon.ip_addr if beacon.ip_addr else imp.ip_addr
         imp.major_ver = beacon.major_ver if beacon.major_ver else imp.major_ver

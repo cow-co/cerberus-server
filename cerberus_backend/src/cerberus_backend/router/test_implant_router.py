@@ -3,7 +3,8 @@ import uuid
 from fastapi.testclient import TestClient
 
 from cerberus_backend.main import app
-from cerberus_backend.model.http.implant import ImplantResponseDTO
+from cerberus_backend.model.http.implant import ImplantResponseDTO, BeaconResponseDTO
+from cerberus_backend.model.db.implant import Implant
 
 client = TestClient(app)
 
@@ -54,3 +55,53 @@ def test_implant_with_content(mocker):
     assert imp["is_active"] == True
     assert imp["major_ver"] == 1
     assert imp["minor_ver"] == 2
+
+def test_failed_beacons(mocker):
+    res = client.post("/implants/beacon", json={
+        "major_ver": 1,
+    })
+    assert res.status_code == 422
+    res = client.post("/implants/beacon", json={
+        "minor_ver": 1,
+    })
+    assert res.status_code == 422
+
+    mocker.patch("cerberus_backend.controller.implant_controller.get_db_implant_by_id").return_value = None
+    res = client.post("/implants/beacon", json={
+        "implant_id": uuid.uuid4().hex,
+        "major_ver": 1,
+        "minor_ver": 1,
+    })
+    assert res.status_code == 404
+
+def test_beacons(mocker):
+    mocker.patch("cerberus_backend.controller.implant_controller.create_db_implant").return_value = Implant(
+        id=uuid.uuid4(),
+        hostname="test",
+        ip_addr="127.0.0.1",
+        major_ver=1,
+        minor_ver=2,
+        is_active=True,
+    )
+    res = client.post("/implants/beacon", json={
+        "minor_ver": 2,
+        "major_ver": 1,
+    })
+    assert res.status_code == 200
+
+    mocker.patch("cerberus_backend.controller.implant_controller.get_db_implant_by_id").return_value = Implant(
+        id=uuid.uuid4(),
+        hostname="test",
+        ip_addr="127.0.0.1",
+        major_ver=1,
+        minor_ver=2,
+        is_active=True,
+    )
+    res = client.post("/implants/beacon", json={
+        "implant_id": uuid.uuid4().hex,
+        "hostname": "test",
+        "ip_addr": "127.0.0.1",
+        "minor_ver": 2,
+        "major_ver": 1,
+    })
+    assert res.status_code == 200
