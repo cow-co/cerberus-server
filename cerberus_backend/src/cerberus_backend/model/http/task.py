@@ -26,7 +26,7 @@ class TaskArgDTO(BaseModel):
         None  # We want the ID in responses/update requests so that the user can update args
     )
     spec: TaskParamDTO
-    value: str | int | bool
+    value: str | int | bool | None = None
 
 
 class TaskDTO(BaseModel):

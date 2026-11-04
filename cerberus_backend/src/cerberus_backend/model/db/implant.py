@@ -6,7 +6,7 @@ from cerberus_backend.model.db.db_setup import engine
 
 
 class Implant(SQLModel, table=True):
-    id: uuid.UUID | None = Field(default=None, primary_key=True)
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hostname: str | None = None
     ip_addr: str | None = None
     major_ver: int
@@ -14,7 +14,7 @@ class Implant(SQLModel, table=True):
     is_active: bool
 
 
-def get_all_db_implants() -> list[Implant]:
+def get_all_db_implants() -> list[Implant]: # TODO Return DTOs
     imps = []
     with Session(engine) as sesh:
         statement = select(Implant)
@@ -24,7 +24,7 @@ def get_all_db_implants() -> list[Implant]:
     return imps
 
 
-def get_db_implant_by_id(imp_id: uuid.UUID) -> Implant | None:
+def get_db_implant_by_id(imp_id: uuid.UUID) -> Implant | None: # TODO Return DTOs
     imp = None
     with Session(engine) as sesh:
         statement = select(Implant).where(Implant.id == imp_id)
@@ -33,7 +33,7 @@ def get_db_implant_by_id(imp_id: uuid.UUID) -> Implant | None:
     return imp
 
 
-def create_db_implant(imp: Implant) -> Implant:
+def create_db_implant(imp: Implant) -> Implant: # TODO Take and Return DTOs
     with Session(engine) as sesh:
         sesh.add(imp)
         sesh.commit()
