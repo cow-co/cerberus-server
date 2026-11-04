@@ -3,11 +3,9 @@ import uuid
 from fastapi import APIRouter
 
 from cerberus_backend.controller import task_controller
-from cerberus_backend.model.db.task import TaskType, TaskParam
+from cerberus_backend.model.db.task import TaskType
 from cerberus_backend.model.http.task import (
-    TaskArgDTO,
     TaskDTO,
-    TaskParamDTO,
     TaskTypeDTO,
 )
 from cerberus_backend.utils.exceptions import NotFoundException
@@ -30,7 +28,7 @@ def get_task_type(tt_id: uuid.UUID) -> TaskType:
 
 @router.post("/task-types")
 def create_task_type(task_type: TaskTypeDTO) -> TaskTypeDTO:
-    return task_controller.create_task_type(task_type) 
+    return task_controller.create_task_type(task_type)
 
 
 @router.get("/tasks")

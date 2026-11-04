@@ -44,9 +44,9 @@ class TaskArgRequestDTO(TaskArgBase):
     pass
 
 
-# TODO Associate with implant
 class TaskBase(BaseModel):
     name: str
+    implant_id: uuid.UUID
     task_args: list[TaskArgBase] = []
 
 

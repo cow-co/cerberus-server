@@ -4,14 +4,23 @@ from sqlmodel import Field, Relationship, Session, SQLModel, select
 
 from cerberus_backend.model.common.enums import ParamType
 from cerberus_backend.model.db.db_setup import engine
-from cerberus_backend.model.http.task import TaskTypeResponseDTO, TaskTypeRequestDTO, TaskRequestDTO, TaskResponseDTO, TaskParamResponseDTO, TaskArgResponseDTO
+from cerberus_backend.model.http.task import (
+    TaskArgResponseDTO,
+    TaskParamResponseDTO,
+    TaskRequestDTO,
+    TaskResponseDTO,
+    TaskTypeRequestDTO,
+    TaskTypeResponseDTO,
+)
+
+# TODO DAOs should probably have "to_response" and "from_request" methods
 
 
 class TaskType(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(index=True)
 
-    params: list["TaskParam"] = Relationship(back_populates="tasktype")
+    params: list[TaskParam] = Relationship(back_populates="tasktype")
 
 
 class TaskParam(SQLModel, table=True):
@@ -22,12 +31,11 @@ class TaskParam(SQLModel, table=True):
     tasktype: TaskType = Relationship(back_populates="params")
 
 
-# TODO Associate with Implant
 class Task(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
-
-    args: list["TaskArg"] = Relationship(back_populates="task")
+    implant_id: uuid.UUID = Field(foreign_key="implant.id")
+    args: list[TaskArg] = Relationship(back_populates="task")
 
 
 class TaskArg(SQLModel, table=True):
@@ -47,15 +55,20 @@ def get_all_db_task_types() -> list[TaskTypeResponseDTO]:
         statement = select(TaskType)
         results = sesh.exec(statement)
         for res in results:
-            tts.append(TaskTypeResponseDTO(
-                id=res.id,
-                name=res.name,
-                params=[TaskParamResponseDTO(
-                    id=p.id,
-                    name=p.name,
-                    param_type=p.param_type,
-                ) for p in res.params]
-            ))
+            tts.append(
+                TaskTypeResponseDTO(
+                    id=res.id,
+                    name=res.name,
+                    params=[
+                        TaskParamResponseDTO(
+                            id=p.id,
+                            name=p.name,
+                            param_type=p.param_type,
+                        )
+                        for p in res.params
+                    ],
+                )
+            )
     return tts
 
 
@@ -68,11 +81,14 @@ def get_db_task_type_by_id(tt_id: uuid.UUID) -> TaskTypeResponseDTO | None:
         tt = TaskTypeResponseDTO(
             id=res.id,
             name=res.name,
-            params=[TaskParamResponseDTO(
-                id=p.id,
-                name=p.name,
-                param_type=p.param_type,
-            ) for p in res.params]
+            params=[
+                TaskParamResponseDTO(
+                    id=p.id,
+                    name=p.name,
+                    param_type=p.param_type,
+                )
+                for p in res.params
+            ],
         )
     return tt
 
@@ -97,11 +113,14 @@ def create_db_task_type(tt: TaskTypeRequestDTO) -> TaskTypeResponseDTO:
         res = TaskTypeResponseDTO(
             id=res.id,
             name=res.name,
-            params=[TaskParamResponseDTO(
-                id=p.id,
-                name=p.name,
-                param_type=p.param_type,
-            ) for p in res.params]
+            params=[
+                TaskParamResponseDTO(
+                    id=p.id,
+                    name=p.name,
+                    param_type=p.param_type,
+                )
+                for p in res.params
+            ],
         )
     return res
 
@@ -112,19 +131,27 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
         statement = select(Task)
         results = sesh.exec(statement)
         for res in results:
-            tasks.append(TaskResponseDTO(
-                id=res.id,
-                name=res.name,
-                args=[TaskArgResponseDTO(
-                    id=a.id,
-                    spec=TaskParamResponseDTO(
-                        id=a.spec.id,
-                        name=a.spec.name,
-                        param_type=a.spec.param_type,
-                    ),
-                    value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool)
-                ) for a in res.args]
-            ))
+            tasks.append(
+                TaskResponseDTO(
+                    id=res.id,
+                    name=res.name,
+                    implant_id=res.implant_id,
+                    args=[
+                        TaskArgResponseDTO(
+                            id=a.id,
+                            spec=TaskParamResponseDTO(
+                                id=a.spec.id,
+                                name=a.spec.name,
+                                param_type=a.spec.param_type,
+                            ),
+                            value=a.value_str
+                            if a.value_str
+                            else (a.value_int if a.value_int else a.value_bool),
+                        )
+                        for a in res.args
+                    ],
+                )
+            )
     return tasks
 
 
@@ -137,15 +164,21 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
         task = TaskResponseDTO(
             id=res.id,
             name=res.name,
-            args=[TaskArgResponseDTO(
-                id=a.id,
-                spec=TaskParamResponseDTO(
-                    id=a.spec.id,
-                    name=a.spec.name,
-                    param_type=a.spec.param_type,
-                ),
-                value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
-            ) for a in res.args]
+            implant_id=res.implant_id,
+            args=[
+                TaskArgResponseDTO(
+                    id=a.id,
+                    spec=TaskParamResponseDTO(
+                        id=a.spec.id,
+                        name=a.spec.name,
+                        param_type=a.spec.param_type,
+                    ),
+                    value=a.value_str
+                    if a.value_str
+                    else (a.value_int if a.value_int else a.value_bool),
+                )
+                for a in res.args
+            ],
         )
     return task
 
@@ -158,14 +191,20 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
         created = TaskResponseDTO(
             id=task.id,
             name=task.name,
-            task_args=[TaskArgResponseDTO(
-                id=a.id,
-                spec=TaskParamResponseDTO(
-                    id=a.spec.id,
-                    name=a.spec.name,
-                    param_type=a.spec.param_type,
-                ),
-                value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
-            ) for a in task.args]
+            implant_id=task.implant_id,
+            task_args=[
+                TaskArgResponseDTO(
+                    id=a.id,
+                    spec=TaskParamResponseDTO(
+                        id=a.spec.id,
+                        name=a.spec.name,
+                        param_type=a.spec.param_type,
+                    ),
+                    value=a.value_str
+                    if a.value_str
+                    else (a.value_int if a.value_int else a.value_bool),
+                )
+                for a in task.args
+            ],
         )
     return created
