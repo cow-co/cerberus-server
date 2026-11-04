@@ -18,14 +18,14 @@ from cerberus_backend.model.http.task import (
 
 class TaskType(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(index=True)
+    name: str = Field(index=True)   # TODO Make this unique
 
     params: list[TaskParam] = Relationship(back_populates="tasktype")
 
 
 class TaskParam(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str
+    name: str   # TODO Make the (name, tasktype_id) combination unique
     param_type: ParamType
     tasktype_id: uuid.UUID = Field(foreign_key="tasktype.id")
     tasktype: TaskType = Relationship(back_populates="params")
