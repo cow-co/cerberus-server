@@ -5,31 +5,54 @@ from pydantic import BaseModel
 from cerberus_backend.model.common.enums import ParamType
 
 
-class TaskParamDTO(BaseModel):
-    param_id: uuid.UUID | None = (
-        None  # We want the ID in responses/update requests so that the user can update params
-    )
+class TaskParamBase(BaseModel):
     name: str
     param_type: ParamType
 
 
-class TaskTypeDTO(BaseModel):
-    id: uuid.UUID | None = (
-        None  # We want the ID in responses/update requests so that the user can update params
-    )
+class TaskParamRequestDTO(TaskParamBase):
+    pass
+
+
+class TaskParamResponseDTO(TaskParamBase):
+    id: uuid.UUID
+
+
+class TaskTypeBase(BaseModel):
     name: str
-    params: list[TaskParamDTO] = []
+    params: list[TaskParamBase] = []
 
 
-class TaskArgDTO(BaseModel):
-    arg_id: uuid.UUID | None = (
-        None  # We want the ID in responses/update requests so that the user can update args
-    )
-    spec: TaskParamDTO
+class TaskTypeRequestDTO(TaskTypeBase):
+    pass
+
+
+class TaskTypeResponseDTO(TaskTypeBase):
+    id: uuid.UUID
+
+
+class TaskArgBase(BaseModel):
+    spec: TaskParamBase
     value: str | int | bool | None = None
 
 
-class TaskDTO(BaseModel):
-    task_id: uuid.UUID | None = None
+class TaskArgResponseDTO(TaskArgBase):
+    id: uuid.UUID
+
+
+class TaskArgRequestDTO(TaskArgBase):
+    pass
+
+
+# TODO Associate with implant
+class TaskBase(BaseModel):
     name: str
-    task_args: list[TaskArgDTO] = []
+    task_args: list[TaskArgBase] = []
+
+
+class TaskResponseDTO(TaskBase):
+    id: uuid.UUID
+
+
+class TaskRequestDTO(TaskBase):
+    pass
