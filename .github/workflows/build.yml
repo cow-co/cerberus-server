@@ -33,8 +33,6 @@ jobs:
       run: uv sync --no-build --locked --no-cache --all-extras --exclude-newer "1 week" --dev
     - name: Run tests
       run: uv run --no-build --locked --no-cache --all-extras --exclude-newer "1 week" pytest
-    - name: OSV Scan
-      uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36
     - name: Set up Docker Buildx
       if: github.ref_type == 'tag'
       uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
