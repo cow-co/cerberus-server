@@ -13,7 +13,7 @@ app.add_exception_handler(NotFoundException, not_found_exception_handler)
 app.include_router(implant_router.router, prefix="/implants", tags=["implants"])
 app.include_router(task_router.router, tags=["tasks"])
 
-
+# XXX Use Lifespans instead
 @app.on_event("startup")
 def on_startup():
     setup_db()

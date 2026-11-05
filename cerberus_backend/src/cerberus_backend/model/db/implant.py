@@ -50,14 +50,15 @@ def get_db_implant_by_id(imp_id: uuid.UUID) -> ImplantResponseDTO | None:
         statement = select(Implant).where(Implant.id == imp_id)
         results = sesh.exec(statement)
         res = results.first()
-        imp = ImplantResponseDTO(
-            implant_id=res.id,
-            hostname=res.hostname,
-            ip_addr=res.ip_addr,
-            major_ver=res.major_ver,
-            minor_ver=res.minor_ver,
-            is_active=res.is_active,
-        )
+        if res:
+            imp = ImplantResponseDTO(
+                implant_id=res.id,
+                hostname=res.hostname,
+                ip_addr=res.ip_addr,
+                major_ver=res.major_ver,
+                minor_ver=res.minor_ver,
+                is_active=res.is_active,
+            )
     return imp
 
 
