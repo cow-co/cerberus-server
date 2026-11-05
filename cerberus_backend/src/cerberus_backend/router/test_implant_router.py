@@ -9,7 +9,10 @@ from cerberus_backend.model.http.implant import ImplantResponseDTO
 client = TestClient(app)
 
 
-def test_empty_implant_list():
+def test_empty_implant_list(mocker):
+    mocker.patch(
+        "cerberus_backend.controller.implant_controller.get_all_implants"
+    ).return_value = []
     res = client.get("/implants")
     assert res.status_code == 200
     assert len(res.json()) == 0
@@ -39,7 +42,10 @@ def test_implant_list_with_content(mocker):
     assert imps[0]["minor_ver"] == 2
 
 
-def test_not_found_implant():
+def test_not_found_implant(mocker):
+    mocker.patch(
+        "cerberus_backend.controller.implant_controller.get_implant"
+    ).return_value = None
     res = client.get(f"/implants/{uuid.uuid4()}")
     assert res.status_code == 404
 
