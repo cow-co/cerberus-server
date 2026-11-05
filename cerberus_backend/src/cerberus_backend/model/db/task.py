@@ -54,21 +54,18 @@ def get_all_db_task_types() -> list[TaskTypeResponseDTO]:
     with Session(engine) as sesh:
         statement = select(TaskType)
         results = sesh.exec(statement)
-        for res in results:
-            tts.append(
-                TaskTypeResponseDTO(
-                    id=res.id,
-                    name=res.name,
-                    params=[
-                        TaskParamResponseDTO(
-                            id=p.id,
-                            name=p.name,
-                            param_type=p.param_type,
-                        )
-                        for p in res.params
-                    ],
+        tts = [TaskTypeResponseDTO(
+            id=res.id,
+            name=res.name,
+            params=[
+                TaskParamResponseDTO(
+                    id=p.id,
+                    name=p.name,
+                    param_type=p.param_type,
                 )
-            )
+                for p in res.params
+            ],
+        ) for res in results]
     return tts
 
 
@@ -97,7 +94,6 @@ def get_db_task_type_by_id(tt_id: uuid.UUID) -> TaskTypeResponseDTO | None:
 def create_db_task_type(tt: TaskTypeRequestDTO) -> TaskTypeResponseDTO:
     res = None
     with Session(engine) as sesh:
-        print(tt.params)
         to_create = TaskType(
             name=tt.name,
             params=[
@@ -112,15 +108,15 @@ def create_db_task_type(tt: TaskTypeRequestDTO) -> TaskTypeResponseDTO:
         sesh.commit()
         sesh.refresh(to_create)
         res = TaskTypeResponseDTO(
-            id=res.id,
-            name=res.name,
+            id=to_create.id,
+            name=to_create.name,
             params=[
                 TaskParamResponseDTO(
                     id=p.id,
                     name=p.name,
                     param_type=p.param_type,
                 )
-                for p in res.params
+                for p in to_create.params
             ],
         )
     return res
@@ -131,28 +127,25 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
     with Session(engine) as sesh:
         statement = select(Task)
         results = sesh.exec(statement)
-        for res in results:
-            tasks.append(
-                TaskResponseDTO(
-                    id=res.id,
-                    name=res.name,
-                    implant_id=res.implant_id,
-                    args=[
-                        TaskArgResponseDTO(
-                            id=a.id,
-                            spec=TaskParamResponseDTO(
-                                id=a.spec.id,
-                                name=a.spec.name,
-                                param_type=a.spec.param_type,
-                            ),
-                            value=a.value_str
-                            if a.value_str
-                            else (a.value_int if a.value_int else a.value_bool),
-                        )
-                        for a in res.args
-                    ],
+        tasks = [TaskResponseDTO(
+            id=res.id,
+            name=res.name,
+            implant_id=res.implant_id,
+            task_args=[
+                TaskArgResponseDTO(
+                    id=a.id,
+                    spec=TaskParamResponseDTO(
+                        id=a.spec.id,
+                        name=a.spec.name,
+                        param_type=a.spec.param_type,
+                    ),
+                    value=a.value_str
+                    if a.value_str
+                    else (a.value_int if a.value_int else a.value_bool),
                 )
-            )
+                for a in res.args
+            ],
+        ) for res in results]
     return tasks
 
 
@@ -167,7 +160,7 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
                 id=res.id,
                 name=res.name,
                 implant_id=res.implant_id,
-                args=[
+                task_args=[
                     TaskArgResponseDTO(
                         id=a.id,
                         spec=TaskParamResponseDTO(
@@ -188,12 +181,27 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
 def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
     created = None
     with Session(engine) as sesh:
-        sesh.add(task)
-        sesh.commit()
-        created = TaskResponseDTO(
-            id=task.id,
+        to_create = Task(
             name=task.name,
             implant_id=task.implant_id,
+            args=[TaskArg(
+                spec=TaskParam(
+                    id=a.spec.id,
+                    name=a.spec.name,
+                    param_type=a.spec.param_type,
+                ),
+                value_str=a.value if a.spec.param_type == ParamType.STRING else None,
+                value_int=a.value if a.spec.param_type == ParamType.INTEGER else None,
+                value_bool=a.value if a.spec.param_type == ParamType.BOOLEAN else None,
+            ) for a in task.task_args],
+        )
+        sesh.add(to_create)
+        sesh.commit()
+        sesh.refresh(to_create)
+        created = TaskResponseDTO(
+            id=to_create.id,
+            name=to_create.name,
+            implant_id=to_create.implant_id,
             task_args=[
                 TaskArgResponseDTO(
                     id=a.id,
@@ -206,7 +214,7 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
                     if a.value_str
                     else (a.value_int if a.value_int else a.value_bool),
                 )
-                for a in task.args
+                for a in to_create.args
             ],
         )
     return created
