@@ -18,6 +18,11 @@ permissions:
 
 jobs:
   scan-pr:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./cerberus_backend
     uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36"
     with:
       scan-args: |-
