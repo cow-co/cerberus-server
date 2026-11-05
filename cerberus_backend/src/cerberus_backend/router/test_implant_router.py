@@ -87,7 +87,7 @@ def test_failed_beacons(mocker):
     res = client.post(
         "/implants/beacon",
         json={
-            "implant_id": uuid.uuid4().hex,
+            "implant_id": str(uuid.uuid4()),
             "major_ver": 1,
             "minor_ver": 1,
         },
@@ -128,7 +128,7 @@ def test_beacons(mocker):
     res = client.post(
         "/implants/beacon",
         json={
-            "implant_id": uuid.uuid4().hex,
+            "implant_id": str(uuid.uuid4()),
             "hostname": "test",
             "ip_addr": "127.0.0.1",
             "minor_ver": 2,

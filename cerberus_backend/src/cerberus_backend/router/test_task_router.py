@@ -99,4 +99,24 @@ def test_task_type_with_content(mocker):
     assert tt["name"] == "test"
     assert len(tt["params"]) == 1
 
-# TODO Creation-tests
+def test_create_task_type(mocker):
+    res_id = uuid.uuid4()
+    mocker.patch(
+        "cerberus_backend.controller.task_controller.create_task_type"
+    ).return_value = TaskType(
+        id=res_id,
+        name="test",
+        params=[],
+    )
+    res = client.post("/task-types", json={
+        "name": "test",
+        "params": []
+    })
+    assert res.status_code == 200
+    assert res.json()["id"] == str(res_id)
+
+def test_create_task_type_bad_content(mocker):
+    res = client.post("/task-types", json={
+        "params": []
+    })
+    assert res.status_code == 422
