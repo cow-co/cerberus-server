@@ -10,17 +10,16 @@ from cerberus_backend.utils.exceptions import (
     not_found_exception_handler,
 )
 
-app = FastAPI()
-app.add_exception_handler(NotFoundException, not_found_exception_handler)
-app.include_router(implant_router.router, prefix="/implants", tags=["implants"])
-app.include_router(task_router.router, tags=["tasks"])
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load the ML model
     setup_db()
     yield
+
+app = FastAPI(lifespan=lifespan)
+app.add_exception_handler(NotFoundException, not_found_exception_handler)
+app.include_router(implant_router.router, prefix="/implants", tags=["implants"])
+app.include_router(task_router.router, tags=["tasks"])
 
 
 if __name__ == "__main__":

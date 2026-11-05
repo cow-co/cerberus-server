@@ -30,17 +30,14 @@ def get_all_db_implants() -> list[ImplantResponseDTO]:
     with Session(engine) as sesh:
         statement = select(Implant)
         results = sesh.exec(statement)
-        for res in results:
-            imps.append(
-                ImplantResponseDTO(
-                    implant_id=res.id,
-                    hostname=res.hostname,
-                    ip_addr=res.ip_addr,
-                    major_ver=res.major_ver,
-                    minor_ver=res.minor_ver,
-                    is_active=res.is_active,
-                )
-            )
+        imps = [ImplantResponseDTO(
+            implant_id=res.id,
+            hostname=res.hostname,
+            ip_addr=res.ip_addr,
+            major_ver=res.major_ver,
+            minor_ver=res.minor_ver,
+            is_active=res.is_active,
+        ) for res in results]
     return imps
 
 
@@ -65,18 +62,28 @@ def get_db_implant_by_id(imp_id: uuid.UUID) -> ImplantResponseDTO | None:
 def create_db_implant(beacon: Beacon) -> BeaconResponseDTO:
     res = None
     with Session(engine) as sesh:
-        imp = Implant(
-            id=beacon.implant_id,
-            hostname=beacon.hostname,
-            ip_addr=beacon.ip_addr,
-            major_ver=beacon.major_ver,
-            minor_ver=beacon.minor_ver,
-            is_active=True,
-        )
+        statement = select(Implant).where(Implant.id == beacon.implant_id)
+        existing = sesh.exec(statement)
+        imp = existing.first()
+        if not imp:
+            imp = Implant(
+                hostname=beacon.hostname,
+                ip_addr=beacon.ip_addr,
+                major_ver=beacon.major_ver,
+                minor_ver=beacon.minor_ver,
+                is_active=True,
+            )
+        else:
+            imp.hostname=beacon.hostname
+            imp.ip_addr=beacon.ip_addr
+            imp.major_ver=beacon.major_ver
+            imp.minor_ver=beacon.minor_ver
+            imp.is_active=True
         sesh.add(imp)
         sesh.commit()
         sesh.refresh(imp)
-        tasks = sesh.select(Task).where(Task.implant_id == imp.id)
+        stmt = select(Task).where(Task.implant_id == imp.id)
+        tasks = sesh.exec(stmt)
         res = BeaconResponseDTO(
             implant_id=imp.id,
             tasks=[
