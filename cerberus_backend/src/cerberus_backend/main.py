@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 import uvicorn
 from fastapi import FastAPI
 
@@ -13,10 +15,12 @@ app.add_exception_handler(NotFoundException, not_found_exception_handler)
 app.include_router(implant_router.router, prefix="/implants", tags=["implants"])
 app.include_router(task_router.router, tags=["tasks"])
 
-# XXX Use Lifespans instead
-@app.on_event("startup")
-def on_startup():
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML model
     setup_db()
+    yield
 
 
 if __name__ == "__main__":
