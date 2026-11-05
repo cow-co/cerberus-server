@@ -9,30 +9,37 @@ on:
       - v*
 
 jobs:
+  scan-pr:
+    permissions:
+      actions: read
+      security-events: write
+      contents: write
+
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@b1d267aea5211fa648d9d442fa64b90dbdcbdd36"
   build-backend:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-        working-directory: ./backend
+        working-directory: ./cerberus_backend
 
     permissions:
+      actions: read
+      security-events: write
       contents: write
 
     steps:
-    - uses: actions/checkout@v7
-    - name: Set up JDK 25
-      uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - name: Install uv
+      uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
       with:
-        distribution: temurin
-        java-version: '25'
-        cache: maven
-    - name: Run Backend Tests via Maven
-      run: pwd && mvn -B clean test --file pom.xml
-    - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@571e99aab1055c2e71a1e2309b9691de18d6b7d6
-      with:
-        directory: ./backend
+        version: "0.13.6"
+    - name: Setup python
+      run: uv python install
+    - name: Install the project
+      run: uv sync --no-build --locked --no-cache --all-extras --exclude-newer "1 week" --dev
+    - name: Run tests
+      run: uv run --no-build --locked --no-cache --all-extras --exclude-newer "1 week" pytest
     - name: Set up Docker Buildx
       if: github.ref_type == 'tag'
       uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
