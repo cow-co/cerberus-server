@@ -1,6 +1,7 @@
 
 
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -17,3 +18,4 @@ class UserRequestDTO(UserBase):
 class UserResponseDTO(UserBase):
     id: uuid.UUID
     is_locked: bool
+    logout_timestamp: datetime | None = None

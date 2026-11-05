@@ -1,7 +1,7 @@
 import pytest
-
-from cerberus_backend.model.db.db_setup import setup_db, engine
 from sqlmodel import Session, delete
+
+from cerberus_backend.model.db.db_setup import engine, setup_db
 from cerberus_backend.model.db.implant import *
 from cerberus_backend.model.db.task import *
 
