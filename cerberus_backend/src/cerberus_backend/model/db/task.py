@@ -1,5 +1,6 @@
 import uuid
 
+from fastapi.logger import logger
 from sqlmodel import Field, Relationship, Session, SQLModel, select
 
 from cerberus_backend.model.common.enums import ParamType
@@ -151,11 +152,14 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
 
 def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
     task = None
+    print(task_id)
     with Session(engine) as sesh:
         statement = select(Task).where(Task.id == task_id)
         results = sesh.exec(statement)
         res = results.first()
         if res:
+            print(f"RES IS {res}")
+            print(f"ARGS ARE {res.args}")
             task = TaskResponseDTO(
                 id=res.id,
                 name=res.name,
@@ -175,6 +179,7 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
                     for a in res.args
                 ],
             )
+            print(f"RES IS NOW {res}")
     return task
 
 

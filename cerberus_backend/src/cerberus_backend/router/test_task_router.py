@@ -1,60 +1,60 @@
 import uuid
 
+import pytest
 from fastapi.testclient import TestClient
+from sqlmodel import Session, delete
 
 from cerberus_backend.main import app
 from cerberus_backend.model.common.enums import ParamType
-from cerberus_backend.model.db.task import (
-    TaskArgResponseDTO,
-    TaskParamResponseDTO,
-    TaskResponseDTO,
-    TaskTypeResponseDTO,
-)
-
-client = TestClient(app)
+from cerberus_backend.model.db.db_setup import engine
+from cerberus_backend.model.db.task import Task, TaskArg, TaskParam, TaskType
 
 
-def test_empty_task_type_list(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_task_types"
-    ).return_value = []
+@pytest.fixture(name="client")
+def client_fixture():
+    client = TestClient(app)
+    yield client
+
+
+def test_empty_task_type_list(client: TestClient):
     res = client.get("/task-types")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
 
-def test_task_type_list_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_task_types"
-    ).return_value = [
-        TaskTypeResponseDTO(
-            id=uuid.uuid4(),
+def test_task_type_list_with_content(client: TestClient):
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(TaskType(
             name="test",
             params=[],
-        )
-    ]
+        ))
+        session.commit()
     res = client.get("/task-types")
     tts = res.json()
     assert res.status_code == 200
     assert len(tts) == 1
     assert tts[0]["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_task_types"
-    ).return_value = [
-        TaskTypeResponseDTO(
-            id=uuid.uuid4(),
+def test_task_type_list_with_params(client: TestClient):
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(TaskType(
             name="test",
             params=[
-                TaskParamResponseDTO(
-                    id=uuid.uuid4(),
+                TaskParam(
                     name="test",
                     param_type=ParamType.STRING,
-                    tasktype_id=uuid.uuid4(),
                 )
             ],
-        )
-    ]
+        ))
+        session.commit()
     res = client.get("/task-types")
     tts = res.json()
     assert res.status_code == 200
@@ -63,64 +63,58 @@ def test_task_type_list_with_content(mocker):
     assert len(tts[0]["params"]) == 1
 
 
-def test_non_existent_task_type(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task_type"
-    ).return_value = None
+def test_non_existent_task_type(client: TestClient):
     res = client.get(f"/task-types/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
-def test_task_type_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task_type"
-    ).return_value = TaskTypeResponseDTO(
-        id=uuid.uuid4(),
+def test_task_type_with_content(client: TestClient):
+    tt = TaskType(
         name="test",
         params=[],
     )
-    res = client.get(f"/task-types/{uuid.uuid4()}")
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+    res = client.get(f"/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task_type"
-    ).return_value = TaskTypeResponseDTO(
-        id=uuid.uuid4(),
+    tt = TaskType(
         name="test",
         params=[
-            TaskParamResponseDTO(
-                id=uuid.uuid4(),
+            TaskParam(
                 name="test",
                 param_type=ParamType.STRING,
                 tasktype_id=uuid.uuid4(),
             )
         ],
     )
-    res = client.get(f"/task-types/{uuid.uuid4()}")
+    with Session(engine) as session:
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+    res = client.get(f"/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
     assert len(tt["params"]) == 1
 
-def test_create_task_type(mocker):
-    res_id = uuid.uuid4()
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.create_task_type"
-    ).return_value = TaskTypeResponseDTO(
-        id=res_id,
-        name="test",
-        params=[],
-    )
+def test_create_task_type(client: TestClient):
     res = client.post("/task-types", json={
         "name": "test",
         "params": []
     })
     assert res.status_code == 200
-    assert res.json()["id"] == str(res_id)
+    assert res.json()["name"] == "test"
 
-def test_create_task_type_bad_content(mocker):
+def test_create_task_type_bad_content(client: TestClient):
     res = client.post("/task-types", json={
         "params": []
     })
@@ -128,52 +122,60 @@ def test_create_task_type_bad_content(mocker):
 
 
 
-def test_empty_task_list(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_tasks"
-    ).return_value = []
+def test_empty_task_list(client: TestClient):
     res = client.get("/tasks")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
 
-def test_task_list_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_tasks"
-    ).return_value = [
-        TaskResponseDTO(
-            id=uuid.uuid4(),
+def test_task_list_with_content(client: TestClient):
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(Task(
             implant_id=uuid.uuid4(),
             name="test",
-            task_args=[],
-        )
-    ]
+            args=[],
+        ))
+        session.commit()
     res = client.get("/tasks")
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
     assert ts[0]["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_tasks"
-    ).return_value = [
-        TaskResponseDTO(
-            id=uuid.uuid4(),
-            name="test",
+def test_task_list_with_params(client: TestClient):
+    tt = TaskType(
+        name="test",
+        params=[],
+    )
+    res = client.get("/tasks")
+    print(res.json())
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+        session.add(Task(
             implant_id=uuid.uuid4(),
-            task_args=[
-                TaskArgResponseDTO(
-                    id=uuid.uuid4(),
-                    spec=TaskParamResponseDTO(
-                        id=uuid.uuid4(),
+            name="test",
+            args=[
+                TaskArg(
+                    spec=TaskParam(
+                        tasktype_id=tt.id,
                         name="test",
                         param_type=ParamType.STRING,
                     ),
                     value=12
                 )
             ],
-        )
-    ]
+        ))
+        session.commit()
     res = client.get("/tasks")
     ts = res.json()
     assert res.status_code == 200
@@ -182,38 +184,41 @@ def test_task_list_with_content(mocker):
     assert len(ts[0]["task_args"]) == 1
 
 
-def test_non_existent_task(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task"
-    ).return_value = None
+def test_non_existent_task(client: TestClient):
     res = client.get(f"/tasks/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
-def test_task_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task"
-    ).return_value = TaskResponseDTO(
-        id=uuid.uuid4(),
+def test_task_with_content(client: TestClient):
+    task = Task(
         implant_id=uuid.uuid4(),
         name="test",
-        task_args=[],
+        args=[],
     )
-    res = client.get(f"/tasks/{uuid.uuid4()}")
-    task = res.json()
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+    res = client.get(f"/tasks/{task.id}")
+    result = res.json()
     assert res.status_code == 200
-    assert task["name"] == "test"
+    assert result["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task"
-    ).return_value = TaskResponseDTO(
-        id=uuid.uuid4(),
+def test_task_with_args(client: TestClient):
+    tt = TaskType(
         name="test",
+        params=[],
+    )
+    task2 = Task(
         implant_id=uuid.uuid4(),
-        task_args=[
-            TaskArgResponseDTO(
-                id=uuid.uuid4(),
-                spec=TaskParamResponseDTO(
+        name="test2",
+        args=[
+            TaskArg(
+                spec=TaskParam(
                     id=uuid.uuid4(),
                     name="test",
                     param_type=ParamType.STRING,
@@ -222,47 +227,42 @@ def test_task_with_content(mocker):
             )
         ],
     )
-    res = client.get(f"/tasks/{uuid.uuid4()}")
-    task = res.json()
+    with Session(engine) as session:
+        session.exec(statement=delete(Task))
+        session.exec(statement=delete(TaskArg))
+        session.exec(statement=delete(TaskParam))
+        session.exec(statement=delete(TaskType))
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+        task2.args[0].spec.tasktype_id = tt.id
+        session.add(task2)
+        session.commit()
+        session.refresh(task2)
+    
+    res = client.get(f"/tasks/{task2.id}")
+    result = res.json()
     assert res.status_code == 200
-    assert task["name"] == "test"
-    assert len(task["task_args"]) == 1
+    assert result["name"] == "test2"
+    assert len(result["task_args"]) == 1
 
-def test_create_task(mocker):
-    res_id = uuid.uuid4()
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.create_task"
-    ).return_value = TaskResponseDTO(
-        id=res_id,
-        name="test",
-        implant_id=uuid.uuid4(),
-        task_args=[],
-    )
+def test_create_task(client: TestClient):
     res = client.post("/tasks", json={
         "name": "test",
         "implant_id": str(uuid.uuid4()),
         "task_args": []
     })
     assert res.status_code == 200
-    assert res.json()["id"] == str(res_id)
+    assert res.json()["name"] == "test"
 
-    res_id = uuid.uuid4()
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.create_task"
-    ).return_value = TaskResponseDTO(
-        id=res_id,
-        name="test",
-        implant_id=uuid.uuid4(),
-        task_args=[],
-    )
     res = client.post("/tasks", json={
         "name": "test",
         "implant_id": str(uuid.uuid4()),
     })
     assert res.status_code == 200
-    assert res.json()["id"] == str(res_id)
+    assert res.json()["name"] == "test"
 
-def test_create_task_bad_content(mocker):
+def test_create_task_bad_content(client: TestClient):
     res = client.post("/tasks", json={
         "implant_id": str(uuid.uuid4()),
         "task_args": []
