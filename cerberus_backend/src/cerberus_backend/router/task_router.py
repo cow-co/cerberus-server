@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from cerberus_backend.controller import task_controller
 from cerberus_backend.model.http.task import (
+    TaskRequestDTO,
     TaskResponseDTO,
     TaskTypeRequestDTO,
     TaskTypeResponseDTO,
@@ -42,3 +43,8 @@ def get_task(task_id: uuid.UUID) -> TaskResponseDTO:
     if not imp:
         raise NotFoundException(msg=f"Could not find task with ID {task_id}!")
     return imp
+
+
+@router.post("/tasks")
+def create_task(task: TaskRequestDTO) -> TaskResponseDTO:
+    return task_controller.create_task(task)
