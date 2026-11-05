@@ -24,10 +24,6 @@ def test_empty_task_type_list(client: TestClient):
 
 def test_task_type_list_with_content(client: TestClient):
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(TaskType(
             name="test",
             params=[],
@@ -41,10 +37,6 @@ def test_task_type_list_with_content(client: TestClient):
 
 def test_task_type_list_with_params(client: TestClient):
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(TaskType(
             name="test",
             params=[
@@ -74,10 +66,6 @@ def test_task_type_with_content(client: TestClient):
         params=[],
     )
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(tt)
         session.commit()
         session.refresh(tt)
@@ -130,10 +118,6 @@ def test_empty_task_list(client: TestClient):
 
 def test_task_list_with_content(client: TestClient):
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(Task(
             implant_id=uuid.uuid4(),
             name="test",
@@ -146,7 +130,7 @@ def test_task_list_with_content(client: TestClient):
     assert len(ts) == 1
     assert ts[0]["name"] == "test"
 
-def test_task_list_with_params(client: TestClient):
+def test_task_list_with_args(client: TestClient):
     tt = TaskType(
         name="test",
         params=[],
@@ -154,10 +138,6 @@ def test_task_list_with_params(client: TestClient):
     res = client.get("/tasks")
     print(res.json())
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(tt)
         session.commit()
         session.refresh(tt)
@@ -196,10 +176,6 @@ def test_task_with_content(client: TestClient):
         args=[],
     )
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(task)
         session.commit()
         session.refresh(task)
@@ -228,10 +204,6 @@ def test_task_with_args(client: TestClient):
         ],
     )
     with Session(engine) as session:
-        session.exec(statement=delete(Task))
-        session.exec(statement=delete(TaskArg))
-        session.exec(statement=delete(TaskParam))
-        session.exec(statement=delete(TaskType))
         session.add(tt)
         session.commit()
         session.refresh(tt)
