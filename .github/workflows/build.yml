@@ -28,7 +28,7 @@ jobs:
     - name: Setup python
       run: uv python install
     - name: Install the project
-      run: uv sync --no-build --locked --no-cache --all-extras --exclude-newer 1 week --dev
+      run: uv sync --no-build --locked --no-cache --all-extras --exclude-newer "1 week" --dev
     - name: Run tests
       run: uv run --no-build --locked --no-cache pytest
     - name: Update dependency graph
