@@ -78,18 +78,19 @@ def get_db_task_type_by_id(tt_id: uuid.UUID) -> TaskTypeResponseDTO | None:
         statement = select(TaskType).where(TaskType.id == tt_id)
         results = sesh.exec(statement)
         res = results.first()
-        tt = TaskTypeResponseDTO(
-            id=res.id,
-            name=res.name,
-            params=[
-                TaskParamResponseDTO(
-                    id=p.id,
-                    name=p.name,
-                    param_type=p.param_type,
-                )
-                for p in res.params
-            ],
-        )
+        if res:
+            tt = TaskTypeResponseDTO(
+                id=res.id,
+                name=res.name,
+                params=[
+                    TaskParamResponseDTO(
+                        id=p.id,
+                        name=p.name,
+                        param_type=p.param_type,
+                    )
+                    for p in res.params
+                ],
+            )
     return tt
 
 
@@ -161,25 +162,26 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
         statement = select(Task).where(Task.id == task_id)
         results = sesh.exec(statement)
         res = results.first()
-        task = TaskResponseDTO(
-            id=res.id,
-            name=res.name,
-            implant_id=res.implant_id,
-            args=[
-                TaskArgResponseDTO(
-                    id=a.id,
-                    spec=TaskParamResponseDTO(
-                        id=a.spec.id,
-                        name=a.spec.name,
-                        param_type=a.spec.param_type,
-                    ),
-                    value=a.value_str
-                    if a.value_str
-                    else (a.value_int if a.value_int else a.value_bool),
-                )
-                for a in res.args
-            ],
-        )
+        if res:
+            task = TaskResponseDTO(
+                id=res.id,
+                name=res.name,
+                implant_id=res.implant_id,
+                args=[
+                    TaskArgResponseDTO(
+                        id=a.id,
+                        spec=TaskParamResponseDTO(
+                            id=a.spec.id,
+                            name=a.spec.name,
+                            param_type=a.spec.param_type,
+                        ),
+                        value=a.value_str
+                        if a.value_str
+                        else (a.value_int if a.value_int else a.value_bool),
+                    )
+                    for a in res.args
+                ],
+            )
     return task
 
 
