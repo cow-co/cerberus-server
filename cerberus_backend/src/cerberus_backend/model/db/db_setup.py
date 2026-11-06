@@ -3,7 +3,7 @@ from sqlmodel.pool import StaticPool
 
 engine = create_engine(
     "sqlite://",
-    echo=True,
+    echo=False,
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )

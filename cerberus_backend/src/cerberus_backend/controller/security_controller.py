@@ -33,4 +33,4 @@ def authenticate(req: LoginRequestDTO) -> str:
 
 
 def log_user_out(user_id: uuid.UUID) -> None:
-    set_logout_timestamp(user_id, datetime.now())
+    set_logout_timestamp(user_id, datetime.now(UTC))

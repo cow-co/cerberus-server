@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated
 
 import jwt
@@ -10,7 +11,7 @@ from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.http.user import UserResponseDTO
 from cerberus_backend.utils.exceptions import BadCredentialsException
 
-auth_scheme = APIKeyCookie(name="__Host_JWT", scheme_name="Cookie auth")
+auth_scheme = APIKeyCookie(name=config.TOKEN_COOKIE, scheme_name="Cookie auth", auto_error=False)
 
 
 def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserResponseDTO:
@@ -19,7 +20,7 @@ def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserRespo
         user_id = payload.get("sub")
         if not user_id:
             raise BadCredentialsException("Invalid Token")
-        user = user_controller.get_user_by_id(user_id)
+        user = user_controller.get_user(uuid.UUID(user_id))
         if not user:
             logger.warn("User provided a token with an invalid 'sub' field!")
             raise BadCredentialsException("Invalid Token")

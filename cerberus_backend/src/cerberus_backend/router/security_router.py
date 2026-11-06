@@ -1,7 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Request, Response
 
 from cerberus_backend.controller import security_controller
 from cerberus_backend.controller.dependencies import security_dependencies
@@ -16,11 +16,11 @@ router = APIRouter()
 def login(creds: LoginRequestDTO, resp: Response) -> LoginResponseDTO:
     result = security_controller.authenticate(creds)
     resp.set_cookie(
-        "__Host_JWT",
+        config.TOKEN_COOKIE,
         result.token,
         max_age=3600,
         expires=datetime.now(UTC) + timedelta(minutes=config.JWT_EXPIRY_MINUTES),
-        secure=True,
+        secure=config.IS_SECURE,
         httponly=True,
         samesite="strict",
     )
@@ -29,8 +29,9 @@ def login(creds: LoginRequestDTO, resp: Response) -> LoginResponseDTO:
 
 @router.delete("/unauthenticate")
 def logout(
+    req: Request,
     resp: Response,
-    user=Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
 ) -> None:
     security_controller.log_user_out(user.id)
-    resp.delete_cookie("__Host_JWT")
+    resp.delete_cookie(config.TOKEN_COOKIE)
