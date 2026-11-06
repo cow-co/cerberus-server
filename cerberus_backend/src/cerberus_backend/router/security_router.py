@@ -16,17 +16,15 @@ router = APIRouter()
 def login(creds: LoginRequestDTO, resp: Response) -> LoginResponseDTO:
     result = security_controller.authenticate(creds)
     resp.set_cookie(
-        "STATE",
-        result.state,
+        "__Host_JWT",
+        result.token,
         max_age=3600,
         expires=datetime.now(UTC) + timedelta(minutes=config.JWT_EXPIRY_MINUTES),
         secure=True,
         httponly=True,
         samesite="strict",
     )
-    return LoginResponseDTO(
-        token=result.token,
-    )
+    return LoginResponseDTO(user_id=result.user_id, username=result.username)
 
 
 @router.delete("/unauthenticate")
@@ -35,4 +33,4 @@ def logout(
     user=Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
 ) -> None:
     security_controller.log_user_out(user.id)
-    resp.delete_cookie("STATE")
+    resp.delete_cookie("__Host_JWT")

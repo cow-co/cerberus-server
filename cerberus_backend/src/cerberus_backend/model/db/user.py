@@ -4,7 +4,11 @@ from datetime import datetime
 from sqlmodel import Field, Session, SQLModel, select
 
 from cerberus_backend.model.db.db_setup import engine
-from cerberus_backend.model.http.user import UserRequestDTO, UserResponseDTO
+from cerberus_backend.model.http.user import (
+    UserRequestDTO,
+    UserResponseDTO,
+    UserWithPasswordDTO,
+)
 from cerberus_backend.utils.exceptions import AlreadyExistsException
 from cerberus_backend.utils.security_utils import generate_pwd_hash
 
@@ -50,16 +54,17 @@ def get_user_in_db(user_id: uuid.UUID) -> UserResponseDTO | None:
     return user
 
 
-def get_user_in_db_by_name(name: str) -> UserResponseDTO | None:
+def get_user_in_db_by_name(name: str) -> UserWithPasswordDTO | None:
     user = None
     with Session(engine) as sesh:
         statement = select(User).where(User.username == name)
         results = sesh.exec(statement)
         found = results.first()
         if found:
-            user = UserResponseDTO(
+            user = UserWithPasswordDTO(
                 id=found.id,
                 username=found.username,
+                password_hash=found.password_hash,
                 is_locked=found.is_locked,
                 logout_timestamp=found.logout_timestamp,
             )
@@ -72,7 +77,6 @@ def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
     if existing:
         raise AlreadyExistsException("Username is Taken!")
     with Session(engine) as sesh:
-        
         to_create = User(
             username=user.username,
             password_hash=generate_pwd_hash(user.password),

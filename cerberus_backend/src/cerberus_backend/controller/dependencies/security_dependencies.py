@@ -3,21 +3,18 @@ from typing import Annotated
 import jwt
 from fastapi import Depends
 from fastapi.logger import logger
-from fastapi.security import HTTPBearer
+from fastapi.security import APIKeyCookie
 
 from cerberus_backend.controller import user_controller
 from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.http.user import UserResponseDTO
 from cerberus_backend.utils.exceptions import BadCredentialsException
 
-# XXX Maybe use APIKeyCookie scheme instead, because then we can chuck the token in an HTTPOnly cookie, which somewhat evades the sidejacking concern
-# somewhat counter-paradigmatic, but it'd work!
-auth_scheme = HTTPBearer(scheme_name="Bearer")
+auth_scheme = APIKeyCookie(name="__Host_JWT", scheme_name="Cookie auth")
 
 
 def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserResponseDTO:
     try:
-        # TODO Validate the state cookie
         payload = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALG])
         user_id = payload.get("sub")
         if not user_id:

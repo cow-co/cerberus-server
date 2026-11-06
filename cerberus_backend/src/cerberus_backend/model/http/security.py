@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 
 
@@ -7,9 +9,9 @@ class LoginRequestDTO(BaseModel):
 
 
 class LoginResponseDTO(BaseModel):
-    token: str
+    user_id: uuid.UUID
+    username: str
 
 
-class TokenStatePair(BaseModel):
+class TokenDTO(LoginResponseDTO):
     token: str
-    state: str
