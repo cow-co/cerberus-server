@@ -81,3 +81,11 @@ def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
             logout_timestamp=to_create.logout_timestamp,
         )
     return created
+
+
+def set_logout_timestamp(user_id: uuid.UUID, to_timestamp: datetime):
+    with Session(engine) as sesh:
+        u = sesh.get_one(User, user_id)
+        u.logout_timestamp = to_timestamp
+        sesh.add(u)
+        sesh.commit()

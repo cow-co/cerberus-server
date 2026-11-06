@@ -1,13 +1,16 @@
-from datetime import datetime, timedelta, timezone, UTC
+import hashlib
+import uuid
+from datetime import UTC, datetime, timedelta
+from os import urandom
+
+import jwt
 
 from cerberus_backend.controller import user_controller
+from cerberus_backend.model.common.settings import config
+from cerberus_backend.model.db.user import set_logout_timestamp
 from cerberus_backend.model.http.security import LoginRequestDTO, TokenStatePair
 from cerberus_backend.utils.exceptions import BadCredentialsException
 from cerberus_backend.utils.security_utils import verify_pwd
-from cerberus_backend.model.common.settings import config
-from os import urandom
-import hashlib
-import jwt
 
 
 def authenticate(req: LoginRequestDTO) -> TokenStatePair:
@@ -31,3 +34,7 @@ def authenticate(req: LoginRequestDTO) -> TokenStatePair:
         )
         return TokenStatePair(token=token, state=state)
     raise BadCredentialsException(msg="Invalid credentials")
+
+
+def log_user_out(user_id: uuid.UUID) -> None:
+    set_logout_timestamp(user_id, datetime.now())
