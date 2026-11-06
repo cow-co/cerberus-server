@@ -19,3 +19,6 @@ class UserResponseDTO(UserBase):
     id: uuid.UUID
     is_locked: bool
     logout_timestamp: datetime | None = None
+
+class UserWithPasswordDTO(UserResponseDTO):
+    password_hash: str

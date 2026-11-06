@@ -14,8 +14,27 @@ class NotFoundException(Exception):
         return self.msg
 
 
+class BadCredentialsException(Exception):
+    def __init__(self, msg: str, *args: object) -> None:
+        super().__init__(*args)
+        self.msg = msg
+
+    def __repr__(self) -> str:
+        return self.msg
+
+    def __str__(self) -> str:
+        return self.msg
+
+
 def not_found_exception_handler(request: Request, ex: NotFoundException):
     return JSONResponse(
         status_code=404,
+        content={"message": ex.msg},
+    )
+
+
+def bad_creds_exception_handler(request: Request, ex: BadCredentialsException):
+    return JSONResponse(
+        status_code=401,
         content={"message": ex.msg},
     )

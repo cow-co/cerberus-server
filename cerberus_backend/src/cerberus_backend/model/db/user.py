@@ -16,7 +16,7 @@ class User(SQLModel, table=True):
     logout_timestamp: datetime | None = Field(default=None)
 
 
-def get_all_users() -> list[UserResponseDTO]:
+def get_all_users_in_db() -> list[UserResponseDTO]:
     users = []
     with Session(engine) as sesh:
         statement = select(User)
@@ -32,7 +32,7 @@ def get_all_users() -> list[UserResponseDTO]:
     return users
 
 
-def get_user(user_id: uuid.UUID) -> UserResponseDTO | None:
+def get_user_in_db(user_id: uuid.UUID) -> UserResponseDTO | None:
     user = None
     with Session(engine) as sesh:
         statement = select(User).where(User.id == user_id)
@@ -48,7 +48,23 @@ def get_user(user_id: uuid.UUID) -> UserResponseDTO | None:
     return user
 
 
-def create_user(user: UserRequestDTO) -> UserResponseDTO:
+def get_user_in_db_by_name(name: str) -> UserResponseDTO | None:
+    user = None
+    with Session(engine) as sesh:
+        statement = select(User).where(User.username == name)
+        results = sesh.exec(statement)
+        found = results.first()
+        if found:
+            user = UserResponseDTO(
+                id=found.id,
+                username=found.username,
+                is_locked=found.is_locked,
+                logout_timestamp=found.logout_timestamp,
+            )
+    return user
+
+
+def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
     created = None
     with Session(engine) as sesh:
         to_create = User(
