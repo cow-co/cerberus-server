@@ -25,6 +25,7 @@ def get_user(user_id: uuid.UUID) -> UserResponseDTO:
     return user
 
 
+# TODO Set password-strength requirements
 @router.post("")
 def create_user(user: UserRequestDTO) -> UserResponseDTO:
     return user_controller.create_user(user)

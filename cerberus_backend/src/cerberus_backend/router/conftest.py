@@ -4,6 +4,7 @@ from sqlmodel import Session, delete
 from cerberus_backend.model.db.db_setup import engine, setup_db
 from cerberus_backend.model.db.implant import *
 from cerberus_backend.model.db.task import *
+from cerberus_backend.model.db.user import *
 
 
 @pytest.fixture(autouse=True)
@@ -16,4 +17,5 @@ def setup_tests():
         sesh.exec(statement=delete(TaskArg))
         sesh.exec(statement=delete(TaskType))
         sesh.exec(statement=delete(Implant))
+        sesh.exec(statement=delete(User))
         sesh.commit()

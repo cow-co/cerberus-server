@@ -5,6 +5,7 @@ from sqlmodel import Field, Session, SQLModel, select
 
 from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.http.user import UserRequestDTO, UserResponseDTO
+from cerberus_backend.utils.exceptions import AlreadyExistsException
 from cerberus_backend.utils.security_utils import generate_pwd_hash
 
 
@@ -67,7 +68,11 @@ def get_user_in_db_by_name(name: str) -> UserResponseDTO | None:
 
 def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
     created = None
+    existing = get_user_in_db_by_name(user.username)
+    if existing:
+        raise AlreadyExistsException("Username is Taken!")
     with Session(engine) as sesh:
+        
         to_create = User(
             username=user.username,
             password_hash=generate_pwd_hash(user.password),
