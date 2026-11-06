@@ -13,4 +13,3 @@ class LoginResponseDTO(BaseModel):
 class TokenStatePair(BaseModel):
     token: str
     state: str
-

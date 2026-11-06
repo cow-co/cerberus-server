@@ -28,9 +28,9 @@ def authenticate(req: LoginRequestDTO) -> TokenStatePair:
                 "iat": issued,
                 "exp": expiry,
                 "sub": user_account.id,
-            }, 
-            config.JWT_SECRET, 
-            algorithm=config.JWT_ALG
+            },
+            config.JWT_SECRET,
+            algorithm=config.JWT_ALG,
         )
         return TokenStatePair(token=token, state=state)
     raise BadCredentialsException(msg="Invalid credentials")

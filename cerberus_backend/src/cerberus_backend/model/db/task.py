@@ -1,6 +1,5 @@
 import uuid
 
-from fastapi.logger import logger
 from sqlmodel import Field, Relationship, Session, SQLModel, select
 
 from cerberus_backend.model.common.enums import ParamType
@@ -19,14 +18,14 @@ from cerberus_backend.model.http.task import (
 
 class TaskType(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(index=True)   # TODO Make this unique
+    name: str = Field(index=True)  # TODO Make this unique
 
     params: list[TaskParam] = Relationship(back_populates="tasktype")
 
 
 class TaskParam(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str   # TODO Make the (name, tasktype_id) combination unique
+    name: str  # TODO Make the (name, tasktype_id) combination unique
     param_type: ParamType
     tasktype_id: uuid.UUID = Field(foreign_key="tasktype.id")
     tasktype: TaskType = Relationship(back_populates="params")
@@ -55,18 +54,21 @@ def get_all_db_task_types() -> list[TaskTypeResponseDTO]:
     with Session(engine) as sesh:
         statement = select(TaskType)
         results = sesh.exec(statement)
-        tts = [TaskTypeResponseDTO(
-            id=res.id,
-            name=res.name,
-            params=[
-                TaskParamResponseDTO(
-                    id=p.id,
-                    name=p.name,
-                    param_type=p.param_type,
-                )
-                for p in res.params
-            ],
-        ) for res in results]
+        tts = [
+            TaskTypeResponseDTO(
+                id=res.id,
+                name=res.name,
+                params=[
+                    TaskParamResponseDTO(
+                        id=p.id,
+                        name=p.name,
+                        param_type=p.param_type,
+                    )
+                    for p in res.params
+                ],
+            )
+            for res in results
+        ]
     return tts
 
 
@@ -128,25 +130,28 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
     with Session(engine) as sesh:
         statement = select(Task)
         results = sesh.exec(statement)
-        tasks = [TaskResponseDTO(
-            id=res.id,
-            name=res.name,
-            implant_id=res.implant_id,
-            task_args=[
-                TaskArgResponseDTO(
-                    id=a.id,
-                    spec=TaskParamResponseDTO(
-                        id=a.spec.id,
-                        name=a.spec.name,
-                        param_type=a.spec.param_type,
-                    ),
-                    value=a.value_str
-                    if a.value_str
-                    else (a.value_int if a.value_int else a.value_bool),
-                )
-                for a in res.args
-            ],
-        ) for res in results]
+        tasks = [
+            TaskResponseDTO(
+                id=res.id,
+                name=res.name,
+                implant_id=res.implant_id,
+                task_args=[
+                    TaskArgResponseDTO(
+                        id=a.id,
+                        spec=TaskParamResponseDTO(
+                            id=a.spec.id,
+                            name=a.spec.name,
+                            param_type=a.spec.param_type,
+                        ),
+                        value=a.value_str
+                        if a.value_str
+                        else (a.value_int if a.value_int else a.value_bool),
+                    )
+                    for a in res.args
+                ],
+            )
+            for res in results
+        ]
     return tasks
 
 
@@ -189,16 +194,25 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
         to_create = Task(
             name=task.name,
             implant_id=task.implant_id,
-            args=[TaskArg(
-                spec=TaskParam(
-                    id=a.spec.id,
-                    name=a.spec.name,
-                    param_type=a.spec.param_type,
-                ),
-                value_str=a.value if a.spec.param_type == ParamType.STRING else None,
-                value_int=a.value if a.spec.param_type == ParamType.INTEGER else None,
-                value_bool=a.value if a.spec.param_type == ParamType.BOOLEAN else None,
-            ) for a in task.task_args],
+            args=[
+                TaskArg(
+                    spec=TaskParam(
+                        id=a.spec.id,
+                        name=a.spec.name,
+                        param_type=a.spec.param_type,
+                    ),
+                    value_str=a.value
+                    if a.spec.param_type == ParamType.STRING
+                    else None,
+                    value_int=a.value
+                    if a.spec.param_type == ParamType.INTEGER
+                    else None,
+                    value_bool=a.value
+                    if a.spec.param_type == ParamType.BOOLEAN
+                    else None,
+                )
+                for a in task.task_args
+            ],
         )
         sesh.add(to_create)
         sesh.commit()

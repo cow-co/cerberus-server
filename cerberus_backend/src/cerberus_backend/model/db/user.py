@@ -11,7 +11,7 @@ from cerberus_backend.utils.security_utils import generate_pwd_hash
 class User(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     username: str = Field(index=True)
-    password_hash: str                  # In a system intended to be more secure than "just my little side-project", passwords would be a separate table.
+    password_hash: str  # In a system intended to be more secure than "just my little side-project", passwords would be a separate table.
     is_locked: bool = Field(default=False)
     logout_timestamp: datetime | None = Field(default=None)
 
@@ -27,7 +27,8 @@ def get_all_users_in_db() -> list[UserResponseDTO]:
                 username=res.username,
                 is_locked=res.is_locked,
                 logout_timestamp=res.logout_timestamp,
-            ) for res in results
+            )
+            for res in results
         ]
     return users
 

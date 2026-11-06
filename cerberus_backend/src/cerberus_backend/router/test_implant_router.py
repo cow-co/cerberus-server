@@ -14,6 +14,7 @@ def client_fixture():
     client = TestClient(app)
     yield client
 
+
 def test_empty_implant_list(client: TestClient):
     res = client.get("/implants")
     assert res.status_code == 200
@@ -22,13 +23,15 @@ def test_empty_implant_list(client: TestClient):
 
 def test_implant_list_with_content(client: TestClient):
     with Session(engine) as session:
-        session.add(Implant(
-            hostname="test",
-            ip_addr="127.0.0.1",
-            major_ver=1,
-            minor_ver=2,
-            is_active=True,
-        ))
+        session.add(
+            Implant(
+                hostname="test",
+                ip_addr="127.0.0.1",
+                major_ver=1,
+                minor_ver=2,
+                is_active=True,
+            )
+        )
         session.commit()
     res = client.get("/implants")
     imps = res.json()
@@ -94,7 +97,7 @@ def test_beacons(client: TestClient):
         },
     )
     assert res.status_code == 200
-    
+
     imp = Implant(
         hostname="test",
         ip_addr="127.0.0.1",
@@ -117,7 +120,7 @@ def test_beacons(client: TestClient):
         },
     )
     assert res.status_code == 200
-    
+
     res = client.post(
         "/implants/beacon",
         json={

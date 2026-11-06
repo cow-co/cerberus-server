@@ -2,7 +2,7 @@ import uuid
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session, delete
+from sqlmodel import Session
 
 from cerberus_backend.main import app
 from cerberus_backend.model.common.enums import ParamType
@@ -24,10 +24,12 @@ def test_empty_task_type_list(client: TestClient):
 
 def test_task_type_list_with_content(client: TestClient):
     with Session(engine) as session:
-        session.add(TaskType(
-            name="test",
-            params=[],
-        ))
+        session.add(
+            TaskType(
+                name="test",
+                params=[],
+            )
+        )
         session.commit()
     res = client.get("/task-types")
     tts = res.json()
@@ -35,17 +37,20 @@ def test_task_type_list_with_content(client: TestClient):
     assert len(tts) == 1
     assert tts[0]["name"] == "test"
 
+
 def test_task_type_list_with_params(client: TestClient):
     with Session(engine) as session:
-        session.add(TaskType(
-            name="test",
-            params=[
-                TaskParam(
-                    name="test",
-                    param_type=ParamType.STRING,
-                )
-            ],
-        ))
+        session.add(
+            TaskType(
+                name="test",
+                params=[
+                    TaskParam(
+                        name="test",
+                        param_type=ParamType.STRING,
+                    )
+                ],
+            )
+        )
         session.commit()
     res = client.get("/task-types")
     tts = res.json()
@@ -94,20 +99,16 @@ def test_task_type_with_content(client: TestClient):
     assert tt["name"] == "test"
     assert len(tt["params"]) == 1
 
+
 def test_create_task_type(client: TestClient):
-    res = client.post("/task-types", json={
-        "name": "test",
-        "params": []
-    })
+    res = client.post("/task-types", json={"name": "test", "params": []})
     assert res.status_code == 200
     assert res.json()["name"] == "test"
 
-def test_create_task_type_bad_content(client: TestClient):
-    res = client.post("/task-types", json={
-        "params": []
-    })
-    assert res.status_code == 422
 
+def test_create_task_type_bad_content(client: TestClient):
+    res = client.post("/task-types", json={"params": []})
+    assert res.status_code == 422
 
 
 def test_empty_task_list(client: TestClient):
@@ -118,17 +119,20 @@ def test_empty_task_list(client: TestClient):
 
 def test_task_list_with_content(client: TestClient):
     with Session(engine) as session:
-        session.add(Task(
-            implant_id=uuid.uuid4(),
-            name="test",
-            args=[],
-        ))
+        session.add(
+            Task(
+                implant_id=uuid.uuid4(),
+                name="test",
+                args=[],
+            )
+        )
         session.commit()
     res = client.get("/tasks")
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
     assert ts[0]["name"] == "test"
+
 
 def test_task_list_with_args(client: TestClient):
     tt = TaskType(
@@ -141,20 +145,22 @@ def test_task_list_with_args(client: TestClient):
         session.add(tt)
         session.commit()
         session.refresh(tt)
-        session.add(Task(
-            implant_id=uuid.uuid4(),
-            name="test",
-            args=[
-                TaskArg(
-                    spec=TaskParam(
-                        tasktype_id=tt.id,
-                        name="test",
-                        param_type=ParamType.STRING,
-                    ),
-                    value=12
-                )
-            ],
-        ))
+        session.add(
+            Task(
+                implant_id=uuid.uuid4(),
+                name="test",
+                args=[
+                    TaskArg(
+                        spec=TaskParam(
+                            tasktype_id=tt.id,
+                            name="test",
+                            param_type=ParamType.STRING,
+                        ),
+                        value=12,
+                    )
+                ],
+            )
+        )
         session.commit()
     res = client.get("/tasks")
     ts = res.json()
@@ -184,6 +190,7 @@ def test_task_with_content(client: TestClient):
     assert res.status_code == 200
     assert result["name"] == "test"
 
+
 def test_task_with_args(client: TestClient):
     tt = TaskType(
         name="test",
@@ -199,7 +206,7 @@ def test_task_with_args(client: TestClient):
                     name="test",
                     param_type=ParamType.STRING,
                 ),
-                value=12
+                value=12,
             )
         ],
     )
@@ -211,38 +218,36 @@ def test_task_with_args(client: TestClient):
         session.add(task2)
         session.commit()
         session.refresh(task2)
-    
+
     res = client.get(f"/tasks/{task2.id}")
     result = res.json()
     assert res.status_code == 200
     assert result["name"] == "test2"
     assert len(result["task_args"]) == 1
 
+
 def test_create_task(client: TestClient):
-    res = client.post("/tasks", json={
-        "name": "test",
-        "implant_id": str(uuid.uuid4()),
-        "task_args": []
-    })
+    res = client.post(
+        "/tasks",
+        json={"name": "test", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
     assert res.status_code == 200
     assert res.json()["name"] == "test"
 
-    res = client.post("/tasks", json={
-        "name": "test",
-        "implant_id": str(uuid.uuid4()),
-    })
+    res = client.post(
+        "/tasks",
+        json={
+            "name": "test",
+            "implant_id": str(uuid.uuid4()),
+        },
+    )
     assert res.status_code == 200
     assert res.json()["name"] == "test"
+
 
 def test_create_task_bad_content(client: TestClient):
-    res = client.post("/tasks", json={
-        "implant_id": str(uuid.uuid4()),
-        "task_args": []
-    })
+    res = client.post("/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []})
     assert res.status_code == 422
 
-    res = client.post("/tasks", json={
-        "name": "test",
-        "task_args": []
-    })
+    res = client.post("/tasks", json={"name": "test", "task_args": []})
     assert res.status_code == 422
