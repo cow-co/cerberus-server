@@ -7,6 +7,7 @@ class Settings(BaseModel):
     JWT_ALG: str = "HS256"
     TOKEN_COOKIE: str = "JWT"
     IS_SECURE: bool = False
+    ZXCVBN_MIN_SCORE: int = 3
 
 
 # TODO Read this in from a config file

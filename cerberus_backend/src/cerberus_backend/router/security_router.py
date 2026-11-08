@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
+from fastapi.logger import logger
 
 from cerberus_backend.controller import security_controller
 from cerberus_backend.controller.dependencies import security_dependencies
@@ -14,6 +15,7 @@ router = APIRouter()
 
 @router.post("/authenticate")
 def login(creds: LoginRequestDTO, resp: Response) -> LoginResponseDTO:
+    logger.info(f"{creds.username} requesting to log in")
     result = security_controller.authenticate(creds)
     resp.set_cookie(
         config.TOKEN_COOKIE,
@@ -33,5 +35,6 @@ def logout(
     resp: Response,
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
 ) -> None:
+    logger.info(f"{user.id} requesting to log out")
     security_controller.log_user_out(user.id)
     resp.delete_cookie(config.TOKEN_COOKIE)

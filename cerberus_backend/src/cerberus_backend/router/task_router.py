@@ -1,26 +1,37 @@
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.logger import logger
 
 from cerberus_backend.controller import task_controller
+from cerberus_backend.controller.dependencies import security_dependencies
 from cerberus_backend.model.http.task import (
     TaskRequestDTO,
     TaskResponseDTO,
     TaskTypeRequestDTO,
     TaskTypeResponseDTO,
 )
+from cerberus_backend.model.http.user import UserResponseDTO
 from cerberus_backend.utils.exceptions import NotFoundException
 
 router = APIRouter()
 
 
 @router.get("/task-types")
-def get_task_types() -> list[TaskTypeResponseDTO]:
+def get_task_types(
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> list[TaskTypeResponseDTO]:
+    logger.info(f"{user.id} requesting to get all task types")
     return task_controller.get_all_task_types()
 
 
 @router.get("/task-types/{tt_id}")
-def get_task_type(tt_id: uuid.UUID) -> TaskTypeResponseDTO:
+def get_task_type(
+    tt_id: uuid.UUID,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> TaskTypeResponseDTO:
+    logger.info(f"{user.id} requesting to get a task type with ID {tt_id}")
     tt = task_controller.get_task_type(tt_id)
     if not tt:
         raise NotFoundException(msg=f"Could not find task type with ID {tt_id}!")
@@ -28,17 +39,28 @@ def get_task_type(tt_id: uuid.UUID) -> TaskTypeResponseDTO:
 
 
 @router.post("/task-types")
-def create_task_type(task_type: TaskTypeRequestDTO) -> TaskTypeResponseDTO:
+def create_task_type(
+    task_type: TaskTypeRequestDTO,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> TaskTypeResponseDTO:
+    logger.info(f"{user.id} requesting to create a new task type")
     return task_controller.create_task_type(task_type)
 
 
 @router.get("/tasks")
-def get_tasks() -> list[TaskResponseDTO]:
+def get_tasks(
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> list[TaskResponseDTO]:
+    logger.info(f"{user.id} requesting to get all tasks")
     return task_controller.get_all_tasks()
 
 
 @router.get("/tasks/{task_id}")
-def get_task(task_id: uuid.UUID) -> TaskResponseDTO:
+def get_task(
+    task_id: uuid.UUID,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> TaskResponseDTO:
+    logger.info(f"{user.id} requesting to get a task with ID {task_id}")
     imp = task_controller.get_task(task_id)
     if not imp:
         raise NotFoundException(msg=f"Could not find task with ID {task_id}!")
@@ -46,5 +68,9 @@ def get_task(task_id: uuid.UUID) -> TaskResponseDTO:
 
 
 @router.post("/tasks")
-def create_task(task: TaskRequestDTO) -> TaskResponseDTO:
+def create_task(
+    task: TaskRequestDTO,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> TaskResponseDTO:
+    logger.info(f"{user.id} requesting to create a task")
     return task_controller.create_task(task)

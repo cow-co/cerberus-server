@@ -1,8 +1,11 @@
 import uuid
+from typing import Annotated
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.logger import logger
 
 from cerberus_backend.controller import user_controller
+from cerberus_backend.controller.dependencies import security_dependencies
 from cerberus_backend.model.http.user import (
     UserRequestDTO,
     UserResponseDTO,
@@ -13,19 +16,31 @@ router = APIRouter()
 
 
 @router.get("")
-def get_users() -> list[UserResponseDTO]:
+def get_users(
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> list[UserResponseDTO]:
+    logger.info(f"{user.id} requesting to get all users")
     return user_controller.get_all_users()
 
 
 @router.get("/{user_id}")
-def get_user(user_id: uuid.UUID) -> UserResponseDTO:
+def get_user(
+    user_id: uuid.UUID,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> UserResponseDTO:
+    logger.info(f"{user.id} requesting to get user by ID {user_id}")
     user = user_controller.get_user(user_id)
     if not user:
         raise NotFoundException(msg=f"Could not find user with ID {user_id}!")
     return user
 
 
-# TODO Set password-strength requirements
 @router.post("")
-def create_user(user: UserRequestDTO) -> UserResponseDTO:
+def create_user(
+    user: UserRequestDTO,
+    current_user: Annotated[
+        UserResponseDTO, Depends(security_dependencies.get_logged_in_user)
+    ],
+) -> UserResponseDTO:
+    logger.info(f"{current_user.id} requesting to create a user")
     return user_controller.create_user(user)

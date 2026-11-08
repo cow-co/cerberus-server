@@ -1,6 +1,8 @@
 import pytest
+from fastapi.testclient import TestClient
 from sqlmodel import Session, delete
 
+from cerberus_backend.main import app
 from cerberus_backend.model.db.db_setup import engine, setup_db
 from cerberus_backend.model.db.implant import *
 from cerberus_backend.model.db.task import *
@@ -19,3 +21,29 @@ def setup_tests():
         sesh.exec(statement=delete(Implant))
         sesh.exec(statement=delete(User))
         sesh.commit()
+        initial_user = User(
+            username="initial",
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad")
+        )
+        sesh.add(initial_user)
+        sesh.commit()
+
+
+@pytest.fixture(name="client")
+def client_fixture():
+    client = TestClient(app)
+    yield client
+
+
+@pytest.fixture(name="authenticated_client")
+def authenticated_client_fixture():
+    client = TestClient(app)
+    res = client.post(
+        "/security/authenticate",
+        json={
+            "username": "initial",
+            "password": "testlkasjdfl;kjsad",
+        },
+    )
+    client.cookies = res.cookies
+    yield client
