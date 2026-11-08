@@ -37,12 +37,15 @@ def client_fixture():
 @pytest.fixture(name="authenticated_client")
 def authenticated_client_fixture():
     client = TestClient(app)
+    res = client.get("/security/csrf")
+    client.cookies = res.cookies
     res = client.post(
         "/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     client.cookies = res.cookies
     yield client

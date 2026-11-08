@@ -1,5 +1,6 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi_csrf_protect.exceptions import CsrfProtectError
 
 
 class NotFoundException(Exception):
@@ -56,4 +57,10 @@ def already_exists_exception_handler(request: Request, ex: AlreadyExistsExceptio
     return JSONResponse(
         status_code=409,
         content={"message": ex.msg},
+    )
+
+
+def csrf_token_error_handler(request: Request, ex: CsrfProtectError):
+    return JSONResponse(
+        status_code=403, content={"message": "CSRF Token missing or invalid!"}
     )

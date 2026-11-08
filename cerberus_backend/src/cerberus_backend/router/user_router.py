@@ -1,8 +1,10 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.logger import logger
+from fastapi.responses import JSONResponse
+from fastapi_csrf_protect import CsrfProtect
 
 from cerberus_backend.controller import user_controller
 from cerberus_backend.controller.dependencies import security_dependencies
@@ -36,11 +38,17 @@ def get_user(
 
 
 @router.post("")
-def create_user(
+async def create_user(
     user: UserRequestDTO,
     current_user: Annotated[
         UserResponseDTO, Depends(security_dependencies.get_logged_in_user)
     ],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
 ) -> UserResponseDTO:
+    await csrf_protect.validate_csrf(request)
     logger.info(f"{current_user.id} requesting to create a user")
-    return user_controller.create_user(user)
+    response = JSONResponse(user_controller.create_user(user))
+    csrf_protect.unset_csrf_cookie(response)
+    return response

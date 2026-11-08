@@ -1,8 +1,10 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request, Response
 from fastapi.logger import logger
+from fastapi.responses import JSONResponse
+from fastapi_csrf_protect import CsrfProtect
 
 from cerberus_backend.controller import task_controller
 from cerberus_backend.controller.dependencies import security_dependencies
@@ -39,12 +41,20 @@ def get_task_type(
 
 
 @router.post("/task-types")
-def create_task_type(
+async def create_task_type(
     task_type: TaskTypeRequestDTO,
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
 ) -> TaskTypeResponseDTO:
+    await csrf_protect.validate_csrf(request)
+
     logger.info(f"{user.id} requesting to create a new task type")
-    return task_controller.create_task_type(task_type)
+    response = JSONResponse(task_controller.create_task_type(task_type))
+
+    csrf_protect.unset_csrf_cookie(response)
+    return response
 
 
 @router.get("/tasks")
@@ -68,9 +78,17 @@ def get_task(
 
 
 @router.post("/tasks")
-def create_task(
+async def create_task(
     task: TaskRequestDTO,
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
 ) -> TaskResponseDTO:
+    await csrf_protect.validate_csrf(request)
+
     logger.info(f"{user.id} requesting to create a task")
-    return task_controller.create_task(task)
+    response = JSONResponse(task_controller.create_task(task))
+
+    csrf_protect.unset_csrf_cookie(response)
+    return response
