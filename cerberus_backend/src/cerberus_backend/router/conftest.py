@@ -38,7 +38,7 @@ def client_fixture():
 def authenticated_client_fixture():
     client = TestClient(app)
     res = client.get("/security/csrf")
-    client.cookies = res.cookies
+    client.cookies.update(res.cookies)
     res = client.post(
         "/security/authenticate",
         json={
@@ -47,5 +47,8 @@ def authenticated_client_fixture():
         },
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
-    client.cookies = res.cookies
+    client.cookies.update(res.cookies)
+    res = client.get("/security/csrf")
+    client.cookies.update(res.cookies)
+    client.headers.update({"X-CSRF-Token": res.json()["csrf_token"]})
     yield client

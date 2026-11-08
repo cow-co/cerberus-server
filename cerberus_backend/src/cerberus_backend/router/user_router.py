@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Request, Response
 from fastapi.logger import logger
 from fastapi.responses import JSONResponse
 from fastapi_csrf_protect import CsrfProtect
+from fastapi.encoders import jsonable_encoder
 
 from cerberus_backend.controller import user_controller
 from cerberus_backend.controller.dependencies import security_dependencies
@@ -48,7 +49,9 @@ async def create_user(
     csrf_protect: CsrfProtect = Depends(),
 ) -> UserResponseDTO:
     await csrf_protect.validate_csrf(request)
+
     logger.info(f"{current_user.id} requesting to create a user")
-    response = JSONResponse(user_controller.create_user(user))
+    response = JSONResponse(jsonable_encoder(user_controller.create_user(user)))
+
     csrf_protect.unset_csrf_cookie(response)
     return response

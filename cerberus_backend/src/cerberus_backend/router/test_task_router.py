@@ -226,12 +226,15 @@ def test_create_task(authenticated_client: TestClient):
     assert res.status_code == 200
     assert res.json()["name"] == "test"
 
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/tasks",
         json={
             "name": "test",
             "implant_id": str(uuid.uuid4()),
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 200
     assert res.json()["name"] == "test"

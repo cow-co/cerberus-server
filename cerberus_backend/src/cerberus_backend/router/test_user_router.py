@@ -54,19 +54,29 @@ def test_user_with_content(authenticated_client: TestClient):
 
 
 def test_failed_creates(authenticated_client: TestClient):
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={},
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
+
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={
             "username": "test",
             "password": "testlkasjdfl;kjsad",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
+
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={
@@ -74,8 +84,12 @@ def test_failed_creates(authenticated_client: TestClient):
             "password": "testlkasjdfl;kjsad",
             "password_confirmation": "not testlkasjdfl;kjsad",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
+
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={
@@ -83,8 +97,12 @@ def test_failed_creates(authenticated_client: TestClient):
             "password": "testlkasjdfl;kjsad",
             "password_confirmation": "testlkasjdfl;kjsad",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
+
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={
@@ -92,6 +110,7 @@ def test_failed_creates(authenticated_client: TestClient):
             "password": "",
             "password_confirmation": "",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
 
@@ -103,6 +122,9 @@ def test_failed_creates(authenticated_client: TestClient):
         session.add(user)
         session.commit()
         session.refresh(user)
+
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={
@@ -110,9 +132,12 @@ def test_failed_creates(authenticated_client: TestClient):
             "password": "testlkasjdfl;kjsad",
             "password_confirmation": "testlkasjdfl;kjsad",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 409
 
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/users",
         json={
@@ -120,6 +145,7 @@ def test_failed_creates(authenticated_client: TestClient):
             "password": "test",
             "password_confirmation": "test",
         },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
 

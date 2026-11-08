@@ -57,6 +57,7 @@ async def logout(
     await csrf_protect.validate_csrf(req)
 
     security_controller.log_user_out(user.id)
+    resp = JSONResponse({"message": "Success"})
     resp.delete_cookie(config.TOKEN_COOKIE)
 
     csrf_protect.unset_csrf_cookie(resp)
