@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 
@@ -39,8 +40,6 @@ async def lifespan(app: FastAPI):
     yield
 
 
-# TODO CORS Middleware
-
 app = FastAPI(lifespan=lifespan)
 app.add_exception_handler(NotFoundException, not_found_exception_handler)
 app.add_exception_handler(BadCredentialsException, bad_creds_exception_handler)
@@ -51,6 +50,14 @@ app.include_router(task_router.router, tags=["tasks"])
 app.include_router(user_router.router, prefix="/users", tags=["users"])
 app.include_router(security_router.router, prefix="/security", tags=["security"])
 
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=config.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 if __name__ == "__main__":
     print("Started!")
