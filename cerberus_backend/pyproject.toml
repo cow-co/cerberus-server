@@ -16,6 +16,7 @@ dependencies = [
     "pyjwt>=2.15.1",
     "sqlmodel>=0.0.48",
     "uvicorn>=0.54.0",
+    "zxcvbn>=4.5.0",
 ]
 
 [build-system]
