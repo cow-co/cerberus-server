@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlmodel import Field, Session, SQLModel, select
 
+from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.http.user import (
     UserRequestDTO,
@@ -98,4 +99,14 @@ def set_logout_timestamp(user_id: uuid.UUID, to_timestamp: datetime):
         u = sesh.get_one(User, user_id)
         u.logout_timestamp = to_timestamp
         sesh.add(u)
+        sesh.commit()
+
+
+def setup_initial_admin():
+    with Session(engine) as sesh:
+        init_admin = User(
+            username=config.INITIAL_ADMIN_USERNAME,
+            password_hash=generate_pwd_hash(config.INITIAL_ADMIN_PASSWORD),
+        )
+        sesh.add(init_admin)
         sesh.commit()

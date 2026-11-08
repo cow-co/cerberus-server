@@ -8,6 +8,8 @@ class Settings(BaseModel):
     TOKEN_COOKIE: str = "JWT"
     IS_SECURE: bool = False
     ZXCVBN_MIN_SCORE: int = 3
+    INITIAL_ADMIN_USERNAME: str = "initial_admin"
+    INITIAL_ADMIN_PASSWORD: str = "pwd-for-init-admin-account"
 
 
 # TODO Read this in from a config file

@@ -22,8 +22,7 @@ def setup_tests():
         sesh.exec(statement=delete(User))
         sesh.commit()
         initial_user = User(
-            username="initial",
-            password_hash=generate_pwd_hash("testlkasjdfl;kjsad")
+            username="initial", password_hash=generate_pwd_hash("testlkasjdfl;kjsad")
         )
         sesh.add(initial_user)
         sesh.commit()

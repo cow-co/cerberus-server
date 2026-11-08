@@ -3,7 +3,9 @@ from contextlib import asynccontextmanager
 import uvicorn
 from fastapi import FastAPI
 
+from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.db.db_setup import setup_db
+from cerberus_backend.model.db.user import get_user_in_db_by_name, setup_initial_admin
 from cerberus_backend.router import (
     implant_router,
     security_router,
@@ -23,6 +25,9 @@ from cerberus_backend.utils.exceptions import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_db()
+    initial_admin = get_user_in_db_by_name(config.INITIAL_ADMIN_USERNAME)
+    if not initial_admin:
+        setup_initial_admin()
     yield
 
 
