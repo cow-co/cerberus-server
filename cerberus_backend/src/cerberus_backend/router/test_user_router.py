@@ -128,9 +128,9 @@ def test_failed_creates(authenticated_client: TestClient):
     res = authenticated_client.post(
         "/users",
         json={
-            "username": "test",
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "username": "initial",
+            "password": "testlkasjdfl;",
+            "password_confirmation": "testlkasjdfl;",
         },
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
@@ -138,6 +138,7 @@ def test_failed_creates(authenticated_client: TestClient):
 
     res = authenticated_client.get("/security/csrf")
     authenticated_client.cookies.update(res.cookies)
+    csrf = res.json()["csrf_token"]
     res = authenticated_client.post(
         "/users",
         json={
@@ -145,9 +146,43 @@ def test_failed_creates(authenticated_client: TestClient):
             "password": "test",
             "password_confirmation": "test",
         },
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+        headers={"X-CSRF-Token": csrf},
     )
     assert res.status_code == 422
+
+
+def test_failed_create_bad_csrf(authenticated_client: TestClient):
+    res = authenticated_client.post(
+        "/users",
+        json={
+            "username": "test",
+            "password": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    # Reused CSRF
+    res = authenticated_client.post(
+        "/users",
+        json={
+            "username": "testy",
+            "password": "testlkasjdfl;",
+            "password_confirmation": "testlkasjdfl;",
+        },
+    )
+    assert res.status_code == 403
+
+    # Missing CSRF
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
+    res = authenticated_client.post(
+        "/users",
+        json={
+            "username": "testy",
+            "password": "testlkasjdfl;",
+            "password_confirmation": "testlkasjdfl;",
+        },
+    )
+    assert res.status_code == 403
 
 
 def test_creates(authenticated_client: TestClient):

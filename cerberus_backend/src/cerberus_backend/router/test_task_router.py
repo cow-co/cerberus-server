@@ -98,6 +98,19 @@ def test_create_task_type(authenticated_client: TestClient):
     assert res.json()["name"] == "test"
 
 
+def test_create_task_type_bad_csrf(authenticated_client: TestClient):
+    # Reused CSRF
+    authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 403
+
+    # Missing CSRF
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
+    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 403
+
+
 def test_create_task_type_bad_content(authenticated_client: TestClient):
     res = authenticated_client.post("/task-types", json={"params": []})
     assert res.status_code == 422
@@ -248,3 +261,25 @@ def test_create_task_bad_content(authenticated_client: TestClient):
 
     res = authenticated_client.post("/tasks", json={"name": "test", "task_args": []})
     assert res.status_code == 422
+
+
+def test_create_task_bad_csrf(authenticated_client: TestClient):
+    authenticated_client.post(
+        "/tasks",
+        json={"name": "test1", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
+    # Reused CSRF token
+    res = authenticated_client.post(
+        "/tasks",
+        json={"name": "test2", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
+    assert res.status_code == 403
+
+    # Missing CSRF token
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
+    res = authenticated_client.post(
+        "/tasks",
+        json={"name": "test3", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
+    assert res.status_code == 403
