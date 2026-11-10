@@ -44,14 +44,14 @@ def get_task_type(
 @router.post("/task-types")
 async def create_task_type(
     task_type: TaskTypeRequestDTO,
-    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+    admin: Annotated[UserResponseDTO, Depends(security_dependencies.get_admin_user)],
     request: Request,
     response: Response,
     csrf_protect: CsrfProtect = Depends(),
 ) -> TaskTypeResponseDTO:
     await csrf_protect.validate_csrf(request)
 
-    logger.info(f"{user.id} requesting to create a new task type")
+    logger.info(f"{admin.id} requesting to create a new task type")
     response = JSONResponse(jsonable_encoder(task_controller.create_task_type(task_type)))
 
     csrf_protect.unset_csrf_cookie(response)

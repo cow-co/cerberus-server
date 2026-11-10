@@ -92,28 +92,33 @@ def test_task_type_with_content(authenticated_client: TestClient):
     assert len(tt["params"]) == 1
 
 
-def test_create_task_type(authenticated_client: TestClient):
-    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+def test_create_task_type(admin_client: TestClient):
+    res = admin_client.post("/task-types", json={"name": "test", "params": []})
     assert res.status_code == 200
     assert res.json()["name"] == "test"
 
 
-def test_create_task_type_bad_csrf(authenticated_client: TestClient):
+def test_create_task_type_bad_csrf(admin_client: TestClient):
     # Reused CSRF
-    authenticated_client.post("/task-types", json={"name": "test", "params": []})
-    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    admin_client.post("/task-types", json={"name": "test", "params": []})
+    res = admin_client.post("/task-types", json={"name": "test", "params": []})
     assert res.status_code == 403
 
     # Missing CSRF
-    res = authenticated_client.get("/security/csrf")
-    authenticated_client.cookies.update(res.cookies)
-    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    res = admin_client.get("/security/csrf")
+    admin_client.cookies.update(res.cookies)
+    res = admin_client.post("/task-types", json={"name": "test", "params": []})
     assert res.status_code == 403
 
 
-def test_create_task_type_bad_content(authenticated_client: TestClient):
-    res = authenticated_client.post("/task-types", json={"params": []})
+def test_create_task_type_bad_content(admin_client: TestClient):
+    res = admin_client.post("/task-types", json={"params": []})
     assert res.status_code == 422
+
+
+def test_create_task_type_not_permitted(authenticated_client: TestClient):
+    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 403
 
 
 def test_empty_task_list(authenticated_client: TestClient):

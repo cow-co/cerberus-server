@@ -39,6 +39,18 @@ class AlreadyExistsException(Exception):
         return self.msg
 
 
+class UnauthorisedException(Exception):
+    def __init__(self, msg: str, *args: object) -> None:
+        super().__init__(*args)
+        self.msg = msg
+
+    def __repr__(self) -> str:
+        return self.msg
+
+    def __str__(self) -> str:
+        return self.msg
+
+
 def not_found_exception_handler(request: Request, ex: NotFoundException):
     return JSONResponse(
         status_code=404,
@@ -49,6 +61,13 @@ def not_found_exception_handler(request: Request, ex: NotFoundException):
 def bad_creds_exception_handler(request: Request, ex: BadCredentialsException):
     return JSONResponse(
         status_code=401,
+        content={"message": ex.msg},
+    )
+
+
+def unauthz_exception_handler(request: Request, ex: UnauthorisedException):
+    return JSONResponse(
+        status_code=403,
         content={"message": ex.msg},
     )
 

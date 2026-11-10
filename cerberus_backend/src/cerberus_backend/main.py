@@ -19,10 +19,12 @@ from cerberus_backend.utils.exceptions import (
     AlreadyExistsException,
     BadCredentialsException,
     NotFoundException,
+    UnauthorisedException,
     already_exists_exception_handler,
     bad_creds_exception_handler,
     csrf_token_error_handler,
     not_found_exception_handler,
+    unauthz_exception_handler,
 )
 
 
@@ -45,6 +47,7 @@ app.add_exception_handler(NotFoundException, not_found_exception_handler)
 app.add_exception_handler(BadCredentialsException, bad_creds_exception_handler)
 app.add_exception_handler(AlreadyExistsException, already_exists_exception_handler)
 app.add_exception_handler(CsrfProtectError, csrf_token_error_handler)
+app.add_exception_handler(UnauthorisedException, unauthz_exception_handler)
 app.include_router(implant_router.router, prefix="/implants", tags=["implants"])
 app.include_router(task_router.router, tags=["tasks"])
 app.include_router(user_router.router, prefix="/users", tags=["users"])

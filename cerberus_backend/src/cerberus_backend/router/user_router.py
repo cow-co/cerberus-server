@@ -41,8 +41,8 @@ def get_user(
 @router.post("")
 async def create_user(
     user: UserRequestDTO,
-    current_user: Annotated[
-        UserResponseDTO, Depends(security_dependencies.get_logged_in_user)
+    admin: Annotated[
+        UserResponseDTO, Depends(security_dependencies.get_admin_user)
     ],
     request: Request,
     response: Response,
@@ -50,7 +50,7 @@ async def create_user(
 ) -> UserResponseDTO:
     await csrf_protect.validate_csrf(request)
 
-    logger.info(f"{current_user.id} requesting to create a user")
+    logger.info(f"{admin.id} requesting to create a user")
     response = JSONResponse(jsonable_encoder(user_controller.create_user(user)))
 
     csrf_protect.unset_csrf_cookie(response)

@@ -5,11 +5,13 @@ from typing import Self
 from pydantic import BaseModel, Field, field_validator, model_validator
 from zxcvbn import zxcvbn
 
+from cerberus_backend.model.common.enums import UserRole
 from cerberus_backend.model.common.settings import config
 
 
 class UserBase(BaseModel):
     username: str
+    role: UserRole = UserRole.USER
 
 
 # TODO Should be NFKC normalising any strings on requests.

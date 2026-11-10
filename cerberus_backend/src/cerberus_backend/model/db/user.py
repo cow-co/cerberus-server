@@ -3,6 +3,7 @@ from datetime import datetime
 
 from sqlmodel import Field, Session, SQLModel, select
 
+from cerberus_backend.model.common.enums import UserRole
 from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.http.user import (
@@ -20,6 +21,7 @@ class User(SQLModel, table=True):
     password_hash: str  # In a system intended to be more secure than "just my little side-project", passwords would be a separate table.
     is_locked: bool = Field(default=False)
     logout_timestamp: datetime | None = Field(default=None)
+    role: UserRole = UserRole.USER
 
 
 def get_all_users_in_db() -> list[UserResponseDTO]:
@@ -33,6 +35,7 @@ def get_all_users_in_db() -> list[UserResponseDTO]:
                 username=res.username,
                 is_locked=res.is_locked,
                 logout_timestamp=res.logout_timestamp,
+                role=res.role,
             )
             for res in results
         ]
@@ -51,6 +54,7 @@ def get_user_in_db(user_id: uuid.UUID) -> UserResponseDTO | None:
                 username=found.username,
                 is_locked=found.is_locked,
                 logout_timestamp=found.logout_timestamp,
+                role=found.role,
             )
     return user
 
@@ -68,6 +72,7 @@ def get_user_in_db_by_name(name: str) -> UserWithPasswordDTO | None:
                 password_hash=found.password_hash,
                 is_locked=found.is_locked,
                 logout_timestamp=found.logout_timestamp,
+                role=found.role,
             )
     return user
 
@@ -90,6 +95,7 @@ def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
             username=to_create.username,
             is_locked=to_create.is_locked,
             logout_timestamp=to_create.logout_timestamp,
+            role=to_create.role,
         )
     return created
 
@@ -107,6 +113,7 @@ def setup_initial_admin():
         init_admin = User(
             username=config.INITIAL_ADMIN_USERNAME,
             password_hash=generate_pwd_hash(config.INITIAL_ADMIN_PASSWORD),
+            role=UserRole.ADMIN,
         )
         sesh.add(init_admin)
         sesh.commit()

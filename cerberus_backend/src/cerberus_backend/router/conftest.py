@@ -21,8 +21,16 @@ def setup_tests():
         sesh.exec(statement=delete(Implant))
         sesh.exec(statement=delete(User))
         sesh.commit()
+        initial_admin = User(
+            username="initial", 
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"), 
+            role=UserRole.ADMIN,
+        )
+        sesh.add(initial_admin)
         initial_user = User(
-            username="initial", password_hash=generate_pwd_hash("testlkasjdfl;kjsad")
+            username="user", 
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"), 
+            role=UserRole.USER,
         )
         sesh.add(initial_user)
         sesh.commit()
@@ -36,6 +44,26 @@ def client_fixture():
 
 @pytest.fixture(name="authenticated_client")
 def authenticated_client_fixture():
+    client = TestClient(app)
+    res = client.get("/security/csrf")
+    client.cookies.update(res.cookies)
+    res = client.post(
+        "/security/authenticate",
+        json={
+            "username": "user",
+            "password": "testlkasjdfl;kjsad",
+        },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
+    client.cookies.update(res.cookies)
+    res = client.get("/security/csrf")
+    client.cookies.update(res.cookies)
+    client.headers.update({"X-CSRF-Token": res.json()["csrf_token"]})
+    yield client
+
+
+@pytest.fixture(name="admin_client")
+def admin_client_fixture():
     client = TestClient(app)
     res = client.get("/security/csrf")
     client.cookies.update(res.cookies)
