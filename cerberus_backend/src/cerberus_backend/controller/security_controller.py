@@ -2,6 +2,7 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 import jwt
+from fastapi.logger import logger
 
 from cerberus_backend.controller import user_controller
 from cerberus_backend.model.common.settings import config
@@ -14,6 +15,9 @@ from cerberus_backend.utils.security_utils import verify_pwd
 def authenticate(req: LoginRequestDTO) -> str:
     user_account = user_controller.get_user_by_name(req.username)
     if user_account and verify_pwd(req.password, user_account.password_hash):
+        if user_account.is_locked:
+            logger.warning(f"User with ID {user_account.id} is locked!")
+            raise BadCredentialsException(msg="Your account is locked, please contact an admin to unlock it!")
         issued = datetime.now(UTC)
         expiry = issued + timedelta(minutes=config.JWT_EXPIRY_MINUTES)
         token = jwt.encode(

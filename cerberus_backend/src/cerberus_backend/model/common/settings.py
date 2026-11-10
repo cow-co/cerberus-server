@@ -1,3 +1,5 @@
+import uuid
+
 from pydantic import BaseModel
 
 
@@ -14,5 +16,10 @@ class Settings(BaseModel):
     ALLOWED_ORIGINS: list[str] = ["http://localhost:8000"]
 
 
+class SecurityCache(BaseModel):
+    initial_admin_id: uuid.UUID | None = None
+
+
 # TODO Read this in from a config file
 config = Settings()
+sec_cache = SecurityCache()

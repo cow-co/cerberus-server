@@ -10,7 +10,7 @@ from cerberus_backend.model.db.user import User
 def test_user_list_no_new_added(authenticated_client: TestClient):
     res = authenticated_client.get("/users")
     assert res.status_code == 200
-    assert len(res.json()) == 2
+    assert len(res.json()) == 3
 
 
 def test_user_list_with_content(authenticated_client: TestClient):
@@ -25,10 +25,10 @@ def test_user_list_with_content(authenticated_client: TestClient):
     res = authenticated_client.get("/users")
     users = res.json()
     assert res.status_code == 200
-    assert len(users) == 3
-    assert users[2]["username"] == "test"
-    assert "password_hash" not in users[2]
-    assert "password" not in users[2]
+    assert len(users) == 4
+    assert users[3]["username"] == "test"
+    assert "password_hash" not in users[3]
+    assert "password" not in users[3]
 
 
 def test_not_found_user(authenticated_client: TestClient):
@@ -206,4 +206,27 @@ def test_creates(admin_client: TestClient):
             "password_confirmation": "testlkasjdfl;kjsad",
         },
     )
+    assert res.status_code == 200
+
+
+def test_failed_enable_bad_csrf(admin_client: TestClient):
+    # Reused
+    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
+    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
+    assert res.status_code == 403
+
+    # Missing CSRF
+    res = admin_client.get("/security/csrf")
+    admin_client.cookies.update(res.cookies)
+    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
+    assert res.status_code == 403
+
+
+def test_failed_enable_not_permitted(authenticated_client: TestClient):
+    res = authenticated_client.patch(f"/users/{uuid.uuid4()}/enable")
+    assert res.status_code == 403
+
+
+def test_enables(admin_client: TestClient):
+    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
     assert res.status_code == 200

@@ -33,6 +33,13 @@ def setup_tests():
             role=UserRole.USER,
         )
         sesh.add(initial_user)
+        locked = User(
+            username="locked", 
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"), 
+            is_locked=True,
+            role=UserRole.USER,
+        )
+        sesh.add(locked)
         sesh.commit()
 
 

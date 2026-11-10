@@ -21,6 +21,21 @@ def test_logs_in(client: TestClient):
     assert config.TOKEN_COOKIE in res.cookies
 
 
+def test_fails_log_in_locked(client: TestClient):
+    res = client.get("/security/csrf")
+    client.cookies.update(res.cookies)
+    res = client.post(
+        "/security/authenticate",
+        json={
+            "username": "locked",
+            "password": "testlkasjdfl;kjsad",
+        },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
+    assert res.status_code == 401
+    assert config.TOKEN_COOKIE not in res.cookies
+
+
 def test_fails_log_in(client: TestClient):
     res = client.get("/security/csrf")
     client.cookies.update(res.cookies)

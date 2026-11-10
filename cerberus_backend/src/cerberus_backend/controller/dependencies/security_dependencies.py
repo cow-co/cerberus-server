@@ -7,10 +7,13 @@ from fastapi.logger import logger
 from fastapi.security import APIKeyCookie
 
 from cerberus_backend.controller import user_controller
-from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.common.enums import UserRole
+from cerberus_backend.model.common.settings import config
 from cerberus_backend.model.http.user import UserResponseDTO
-from cerberus_backend.utils.exceptions import BadCredentialsException, UnauthorisedException
+from cerberus_backend.utils.exceptions import (
+    BadCredentialsException,
+    UnauthorisedException,
+)
 
 auth_scheme = APIKeyCookie(
     name=config.TOKEN_COOKIE, scheme_name="Cookie auth", auto_error=False
@@ -30,7 +33,10 @@ def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserRespo
             raise BadCredentialsException("Invalid Token")
         if user.logout_timestamp and payload.get("iat") <= user.logout_timestamp:
             logger.warning("User provided an old token from before they logged out!")
-            raise BadCredentialsException("Invalid Token")
+            raise BadCredentialsException("You are logged out, and must log back in again!")
+        if user.is_locked:
+            logger.warning("User has been locked!")
+            raise BadCredentialsException("Your account has been locked, please ask an admin to unlock it!")
         return user
 
     except jwt.InvalidTokenError:

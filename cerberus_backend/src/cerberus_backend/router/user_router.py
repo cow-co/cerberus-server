@@ -2,10 +2,10 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
+from fastapi.encoders import jsonable_encoder
 from fastapi.logger import logger
 from fastapi.responses import JSONResponse
 from fastapi_csrf_protect import CsrfProtect
-from fastapi.encoders import jsonable_encoder
 
 from cerberus_backend.controller import user_controller
 from cerberus_backend.controller.dependencies import security_dependencies
@@ -52,6 +52,26 @@ async def create_user(
 
     logger.info(f"{admin.id} requesting to create a user")
     response = JSONResponse(jsonable_encoder(user_controller.create_user(user)))
+
+    csrf_protect.unset_csrf_cookie(response)
+    return response
+
+
+@router.patch("/{user_id}/enable")
+async def enable_user(
+    user_id: uuid.UUID,
+    admin: Annotated[
+        UserResponseDTO, Depends(security_dependencies.get_admin_user)
+    ],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
+) -> UserResponseDTO:
+    await csrf_protect.validate_csrf(request)
+
+    logger.info(f"{admin.id} requesting to enable a user")
+    user_controller.set_user_lock(user_id, True)
+    response = JSONResponse({"message": "Success"})
 
     csrf_protect.unset_csrf_cookie(response)
     return response

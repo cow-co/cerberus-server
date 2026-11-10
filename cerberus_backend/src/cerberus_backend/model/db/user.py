@@ -17,7 +17,7 @@ from cerberus_backend.utils.security_utils import generate_pwd_hash
 
 class User(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    username: str = Field(index=True)
+    username: str = Field(index=True, unique=True)
     password_hash: str  # In a system intended to be more secure than "just my little side-project", passwords would be a separate table.
     is_locked: bool = Field(default=False)
     logout_timestamp: datetime | None = Field(default=None)
@@ -108,7 +108,7 @@ def set_logout_timestamp(user_id: uuid.UUID, to_timestamp: datetime):
         sesh.commit()
 
 
-def setup_initial_admin():
+def setup_initial_admin() -> UserResponseDTO:
     with Session(engine) as sesh:
         init_admin = User(
             username=config.INITIAL_ADMIN_USERNAME,
@@ -117,3 +117,44 @@ def setup_initial_admin():
         )
         sesh.add(init_admin)
         sesh.commit()
+        sesh.refresh(init_admin)
+        created = UserResponseDTO(
+            id=init_admin.id,
+            username=init_admin.username,
+            is_locked=init_admin.is_locked,
+            logout_timestamp=init_admin.logout_timestamp,
+            role=init_admin.role,
+        )
+    return created
+
+
+def enable_account(user_id: uuid.UUID) -> None:
+    """Enables the given account, if it exists; else does nothing
+
+    Args:
+        user_id (uuid.UUID): User ID to enable
+    """
+    with Session(engine) as sesh:
+        statement = select(User).where(User.id == user_id)
+        results = sesh.exec(statement)
+        found = results.first()
+        if found:
+            found.is_locked = False
+            sesh.add(found)
+            sesh.commit()
+
+
+def disable_account(user_id: uuid.UUID) -> None:
+    """Disables the given account, if it exists; else does nothing
+
+    Args:
+        user_id (uuid.UUID): User ID to disable
+    """
+    with Session(engine) as sesh:
+        statement = select(User).where(User.id == user_id)
+        results = sesh.exec(statement)
+        found = results.first()
+        if found:
+            found.is_locked = True
+            sesh.add(found)
+            sesh.commit()

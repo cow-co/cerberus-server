@@ -2,11 +2,12 @@ from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.logger import logger
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_csrf_protect import CsrfProtect
 from fastapi_csrf_protect.exceptions import CsrfProtectError
 
-from cerberus_backend.model.common.settings import config
+from cerberus_backend.model.common.settings import config, sec_cache
 from cerberus_backend.model.db.db_setup import setup_db
 from cerberus_backend.model.db.user import get_user_in_db_by_name, setup_initial_admin
 from cerberus_backend.router import (
@@ -38,7 +39,9 @@ async def lifespan(app: FastAPI):
     setup_db()
     initial_admin = get_user_in_db_by_name(config.INITIAL_ADMIN_USERNAME)
     if not initial_admin:
-        setup_initial_admin()
+        logger.info("Setting up intiial admin account...")
+        initial_admin = setup_initial_admin()
+    sec_cache.initial_admin_id = initial_admin.id
     yield
 
 
