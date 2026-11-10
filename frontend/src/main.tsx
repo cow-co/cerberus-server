@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import { CssBaseline } from '@mui/material'
 import { ThemeProvider, createTheme } from '@mui/material/styles';
+import SigninPage from './pages/SigninPage.tsx'
 
 const darkTheme = createTheme({
   palette: {
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<App />} />
+            <Route path="/signin" element={<SigninPage />} />
             <Route path="/users">
             </Route>
             <Route path="/task-types">

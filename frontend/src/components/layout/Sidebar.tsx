@@ -1,4 +1,4 @@
-import { Box, Container, Drawer, Stack, Toolbar, Typography } from "@mui/material";
+import { Box, Drawer, Toolbar, Typography } from "@mui/material";
 import type React from "react"
 
 export interface SidebarProps {

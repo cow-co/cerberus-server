@@ -10,7 +10,7 @@ export default () => {
         <Button color="inherit">Implants</Button>
         <Button color="inherit">Task Types</Button>
         <Button color="inherit">Users</Button>
-        <Button color="inherit">Login</Button>
+        <Button color="inherit" href="/signin">Login</Button>
       </Toolbar>
     </AppBar>
   );
