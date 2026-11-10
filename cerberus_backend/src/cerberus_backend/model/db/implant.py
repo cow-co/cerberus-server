@@ -30,14 +30,17 @@ def get_all_db_implants() -> list[ImplantResponseDTO]:
     with Session(engine) as sesh:
         statement = select(Implant)
         results = sesh.exec(statement)
-        imps = [ImplantResponseDTO(
-            implant_id=res.id,
-            hostname=res.hostname,
-            ip_addr=res.ip_addr,
-            major_ver=res.major_ver,
-            minor_ver=res.minor_ver,
-            is_active=res.is_active,
-        ) for res in results]
+        imps = [
+            ImplantResponseDTO(
+                implant_id=res.id,
+                hostname=res.hostname,
+                ip_addr=res.ip_addr,
+                major_ver=res.major_ver,
+                minor_ver=res.minor_ver,
+                is_active=res.is_active,
+            )
+            for res in results
+        ]
     return imps
 
 
@@ -74,11 +77,11 @@ def create_db_implant(beacon: Beacon) -> BeaconResponseDTO:
                 is_active=True,
             )
         else:
-            imp.hostname=beacon.hostname
-            imp.ip_addr=beacon.ip_addr
-            imp.major_ver=beacon.major_ver
-            imp.minor_ver=beacon.minor_ver
-            imp.is_active=True
+            imp.hostname = beacon.hostname
+            imp.ip_addr = beacon.ip_addr
+            imp.major_ver = beacon.major_ver
+            imp.minor_ver = beacon.minor_ver
+            imp.is_active = True
         sesh.add(imp)
         sesh.commit()
         sesh.refresh(imp)

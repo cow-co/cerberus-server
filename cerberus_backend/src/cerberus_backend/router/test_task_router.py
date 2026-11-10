@@ -1,61 +1,50 @@
 import uuid
 
 from fastapi.testclient import TestClient
+from sqlmodel import Session
 
-from cerberus_backend.main import app
 from cerberus_backend.model.common.enums import ParamType
-from cerberus_backend.model.db.task import (
-    TaskArgResponseDTO,
-    TaskParamResponseDTO,
-    TaskResponseDTO,
-    TaskTypeResponseDTO,
-)
-
-client = TestClient(app)
+from cerberus_backend.model.db.db_setup import engine
+from cerberus_backend.model.db.task import Task, TaskArg, TaskParam, TaskType
 
 
-def test_empty_task_type_list(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_task_types"
-    ).return_value = []
-    res = client.get("/task-types")
+def test_empty_task_type_list(authenticated_client: TestClient):
+    res = authenticated_client.get("/task-types")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
 
-def test_task_type_list_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_task_types"
-    ).return_value = [
-        TaskTypeResponseDTO(
-            id=uuid.uuid4(),
-            name="test",
-            params=[],
+def test_task_type_list_with_content(authenticated_client: TestClient):
+    with Session(engine) as session:
+        session.add(
+            TaskType(
+                name="test",
+                params=[],
+            )
         )
-    ]
-    res = client.get("/task-types")
+        session.commit()
+    res = authenticated_client.get("/task-types")
     tts = res.json()
     assert res.status_code == 200
     assert len(tts) == 1
     assert tts[0]["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_task_types"
-    ).return_value = [
-        TaskTypeResponseDTO(
-            id=uuid.uuid4(),
-            name="test",
-            params=[
-                TaskParamResponseDTO(
-                    id=uuid.uuid4(),
-                    name="test",
-                    param_type=ParamType.STRING,
-                    tasktype_id=uuid.uuid4(),
-                )
-            ],
+
+def test_task_type_list_with_params(authenticated_client: TestClient):
+    with Session(engine) as session:
+        session.add(
+            TaskType(
+                name="test",
+                params=[
+                    TaskParam(
+                        name="test",
+                        param_type=ParamType.STRING,
+                    )
+                ],
+            )
         )
-    ]
-    res = client.get("/task-types")
+        session.commit()
+    res = authenticated_client.get("/task-types")
     tts = res.json()
     assert res.status_code == 200
     assert len(tts) == 1
@@ -63,118 +52,127 @@ def test_task_type_list_with_content(mocker):
     assert len(tts[0]["params"]) == 1
 
 
-def test_non_existent_task_type(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task_type"
-    ).return_value = None
-    res = client.get(f"/task-types/{uuid.uuid4()}")
+def test_non_existent_task_type(authenticated_client: TestClient):
+    res = authenticated_client.get(f"/task-types/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
-def test_task_type_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task_type"
-    ).return_value = TaskTypeResponseDTO(
-        id=uuid.uuid4(),
+def test_task_type_with_content(authenticated_client: TestClient):
+    tt = TaskType(
         name="test",
         params=[],
     )
-    res = client.get(f"/task-types/{uuid.uuid4()}")
+    with Session(engine) as session:
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+    res = authenticated_client.get(f"/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task_type"
-    ).return_value = TaskTypeResponseDTO(
-        id=uuid.uuid4(),
+    tt = TaskType(
         name="test",
         params=[
-            TaskParamResponseDTO(
-                id=uuid.uuid4(),
+            TaskParam(
                 name="test",
                 param_type=ParamType.STRING,
                 tasktype_id=uuid.uuid4(),
             )
         ],
     )
-    res = client.get(f"/task-types/{uuid.uuid4()}")
+    with Session(engine) as session:
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+    res = authenticated_client.get(f"/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
     assert len(tt["params"]) == 1
 
-def test_create_task_type(mocker):
-    res_id = uuid.uuid4()
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.create_task_type"
-    ).return_value = TaskTypeResponseDTO(
-        id=res_id,
-        name="test",
-        params=[],
-    )
-    res = client.post("/task-types", json={
-        "name": "test",
-        "params": []
-    })
-    assert res.status_code == 200
-    assert res.json()["id"] == str(res_id)
 
-def test_create_task_type_bad_content(mocker):
-    res = client.post("/task-types", json={
-        "params": []
-    })
+def test_create_task_type(admin_client: TestClient):
+    res = admin_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 200
+    assert res.json()["name"] == "test"
+
+
+def test_create_task_type_bad_csrf(admin_client: TestClient):
+    # Reused CSRF
+    admin_client.post("/task-types", json={"name": "test", "params": []})
+    res = admin_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 403
+
+    # Missing CSRF
+    res = admin_client.get("/security/csrf")
+    admin_client.cookies.update(res.cookies)
+    res = admin_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 403
+
+
+def test_create_task_type_bad_content(admin_client: TestClient):
+    res = admin_client.post("/task-types", json={"params": []})
     assert res.status_code == 422
 
 
+def test_create_task_type_not_permitted(authenticated_client: TestClient):
+    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    assert res.status_code == 403
 
-def test_empty_task_list(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_tasks"
-    ).return_value = []
-    res = client.get("/tasks")
+
+def test_empty_task_list(authenticated_client: TestClient):
+    res = authenticated_client.get("/tasks")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
 
-def test_task_list_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_tasks"
-    ).return_value = [
-        TaskResponseDTO(
-            id=uuid.uuid4(),
-            implant_id=uuid.uuid4(),
-            name="test",
-            task_args=[],
+def test_task_list_with_content(authenticated_client: TestClient):
+    with Session(engine) as session:
+        session.add(
+            Task(
+                implant_id=uuid.uuid4(),
+                name="test",
+                args=[],
+            )
         )
-    ]
-    res = client.get("/tasks")
+        session.commit()
+    res = authenticated_client.get("/tasks")
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
     assert ts[0]["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_all_tasks"
-    ).return_value = [
-        TaskResponseDTO(
-            id=uuid.uuid4(),
-            name="test",
-            implant_id=uuid.uuid4(),
-            task_args=[
-                TaskArgResponseDTO(
-                    id=uuid.uuid4(),
-                    spec=TaskParamResponseDTO(
-                        id=uuid.uuid4(),
-                        name="test",
-                        param_type=ParamType.STRING,
-                    ),
-                    value=12
-                )
-            ],
+
+def test_task_list_with_args(authenticated_client: TestClient):
+    tt = TaskType(
+        name="test",
+        params=[],
+    )
+    res = authenticated_client.get("/tasks")
+    print(res.json())
+    with Session(engine) as session:
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+        session.add(
+            Task(
+                implant_id=uuid.uuid4(),
+                name="test",
+                args=[
+                    TaskArg(
+                        spec=TaskParam(
+                            tasktype_id=tt.id,
+                            name="test",
+                            param_type=ParamType.STRING,
+                        ),
+                        value=12,
+                    )
+                ],
+            )
         )
-    ]
-    res = client.get("/tasks")
+        session.commit()
+    res = authenticated_client.get("/tasks")
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
@@ -182,95 +180,111 @@ def test_task_list_with_content(mocker):
     assert len(ts[0]["task_args"]) == 1
 
 
-def test_non_existent_task(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task"
-    ).return_value = None
-    res = client.get(f"/tasks/{uuid.uuid4()}")
+def test_non_existent_task(authenticated_client: TestClient):
+    res = authenticated_client.get(f"/tasks/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
-def test_task_with_content(mocker):
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task"
-    ).return_value = TaskResponseDTO(
-        id=uuid.uuid4(),
+def test_task_with_content(authenticated_client: TestClient):
+    task = Task(
         implant_id=uuid.uuid4(),
         name="test",
-        task_args=[],
+        args=[],
     )
-    res = client.get(f"/tasks/{uuid.uuid4()}")
-    task = res.json()
+    with Session(engine) as session:
+        session.add(task)
+        session.commit()
+        session.refresh(task)
+    res = authenticated_client.get(f"/tasks/{task.id}")
+    result = res.json()
     assert res.status_code == 200
-    assert task["name"] == "test"
+    assert result["name"] == "test"
 
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.get_task"
-    ).return_value = TaskResponseDTO(
-        id=uuid.uuid4(),
+
+def test_task_with_args(authenticated_client: TestClient):
+    tt = TaskType(
         name="test",
+        params=[],
+    )
+    task2 = Task(
         implant_id=uuid.uuid4(),
-        task_args=[
-            TaskArgResponseDTO(
-                id=uuid.uuid4(),
-                spec=TaskParamResponseDTO(
+        name="test2",
+        args=[
+            TaskArg(
+                spec=TaskParam(
                     id=uuid.uuid4(),
                     name="test",
                     param_type=ParamType.STRING,
                 ),
-                value=12
+                value=12,
             )
         ],
     )
-    res = client.get(f"/tasks/{uuid.uuid4()}")
-    task = res.json()
-    assert res.status_code == 200
-    assert task["name"] == "test"
-    assert len(task["task_args"]) == 1
+    with Session(engine) as session:
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+        task2.args[0].spec.tasktype_id = tt.id
+        session.add(task2)
+        session.commit()
+        session.refresh(task2)
 
-def test_create_task(mocker):
-    res_id = uuid.uuid4()
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.create_task"
-    ).return_value = TaskResponseDTO(
-        id=res_id,
-        name="test",
-        implant_id=uuid.uuid4(),
-        task_args=[],
+    res = authenticated_client.get(f"/tasks/{task2.id}")
+    result = res.json()
+    assert res.status_code == 200
+    assert result["name"] == "test2"
+    assert len(result["task_args"]) == 1
+
+
+def test_create_task(authenticated_client: TestClient):
+    res = authenticated_client.post(
+        "/tasks",
+        json={"name": "test", "implant_id": str(uuid.uuid4()), "task_args": []},
     )
-    res = client.post("/tasks", json={
-        "name": "test",
-        "implant_id": str(uuid.uuid4()),
-        "task_args": []
-    })
     assert res.status_code == 200
-    assert res.json()["id"] == str(res_id)
+    assert res.json()["name"] == "test"
 
-    res_id = uuid.uuid4()
-    mocker.patch(
-        "cerberus_backend.controller.task_controller.create_task"
-    ).return_value = TaskResponseDTO(
-        id=res_id,
-        name="test",
-        implant_id=uuid.uuid4(),
-        task_args=[],
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
+    res = authenticated_client.post(
+        "/tasks",
+        json={
+            "name": "test",
+            "implant_id": str(uuid.uuid4()),
+        },
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
-    res = client.post("/tasks", json={
-        "name": "test",
-        "implant_id": str(uuid.uuid4()),
-    })
     assert res.status_code == 200
-    assert res.json()["id"] == str(res_id)
+    assert res.json()["name"] == "test"
 
-def test_create_task_bad_content(mocker):
-    res = client.post("/tasks", json={
-        "implant_id": str(uuid.uuid4()),
-        "task_args": []
-    })
+
+def test_create_task_bad_content(authenticated_client: TestClient):
+    res = authenticated_client.post(
+        "/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []}
+    )
     assert res.status_code == 422
 
-    res = client.post("/tasks", json={
-        "name": "test",
-        "task_args": []
-    })
+    res = authenticated_client.post("/tasks", json={"name": "test", "task_args": []})
     assert res.status_code == 422
+
+
+def test_create_task_bad_csrf(authenticated_client: TestClient):
+    authenticated_client.post(
+        "/tasks",
+        json={"name": "test1", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
+    # Reused CSRF token
+    res = authenticated_client.post(
+        "/tasks",
+        json={"name": "test2", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
+    assert res.status_code == 403
+
+    # Missing CSRF token
+    res = authenticated_client.get("/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
+    res = authenticated_client.post(
+        "/tasks",
+        json={"name": "test3", "implant_id": str(uuid.uuid4()), "task_args": []},
+    )
+    assert res.status_code == 403
