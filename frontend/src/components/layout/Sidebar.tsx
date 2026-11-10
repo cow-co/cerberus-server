@@ -1,4 +1,4 @@
-import { Container, Stack, Typography } from "@mui/material";
+import { Box, Container, Drawer, Stack, Toolbar, Typography } from "@mui/material";
 import type React from "react"
 
 export interface SidebarProps {
@@ -15,11 +15,16 @@ export default (props: SidebarProps) => {
   const { children, title } = props;
 
   return (
-    <Container sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-      <Stack sx={{ flex: 1, my: 2 }} spacing={2}>
-        <Typography variant="h4">{title}</Typography>
+    <Drawer variant="permanent"sx={{
+          width: 240,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: { width: 240, boxSizing: 'border-box' },
+        }}>
+      <Toolbar />
+      <Box sx={{overflow: "auto"}}>
+        <Typography variant="h4" align="center">{title}</Typography>
         {children}
-      </Stack>
-    </Container>
+      </Box>
+    </Drawer>
   );
 }
