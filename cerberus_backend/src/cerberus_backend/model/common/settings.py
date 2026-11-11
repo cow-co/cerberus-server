@@ -16,6 +16,7 @@ class Settings(BaseModel):
     INITIAL_ADMIN_PASSWORD: str = "pwd-for-init-admin-account"
     CSRF_SECRET: str = "some_anti_csarf_token_secret"
     ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]  # Defaults to the vite dev server port
+    DB_CONNECT_STRING: str = "sqlite://"
 
 
 class SecurityCache(BaseModel):

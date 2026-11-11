@@ -1,7 +1,7 @@
 import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Stack, Alert } from "@mui/material";
 import { useState } from "react";
 import { styled } from '@mui/material/styles';
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { login } from "../api/UserApi";
 import { useAppDispatch } from "../state/hooks";
 import { updateUsername } from "../state/authSlice";
@@ -59,8 +59,7 @@ export default () => {
     },
   });
 
-  const submit = (evt: SubmitEvent) => {
-    evt.preventDefault();
+  const submit = () => {
     if (username.length === 0) {
       setUsernameError("You must enter a username!");
     } else {
