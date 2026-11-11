@@ -1,3 +1,4 @@
+import { BASE_URL } from "./ApiUtils";
 import type {
   LoginRequest,
   LoginResponse,
@@ -8,7 +9,7 @@ export const login = async (
   request: LoginRequest,
 ): Promise<LoginResponse> => {
   try {
-    const csrfResponse = await fetch("/security/csrf");
+    const csrfResponse = await fetch(`${BASE_URL}/security/csrf`);
     if (csrfResponse.ok) {
       const content = await csrfResponse.json();
       const response = await fetch("/security/authenticate", {
@@ -33,10 +34,10 @@ export const login = async (
 
 export const logout = async (): Promise<void> => {
   try {
-    const csrfResponse = await fetch("/security/csrf");
+    const csrfResponse = await fetch(`${BASE_URL}/security/csrf`);
     if (csrfResponse.ok) {
       const content = await csrfResponse.json();
-      const response = await fetch("/security/unauthenticate", {
+      const response = await fetch(`${BASE_URL}/security/unauthenticate`, {
         method: "DELETE",
         headers: { "X-CSRF-Token": content.token },
       });
@@ -56,7 +57,7 @@ export const logout = async (): Promise<void> => {
 
 export const getUsers = async (): Promise<UserResponse[]> => {
   try {
-    const response = await fetch("/users");
+    const response = await fetch(`${BASE_URL}/users`);
     if (response.ok) {
       return response.json();
     } else {
