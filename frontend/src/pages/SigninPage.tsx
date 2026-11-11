@@ -1,7 +1,8 @@
-import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Toolbar, Stack } from "@mui/material";
+import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Stack } from "@mui/material";
 import { useState } from "react";
-import Navbar from "../components/layout/Navbar";
 import { styled } from '@mui/material/styles';
+import { useMutation } from "@tanstack/react-query";
+import { login } from "../api/UserApi";
 
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -33,11 +34,22 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default () => {
+  const signinMutation = useMutation({
+    mutationFn: login,
+    onSuccess: () => {
+      // TODO set auth state
+      // TODO set localstorage with username
+      console.log("Success"); // TODO Redirect to home page
+    }
+  });
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
   const submit = () => {
-    console.log("Sending");
+    signinMutation.mutate({
+      username: username,
+      password: password,
+    })
   };
 
   return (

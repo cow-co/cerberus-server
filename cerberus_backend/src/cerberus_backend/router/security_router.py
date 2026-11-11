@@ -46,6 +46,11 @@ async def login(
     return resp
 
 
+@router.get("/whoami")
+def whoami(user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)]) -> LoginResponseDTO:
+    return LoginResponseDTO(user_id=user.id, username=user.username)
+
+
 @router.delete("/unauthenticate")
 async def logout(
     req: Request,
