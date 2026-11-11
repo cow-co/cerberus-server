@@ -1,16 +1,16 @@
 
 
-export interface LoginRequest {
+export type LoginRequest = {
   username: string;
   password: string;
 };
 
-export interface LoginResponse {
+export type LoginResponse = {
   username: string;
   user_id: string;
 };
 
-export interface UserResponse {
+export type UserResponse = {
   id: string;
   username: string;
   role: string;

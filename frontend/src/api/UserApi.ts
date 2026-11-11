@@ -9,12 +9,18 @@ export const login = async (
   request: LoginRequest,
 ): Promise<LoginResponse> => {
   try {
-    const csrfResponse = await fetch(`${BASE_URL}/security/csrf`);
+    const csrfResponse = await fetch(
+      `${BASE_URL}/security/csrf`, {
+        credentials: "include",});
     if (csrfResponse.ok) {
       const content = await csrfResponse.json();
-      const response = await fetch("/security/authenticate", {
+      const response = await fetch(`${BASE_URL}/security/authenticate`, {
         method: "POST",
-        headers: { "X-CSRF-Token": content.token },
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": content.csrf_token,
+        },
+        credentials: "include",
         body: JSON.stringify(request),
       });
       if (!response.ok) {
@@ -39,7 +45,7 @@ export const logout = async (): Promise<void> => {
       const content = await csrfResponse.json();
       const response = await fetch(`${BASE_URL}/security/unauthenticate`, {
         method: "DELETE",
-        headers: { "X-CSRF-Token": content.token },
+        headers: { "X-CSRF-Token": content.csrf_token },
       });
       if (!response.ok) {
         const content = response.json();

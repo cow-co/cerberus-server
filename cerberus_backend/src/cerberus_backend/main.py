@@ -31,7 +31,7 @@ from cerberus_backend.utils.exceptions import (
 
 @CsrfProtect.load_config
 def get_csrf_config():
-    return [("secret_key", config.CSRF_SECRET), ("cookie_samesite", "strict")]
+    return [("secret_key", config.CSRF_SECRET)]
 
 
 @asynccontextmanager
@@ -51,10 +51,10 @@ app.add_exception_handler(BadCredentialsException, bad_creds_exception_handler)
 app.add_exception_handler(AlreadyExistsException, already_exists_exception_handler)
 app.add_exception_handler(CsrfProtectError, csrf_token_error_handler)
 app.add_exception_handler(UnauthorisedException, unauthz_exception_handler)
-app.include_router(implant_router.router, prefix="/implants", tags=["implants"])
-app.include_router(task_router.router, tags=["tasks"])
-app.include_router(user_router.router, prefix="/users", tags=["users"])
-app.include_router(security_router.router, prefix="/security", tags=["security"])
+app.include_router(implant_router.router, prefix="/api/implants", tags=["implants"])
+app.include_router(task_router.router, prefix="/api", tags=["tasks"])
+app.include_router(user_router.router, prefix="/api/users", tags=["users"])
+app.include_router(security_router.router, prefix="/api/security", tags=["security"])
 
 
 app.add_middleware(

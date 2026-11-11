@@ -12,6 +12,7 @@ export interface PageProps {
 
 
 export default (props: PageProps) => {
+  // TODO Redirect to login if no username set in state
   const {sidebarProps, mainPanelProps, children} = props;
   return (
     <Container sx={{m: 0, width: "100%", border: "none"}}>
