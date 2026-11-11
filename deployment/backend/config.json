@@ -1,5 +1,0 @@
-{
-    "IS_SECURE": true,
-    "ALLOWED_ORIGINS": ["https://cerberus"],
-    "DB_CONNECT_STRING": "postgresql://cerberus-db"
-}
