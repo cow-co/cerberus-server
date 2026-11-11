@@ -14,7 +14,7 @@ export default () => {
         </Typography>
         <Button color="inherit">Implants</Button>
         <Button color="inherit">Task Types</Button>
-        <Button color="inherit">Users</Button>
+        <Button color="inherit" href="/users">Users</Button>
         {loginBtn}
       </Toolbar>
     </AppBar>

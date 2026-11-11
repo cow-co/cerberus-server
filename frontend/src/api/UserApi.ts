@@ -6,7 +6,7 @@ import type {
 
 export const login = async (
   request: LoginRequest,
-): Promise<LoginResponse | null> => {
+): Promise<LoginResponse> => {
   try {
     const csrfResponse = await fetch("/security/csrf");
     if (csrfResponse.ok) {
@@ -17,12 +17,13 @@ export const login = async (
         body: JSON.stringify(request),
       });
       if (!response.ok) {
-        console.warn(response.json()); // TODO Throw instead
-        return null;
+        const content = response.json();
+        throw Error(JSON.stringify(content));
       }
       return response.json();
     } else {
-      return null; // TODO Throw instead
+      const content = csrfResponse.json();
+      throw Error(JSON.stringify(content));
     }
   } catch (err) {
     console.warn(err);
@@ -40,8 +41,12 @@ export const logout = async (): Promise<void> => {
         headers: { "X-CSRF-Token": content.token },
       });
       if (!response.ok) {
-        console.warn(response.json()); // TODO Throw instead
+        const content = response.json();
+        throw Error(JSON.stringify(content));
       }
+    } else {
+      const content = csrfResponse.json();
+      throw Error(JSON.stringify(content));
     }
   } catch (err) {
     console.warn(err);
@@ -55,8 +60,8 @@ export const getUsers = async (): Promise<UserResponse[]> => {
     if (response.ok) {
       return response.json();
     } else {
-      console.warn(response.json()); // TODO Throw instead
-      return [];
+        const content = response.json();
+        throw Error(JSON.stringify(content));
     }
   } catch (err) {
     console.warn(err);

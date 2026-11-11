@@ -8,6 +8,7 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import SigninPage from './pages/SigninPage.tsx'
 import { store } from './state/store.ts'
 import { Provider } from 'react-redux'
+import UsersPage from './pages/UsersPage.tsx'
 
 const darkTheme = createTheme({
   palette: {
@@ -24,10 +25,8 @@ createRoot(document.getElementById('root')!).render(
             <Routes>
               <Route path="/" element={<App />} />
               <Route path="/signin" element={<SigninPage />} />
-              <Route path="/users">
-              </Route>
-              <Route path="/task-types">
-              </Route>
+              <Route path="/users" element={<UsersPage />} />
+              <Route path="/task-types" />
             </Routes>
           </BrowserRouter>
         </Provider>

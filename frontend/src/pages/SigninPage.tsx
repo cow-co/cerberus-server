@@ -1,8 +1,12 @@
-import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Stack } from "@mui/material";
+import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Stack, Alert } from "@mui/material";
 import { useState } from "react";
 import { styled } from '@mui/material/styles';
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../api/UserApi";
+import { useAppDispatch } from "../state/hooks";
+import { updateUsername } from "../state/authSlice";
+import type { LoginResponse } from "../api/data-model/UserModels";
+import { useNavigate } from "react-router";
 
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -34,16 +38,22 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default () => {
-  const signinMutation = useMutation({
-    mutationFn: login,
-    onSuccess: () => {
-      // TODO set auth state
-      // TODO set localstorage with username
-      console.log("Success"); // TODO Redirect to home page
-    }
-  });
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [alertContent, setAlertContent] = useState<string>("");
+  const signinMutation = useMutation({
+    mutationFn: login,
+    onSuccess: (data: LoginResponse) => {
+      dispatch(updateUsername(data.username));
+      localStorage.setItem("username", data.username);
+      navigate("/");
+    },
+    onError: (err) => {
+      setAlertContent(err.message);
+    },
+  });
 
   const submit = () => {
     signinMutation.mutate({
@@ -52,10 +62,13 @@ export default () => {
     })
   };
 
+  const alert = alertContent ? <Alert>{alertContent}</Alert> : <></>;
+
   return (
     <SignInContainer>
       <Card variant="outlined">
-        <Typography component="h1" variant="h4">Sign In</Typography>
+        <Typography component="h1" variant="h4">Sign In to CERBERUS</Typography>
+        {alert}
         <Box component="form" onSubmit={submit} noValidate sx={{
           display: 'flex',
           flexDirection: 'column',
