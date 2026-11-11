@@ -1,7 +1,7 @@
 import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Stack, Alert } from "@mui/material";
 import { useState } from "react";
 import { styled } from '@mui/material/styles';
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { login } from "../api/UserApi";
 import { useAppDispatch } from "../state/hooks";
 import { updateUsername } from "../state/authSlice";
@@ -40,9 +40,13 @@ const SignInContainer = styled(Stack)(({ theme }) => ({
 export default () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
   const [username, setUsername] = useState<string>("");
+  const [usernameError, setUsernameError] = useState<string|null>(null);
   const [password, setPassword] = useState<string>("");
+  const [passwordError, setPasswordError] = useState<string|null>(null);
   const [alertContent, setAlertContent] = useState<string>("");
+
   const signinMutation = useMutation({
     mutationFn: login,
     onSuccess: (data: LoginResponse) => {
@@ -55,33 +59,73 @@ export default () => {
     },
   });
 
-  const submit = () => {
-    signinMutation.mutate({
-      username: username,
-      password: password,
-    })
+  const submit = (evt: SubmitEvent) => {
+    evt.preventDefault();
+    if (username.length === 0) {
+      setUsernameError("You must enter a username!");
+    } else {
+      setUsernameError(null);
+    }
+    if (password.length === 0) {
+      setPasswordError("You must enter a password!");
+    } else {
+      setPasswordError(null);
+    }
+    if (username.length > 0 && password.length > 0) {
+      signinMutation.mutate({
+        username: username,
+        password: password,
+      });
+    }
   };
 
-  const alert = alertContent ? <Alert>{alertContent}</Alert> : <></>;
+  const alert = alertContent ? <Alert severity="error" variant="filled">{alertContent}</Alert> : <></>;
 
   return (
     <SignInContainer>
       <Card variant="outlined">
         <Typography component="h1" variant="h4">Sign In to CERBERUS</Typography>
         {alert}
-        <Box component="form" onSubmit={submit} noValidate sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          gap: 2,
-        }}>
+        <Box 
+          component="form" 
+          onSubmit={submit} 
+          noValidate 
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: 2,
+          }}
+        >
           <FormControl>
             <FormLabel>Username</FormLabel>
-            <TextField id="username" fullWidth autoFocus variant="outlined" value={username} onChange={(evt) => setUsername(evt.target.value)}/>
+            <TextField 
+              id="username" 
+              fullWidth 
+              autoFocus
+              required 
+              error={usernameError !== null}
+              helperText={usernameError}
+              color={usernameError ? "error" : "primary"}
+              variant="outlined" 
+              value={username} 
+              onChange={(evt) => setUsername(evt.target.value)}
+            />
           </FormControl>
           <FormControl>
             <FormLabel>Password</FormLabel>
-            <TextField id="password" fullWidth autoFocus type="password" variant="outlined" value={password} onChange={(evt) => setPassword(evt.target.value)}/>
+            <TextField 
+              id="password" 
+              fullWidth 
+              required 
+              error={passwordError !== null}
+              helperText={passwordError}
+              color={passwordError ? "error" : "primary"}
+              type="password" 
+              variant="outlined" 
+              value={password} 
+              onChange={(evt) => setPassword(evt.target.value)}
+            />
           </FormControl>
           <Button fullWidth variant="contained" type="submit">Sign In</Button>
         </Box>
