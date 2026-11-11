@@ -1,4 +1,6 @@
 import uuid
+from os import getenv
+from pathlib import Path
 
 from pydantic import BaseModel
 
@@ -19,7 +21,10 @@ class Settings(BaseModel):
 class SecurityCache(BaseModel):
     initial_admin_id: uuid.UUID | None = None
 
-
-# TODO Read this in from a config file
-config = Settings()
+envfile = getenv("CERBERUS_SETTINGS_FILE")
+if envfile:
+    content = Path(envfile).read_text()
+    config = Settings.model_validate_json(content)
+else:
+    config = Settings()
 sec_cache = SecurityCache()

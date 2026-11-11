@@ -1,4 +1,5 @@
 import { BASE_URL } from "./ApiUtils";
+import { APIResponseError } from "./data-model/Errors";
 import type {
   LoginRequest,
   LoginResponse,
@@ -25,12 +26,12 @@ export const login = async (
       });
       if (!response.ok) {
         const content = response.json();
-        throw Error(JSON.stringify(content));
+        throw new APIResponseError(JSON.stringify(content));
       }
       return response.json();
     } else {
       const content = csrfResponse.json();
-      throw Error(JSON.stringify(content));
+      throw new APIResponseError(JSON.stringify(content));
     }
   } catch (err) {
     console.warn(err);
