@@ -67,7 +67,6 @@ export default () => {
             <FormLabel>Username</FormLabel>
             <TextField 
               id="username" 
-              fullWidth 
               autoFocus
               required 
               error={usernameError !== null}
@@ -82,7 +81,6 @@ export default () => {
             <FormLabel>Password</FormLabel>
             <TextField 
               id="password" 
-              fullWidth 
               required 
               error={passwordError !== null}
               helperText={passwordError}
@@ -94,10 +92,9 @@ export default () => {
             />
           </FormControl>
           <FormControl fullWidth>
-            <FormLabel>Password</FormLabel>
+            <FormLabel>Password Confirmation</FormLabel>
             <TextField 
-              id="passwordConf" 
-              fullWidth 
+              id="passwordConf"
               required 
               error={passwordConfError !== null}
               helperText={passwordConfError}

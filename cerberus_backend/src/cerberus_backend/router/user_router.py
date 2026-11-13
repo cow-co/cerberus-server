@@ -19,6 +19,10 @@ from cerberus_backend.utils.exceptions import NotFoundException
 router = APIRouter()
 
 
+@router.get("/roles")
+def get_roles() -> list[str]:
+    return [r.value for r in UserRole]
+
 @router.get("")
 def get_users(
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
@@ -33,10 +37,10 @@ def get_user(
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
 ) -> UserResponseDTO:
     logger.info(f"{user.id} requesting to get user by ID {user_id}")
-    user = user_controller.get_user(user_id)
-    if not user:
+    user_response = user_controller.get_user(user_id)
+    if not user_response:
         raise NotFoundException(msg=f"Could not find user with ID {user_id}!")
-    return user
+    return user_response
 
 
 @router.post("")
@@ -72,8 +76,3 @@ async def enable_user(
 
     csrf_protect.unset_csrf_cookie(response)
     return response
-
-
-@router.get("/roles")
-def get_roles() -> list[str]:
-    return [r.value for r in UserRole]

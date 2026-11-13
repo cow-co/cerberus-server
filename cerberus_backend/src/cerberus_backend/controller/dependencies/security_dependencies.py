@@ -39,9 +39,9 @@ def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserRespo
             raise BadCredentialsException("Your account has been locked, please ask an admin to unlock it!")
         return user
 
-    except jwt.InvalidTokenError:
-        logger.warning("User provided an invalid token!")
-        raise BadCredentialsException("Invalid Token")
+    except jwt.InvalidTokenError as ex:
+        logger.warning(f"User provided an invalid token! {ex}")
+        raise BadCredentialsException("Invalid Token") from ex
 
 
 def get_admin_user(current_user: Annotated[UserResponseDTO, Depends(get_logged_in_user)]):
