@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Annotated
 
 import jwt
@@ -20,7 +21,7 @@ auth_scheme = APIKeyCookie(name=config.TOKEN_COOKIE, scheme_name="Cookie auth", 
 
 def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserResponseDTO:
     try:
-        payload = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALG])
+        payload = jwt.decode(token, config.JWT_SECRET, algorithms=[config.JWT_ALG], options={"require": ["iat", "exp", "sub"]})
         user_id = payload.get("sub")
         if not user_id:
             logger.warning("User provided a token with an invalid 'sub' field!")
@@ -29,7 +30,8 @@ def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserRespo
         if not user:
             logger.warning("User provided a token with an invalid 'sub' field!")
             raise BadCredentialsException("Invalid Token")
-        if user.logout_timestamp and payload.get("iat") <= user.logout_timestamp:
+        iat: int = payload.get("iat", 0)
+        if user.logout_timestamp and datetime.fromtimestamp(iat) <= user.logout_timestamp:
             logger.warning("User provided an old token from before they logged out!")
             raise BadCredentialsException("You are logged out, and must log back in again!")
         if user.is_locked:

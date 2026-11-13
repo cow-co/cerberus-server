@@ -4,18 +4,23 @@ import BasePageLayout from "../components/layout/BasePageLayout";
 import UserShow from "../components/user/UserShow";
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "../api/UserApi";
-import { ListItem } from "@mui/material";
+import { List, ListItemButton, ListItemText } from "@mui/material";
 
 
 export default () => {
   const usersQuery = useQuery({queryKey: ["users"], queryFn: getUsers});
   const [user, setUser] = useState<UserResponse|null>(null);
   
-  const sidebarContent = usersQuery.isSuccess ? usersQuery.data!.map(user => {
+
+  const sidebarContent = usersQuery.isSuccess ? (<List>
+    {usersQuery.data!.map(user => {
     return (
-      <ListItem onClick={() => setUser(user)}>{user.username}</ListItem>
+      <ListItemButton onClick={() => setUser(user)}>
+        <ListItemText>{user.username}</ListItemText>
+      </ListItemButton>
     );
-  }) : <></>;
+  })}
+  </List>) : <></>;
   const sidebarProps = {
     title: "Users",
     children: sidebarContent,

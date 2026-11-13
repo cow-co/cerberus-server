@@ -12,7 +12,7 @@ from cerberus_backend.utils.exceptions import BadCredentialsException
 from cerberus_backend.utils.security_utils import verify_pwd
 
 
-def authenticate(req: LoginRequestDTO) -> str:
+def authenticate(req: LoginRequestDTO) -> TokenDTO:
     user_account = user_controller.get_user_by_name(req.username)
     if user_account and verify_pwd(req.password, user_account.password_hash):
         if user_account.is_locked:
