@@ -86,9 +86,6 @@ export default () => {
         <Typography component="h1" variant="h4">Sign In to CERBERUS</Typography>
         {alert}
         <Box 
-          component="form" 
-          onSubmit={submit} 
-          noValidate 
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -126,7 +123,7 @@ export default () => {
               onChange={(evt) => setPassword(evt.target.value)}
             />
           </FormControl>
-          <Button fullWidth variant="contained" type="submit">Sign In</Button>
+          <Button fullWidth variant="contained" onClick={submit}>Sign In</Button>
         </Box>
       </Card>
     </SignInContainer>

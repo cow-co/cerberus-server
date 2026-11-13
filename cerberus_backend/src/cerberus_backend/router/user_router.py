@@ -41,9 +41,7 @@ def get_user(
 @router.post("")
 async def create_user(
     user: UserRequestDTO,
-    admin: Annotated[
-        UserResponseDTO, Depends(security_dependencies.get_admin_user)
-    ],
+    admin: Annotated[UserResponseDTO, Depends(security_dependencies.get_admin_user)],
     request: Request,
     response: Response,
     csrf_protect: CsrfProtect = Depends(),
@@ -60,9 +58,7 @@ async def create_user(
 @router.patch("/{user_id}/enable")
 async def enable_user(
     user_id: uuid.UUID,
-    admin: Annotated[
-        UserResponseDTO, Depends(security_dependencies.get_admin_user)
-    ],
+    admin: Annotated[UserResponseDTO, Depends(security_dependencies.get_admin_user)],
     request: Request,
     response: Response,
     csrf_protect: CsrfProtect = Depends(),

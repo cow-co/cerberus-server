@@ -1,5 +1,5 @@
-from typing import cast
 import uuid
+from typing import cast
 
 from sqlmodel import Field, Relationship, Session, SQLModel, select
 
@@ -144,9 +144,7 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
                             name=a.spec.name,
                             param_type=a.spec.param_type,
                         ),
-                        value=a.value_str
-                        if a.value_str
-                        else (a.value_int if a.value_int else a.value_bool),
+                        value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
                     )
                     for a in res.args
                 ],
@@ -178,9 +176,7 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
                             name=a.spec.name,
                             param_type=a.spec.param_type,
                         ),
-                        value=a.value_str
-                        if a.value_str
-                        else (a.value_int if a.value_int else a.value_bool),
+                        value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
                     )
                     for a in res.args
                 ],
@@ -202,15 +198,9 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
                         name=a.spec.name,
                         param_type=a.spec.param_type,
                     ),
-                    value_str=cast(str, a.value)
-                    if a.spec.param_type == ParamType.STRING
-                    else None,
-                    value_int=cast(int, a.value)
-                    if a.spec.param_type == ParamType.INTEGER
-                    else None,
-                    value_bool=cast(bool, a.value)
-                    if a.spec.param_type == ParamType.BOOLEAN
-                    else None,
+                    value_str=cast(str, a.value) if a.spec.param_type == ParamType.STRING else None,
+                    value_int=cast(int, a.value) if a.spec.param_type == ParamType.INTEGER else None,
+                    value_bool=cast(bool, a.value) if a.spec.param_type == ParamType.BOOLEAN else None,
                 )
                 for a in task.task_args
             ],
@@ -230,9 +220,7 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
                         name=a.spec.name,
                         param_type=a.spec.param_type,
                     ),
-                    value=a.value_str
-                    if a.value_str
-                    else (a.value_int if a.value_int else a.value_bool),
+                    value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
                 )
                 for a in to_create.args
             ],

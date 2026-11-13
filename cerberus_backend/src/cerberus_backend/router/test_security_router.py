@@ -131,16 +131,20 @@ def test_logout(authenticated_client: TestClient):
 
     res = authenticated_client.get("/api/security/csrf")
     authenticated_client.cookies.update(res.cookies)
-    res = authenticated_client.delete("/api/security/unauthenticate",
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},)
+    res = authenticated_client.delete(
+        "/api/security/unauthenticate",
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
     assert res.status_code == 401
 
 
 def test_fails_logout(client: TestClient):
     res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
-    res2 = client.delete("/api/security/unauthenticate",
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},)
+    res2 = client.delete(
+        "/api/security/unauthenticate",
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
     assert res2.status_code == 401
 
 
@@ -172,6 +176,8 @@ def test_fails_logout_bad_csrf(client: TestClient):
         },
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
-    res = client.delete("/api/security/unauthenticate",
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},)
+    res = client.delete(
+        "/api/security/unauthenticate",
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
     assert res.status_code == 403

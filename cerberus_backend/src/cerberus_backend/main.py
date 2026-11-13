@@ -11,6 +11,7 @@ from cerberus_backend.model.common.settings import config, sec_cache
 from cerberus_backend.model.db.db_setup import setup_db
 from cerberus_backend.model.db.user import get_user_in_db_by_name, setup_initial_admin
 from cerberus_backend.router import (
+    healthcheck_router,
     implant_router,
     security_router,
     task_router,
@@ -55,6 +56,7 @@ app.include_router(implant_router.router, prefix="/api/implants", tags=["implant
 app.include_router(task_router.router, prefix="/api", tags=["tasks"])
 app.include_router(user_router.router, prefix="/api/users", tags=["users"])
 app.include_router(security_router.router, prefix="/api/security", tags=["security"])
+app.include_router(healthcheck_router.router, prefix="/api/health", tags=["health"])
 
 
 app.add_middleware(
@@ -67,4 +69,4 @@ app.add_middleware(
 
 if __name__ == "__main__":
     print("Started!")
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)

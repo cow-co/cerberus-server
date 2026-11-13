@@ -22,20 +22,20 @@ def setup_tests():
         sesh.exec(statement=delete(User))
         sesh.commit()
         initial_admin = User(
-            username="initial", 
-            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"), 
+            username="initial",
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"),
             role=UserRole.ADMIN,
         )
         sesh.add(initial_admin)
         initial_user = User(
-            username="user", 
-            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"), 
+            username="user",
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"),
             role=UserRole.USER,
         )
         sesh.add(initial_user)
         locked = User(
-            username="locked", 
-            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"), 
+            username="locked",
+            password_hash=generate_pwd_hash("testlkasjdfl;kjsad"),
             is_locked=True,
             role=UserRole.USER,
         )

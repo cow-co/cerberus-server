@@ -259,9 +259,7 @@ def test_create_task(authenticated_client: TestClient):
 
 
 def test_create_task_bad_content(authenticated_client: TestClient):
-    res = authenticated_client.post(
-        "/api/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []}
-    )
+    res = authenticated_client.post("/api/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []})
     assert res.status_code == 422
 
     res = authenticated_client.post("/api/tasks", json={"name": "test", "task_args": []})

@@ -12,3 +12,5 @@ RUN pnpm run build
 FROM dhi.io/nginx@sha256:bd653042e33ea48fde85d24dac4ff840eb152a2db12e86790851babcfbd10b80
 
 COPY --from=build /app/dist /www/dist
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/default.conf

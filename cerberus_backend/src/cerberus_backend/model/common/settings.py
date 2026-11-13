@@ -22,6 +22,7 @@ class Settings(BaseModel):
 class SecurityCache(BaseModel):
     initial_admin_id: uuid.UUID | None = None
 
+
 envfile = getenv("CERBERUS_SETTINGS_FILE")
 if envfile:
     content = Path(envfile).read_text()

@@ -80,6 +80,4 @@ def already_exists_exception_handler(request: Request, ex: AlreadyExistsExceptio
 
 
 def csrf_token_error_handler(request: Request, ex: CsrfProtectError):
-    return JSONResponse(
-        status_code=403, content={"message": "CSRF Token missing or invalid!"}
-    )
+    return JSONResponse(status_code=403, content={"message": "CSRF Token missing or invalid!"})

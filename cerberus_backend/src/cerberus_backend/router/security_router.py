@@ -28,9 +28,7 @@ async def login(
 
     result = security_controller.authenticate(creds)
     resp = JSONResponse(
-        jsonable_encoder(
-            LoginResponseDTO(user_id=result.user_id, username=result.username)
-        ),
+        jsonable_encoder(LoginResponseDTO(user_id=result.user_id, username=result.username)),
     )
     resp.set_cookie(
         config.TOKEN_COOKIE,
