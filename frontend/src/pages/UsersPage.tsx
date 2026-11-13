@@ -4,29 +4,49 @@ import BasePageLayout from "../components/layout/BasePageLayout";
 import UserShow from "../components/user/UserShow";
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "../api/UserApi";
-import { List, ListItemButton, ListItemText } from "@mui/material";
+import AddIcon from '@mui/icons-material/Add';
+import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import UserForm from "../components/user/UserForm";
 
 
 export default () => {
   const usersQuery = useQuery({queryKey: ["users"], queryFn: getUsers});
   const [user, setUser] = useState<UserResponse|null>(null);
+  const [formShown, setFormShown] = useState<boolean>(false);
   
 
-  const sidebarContent = usersQuery.isSuccess ? (<List>
-    {usersQuery.data!.map(user => {
-    return (
-      <ListItemButton onClick={() => setUser(user)}>
-        <ListItemText>{user.username}</ListItemText>
+  const sidebarContent = usersQuery.isSuccess ? (
+    <List>
+      {usersQuery.data!.map(user => {
+        return (
+          <ListItemButton onClick={() => {
+              setFormShown(false);
+              setUser(user);
+            }}>
+            <ListItemText>{user.username}</ListItemText>
+          </ListItemButton>
+        );
+      })}
+      <ListItemButton onClick={() => {
+        setUser(null);
+        setFormShown(true);
+      }}>
+        <ListItemIcon><AddIcon /></ListItemIcon>
+        <ListItemText>Create</ListItemText>
       </ListItemButton>
-    );
-  })}
-  </List>) : <></>;
+    </List>
+  ) : <></>;
   const sidebarProps = {
     title: "Users",
     children: sidebarContent,
   };
 
-  const mainPanelContent = user ? <UserShow user={user} /> : <></>;
+  let mainPanelContent = <></>;
+  if (user) {
+    mainPanelContent = <UserShow user={user} />;
+  } else if (formShown) {
+    mainPanelContent = <UserForm />;
+  }
   const mainPanelProps = {
     title: user ? user.username : "User",
     children: mainPanelContent,

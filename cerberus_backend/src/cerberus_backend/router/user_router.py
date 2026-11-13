@@ -9,6 +9,7 @@ from fastapi_csrf_protect import CsrfProtect
 
 from cerberus_backend.controller import user_controller
 from cerberus_backend.controller.dependencies import security_dependencies
+from cerberus_backend.model.common.enums import UserRole
 from cerberus_backend.model.http.user import (
     UserRequestDTO,
     UserResponseDTO,
@@ -62,7 +63,7 @@ async def enable_user(
     request: Request,
     response: Response,
     csrf_protect: CsrfProtect = Depends(),
-) -> UserResponseDTO:
+) -> JSONResponse:
     await csrf_protect.validate_csrf(request)
 
     logger.info(f"{admin.id} requesting to enable a user")
@@ -71,3 +72,8 @@ async def enable_user(
 
     csrf_protect.unset_csrf_cookie(response)
     return response
+
+
+@router.get("/roles")
+def get_roles() -> list[str]:
+    return [r.value for r in UserRole]

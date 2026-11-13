@@ -1,10 +1,12 @@
-import { Box, Button, Card, Container, FormControl, FormLabel, TextField } from "@mui/material";
+import { Box, Button, Card, Container, FormControl, FormLabel, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createUser, getRoles } from "../../api/UserApi";
 
 
 export default () => {
   const client = useQueryClient();
+  const rolesQuery = useQuery({queryKey: ["roles"], queryFn: getRoles});
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string|null>(null);
   const [password, setPassword] = useState<string>("");
@@ -12,15 +14,16 @@ export default () => {
   const [passwordConf, setPasswordConf] = useState<string>("");
   const [passwordConfError, setPasswordConfError] = useState<string|null>(null);
   const [role, setRole] = useState<string>("");
+
   
   const createMutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
       client.invalidateQueries({queryKey: ["users"]});
     },
-    onError: (err) => {
-      setAlertContent(err.message); // TODO redux alert state; alert bar under navbar
-    },
+    // onError: (err) => {
+    //   //setAlertContent(err.message);
+    // },
   });
 
   const submit = () => {
@@ -43,7 +46,7 @@ export default () => {
       createMutation.mutate({
         username: username,
         password: password,
-        passwordConf: passwordConf,
+        password_confirmation: passwordConf,
         role: role,
       });
     }
@@ -60,7 +63,7 @@ export default () => {
             gap: 2,
           }}
         >
-          <FormControl>
+          <FormControl fullWidth>
             <FormLabel>Username</FormLabel>
             <TextField 
               id="username" 
@@ -75,7 +78,7 @@ export default () => {
               onChange={(evt) => setUsername(evt.target.value)}
             />
           </FormControl>
-          <FormControl>
+          <FormControl fullWidth>
             <FormLabel>Password</FormLabel>
             <TextField 
               id="password" 
@@ -90,7 +93,7 @@ export default () => {
               onChange={(evt) => setPassword(evt.target.value)}
             />
           </FormControl>
-          <FormControl>
+          <FormControl fullWidth>
             <FormLabel>Password</FormLabel>
             <TextField 
               id="passwordConf" 
@@ -104,6 +107,12 @@ export default () => {
               value={passwordConf} 
               onChange={(evt) => setPasswordConf(evt.target.value)}
             />
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="role-select-label">Role</InputLabel>
+            <Select labelId="role-select-label" id="role-select" value={role} label="Role" onChange={(evt) => setRole(evt.target.value)}>
+              {rolesQuery.data?.map(role => <MenuItem value={role}>{role}</MenuItem>)}
+            </Select>
           </FormControl>
           <Button fullWidth variant="contained" onClick={submit}>Create</Button>
         </Box>
