@@ -24,6 +24,7 @@ router = APIRouter()
 def get_roles() -> list[str]:
     return [r.value for r in UserRole]
 
+
 @router.get("")
 def get_users(
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
@@ -95,4 +96,3 @@ async def enable_user(
 
     csrf_protect.unset_csrf_cookie(response)
     return response
-    

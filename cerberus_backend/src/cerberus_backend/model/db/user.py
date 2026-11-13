@@ -22,6 +22,7 @@ class User(SQLModel, table=True):
     is_locked: bool = Field(default=False)
     logout_timestamp: datetime | None = Field(default=None)
     role: UserRole = UserRole.USER
+    requires_password_change: bool = False
 
 
 def get_all_users_in_db() -> list[UserResponseDTO]:
@@ -86,6 +87,7 @@ def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
         to_create = User(
             username=user.username,
             password_hash=generate_pwd_hash(user.password),
+            requires_password_change=True,
         )
         sesh.add(to_create)
         sesh.commit()
@@ -96,6 +98,7 @@ def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
             is_locked=to_create.is_locked,
             logout_timestamp=to_create.logout_timestamp,
             role=to_create.role,
+            requires_password_change=to_create.requires_password_change,
         )
     return created
 
