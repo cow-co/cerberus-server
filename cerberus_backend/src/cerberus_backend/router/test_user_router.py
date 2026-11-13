@@ -245,8 +245,8 @@ def test_changes_password(authenticated_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl:kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 200
@@ -257,8 +257,8 @@ def test_fails_change_old_password_wrong(authenticated_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsa",
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl:kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 200
@@ -269,7 +269,19 @@ def test_fails_change_password_mismatch(authenticated_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password": "testlkasjdfl;kjsa",
+            "password": "testlkasjdfl:kjsa",
+            "password_confirmation": "testlkasjdfl:kjsad",
+        },
+    )
+    assert res.status_code == 422
+
+
+def test_fails_change_password_same_as_old_pwd(authenticated_client: TestClient):
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "old_password": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl;kjsad",
             "password_confirmation": "testlkasjdfl;kjsad",
         },
     )
@@ -280,8 +292,8 @@ def test_fails_change_password_missing(authenticated_client: TestClient):
     res = authenticated_client.patch(
         "/api/users/change-password",
         json={
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl:kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 422
@@ -290,7 +302,7 @@ def test_fails_change_password_missing(authenticated_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 422
@@ -299,7 +311,7 @@ def test_fails_change_password_missing(authenticated_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password": "testlkasjdfl;kjsa",
+            "password": "testlkasjdfl:kjsa",
         },
     )
     assert res.status_code == 422
@@ -310,8 +322,8 @@ def test_fails_change_password_unauthenticated(client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl:kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 401
@@ -324,8 +336,8 @@ def test_fails_change_password_bad_csrf(admin_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl:kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 403
@@ -338,8 +350,8 @@ def test_fails_change_password_bad_csrf(admin_client: TestClient):
         "/api/users/change-password",
         json={
             "old_password": "testlkasjdfl;kjsad",
-            "password": "testlkasjdfl;kjsad",
-            "password_confirmation": "testlkasjdfl;kjsad",
+            "password": "testlkasjdfl:kjsad",
+            "password_confirmation": "testlkasjdfl:kjsad",
         },
     )
     assert res.status_code == 403

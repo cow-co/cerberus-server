@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../api/UserApi";
 import { useAppDispatch } from "../state/hooks";
-import { updateUsername } from "../state/authSlice";
+import { setNeedsPWChange, updateUsername } from "../state/authSlice";
 import type { LoginResponse } from "../api/data-model/UserModels";
 import { useNavigate } from "react-router";
 
@@ -52,7 +52,13 @@ export default () => {
     onSuccess: (data: LoginResponse) => {
       dispatch(updateUsername(data.username));
       localStorage.setItem("username", data.username);
-      navigate("/");
+      dispatch(setNeedsPWChange(data.requires_password_change));
+      localStorage.setItem("requiresPWChange", data.requires_password_change ? "true" : "false");
+      if (data.requires_password_change) {
+        navigate("/change-password");
+      } else {
+        navigate("/");
+      }
     },
     onError: (err) => {
       setAlertContent(err.message);

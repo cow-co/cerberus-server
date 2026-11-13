@@ -21,8 +21,8 @@ class User(SQLModel, table=True):
     password_hash: str  # In a system intended to be more secure than "just my little side-project", passwords would be a separate table.
     is_locked: bool = Field(default=False)
     logout_timestamp: datetime | None = Field(default=None)
-    role: UserRole = UserRole.USER
-    requires_password_change: bool = False
+    role: UserRole = Field(default=UserRole.USER)
+    requires_password_change: bool = Field(default=False)
 
 
 def get_all_users_in_db() -> list[UserResponseDTO]:
@@ -37,6 +37,7 @@ def get_all_users_in_db() -> list[UserResponseDTO]:
                 is_locked=res.is_locked,
                 logout_timestamp=res.logout_timestamp,
                 role=res.role,
+                requires_password_change=res.requires_password_change,
             )
             for res in results
         ]
@@ -58,6 +59,7 @@ def get_user_in_db(user_id: uuid.UUID, include_password: bool = False) -> UserRe
                     logout_timestamp=found.logout_timestamp,
                     role=found.role,
                     password_hash=found.password_hash,
+                    requires_password_change=found.requires_password_change,
                 )
             else:
                 user = UserResponseDTO(
@@ -66,6 +68,7 @@ def get_user_in_db(user_id: uuid.UUID, include_password: bool = False) -> UserRe
                     is_locked=found.is_locked,
                     logout_timestamp=found.logout_timestamp,
                     role=found.role,
+                    requires_password_change=found.requires_password_change,
                 )
     
     return user
@@ -86,6 +89,7 @@ def get_user_in_db_by_name(name: str, include_password: bool = False) -> UserRes
                     logout_timestamp=found.logout_timestamp,
                     role=found.role,
                     password_hash=found.password_hash,
+                    requires_password_change=found.requires_password_change,
                 )
             else:
                 user = UserResponseDTO(
@@ -94,6 +98,7 @@ def get_user_in_db_by_name(name: str, include_password: bool = False) -> UserRes
                     is_locked=found.is_locked,
                     logout_timestamp=found.logout_timestamp,
                     role=found.role,
+                    requires_password_change=found.requires_password_change,
                 )
     return user
 
@@ -147,6 +152,7 @@ def setup_initial_admin() -> UserResponseDTO:
             is_locked=init_admin.is_locked,
             logout_timestamp=init_admin.logout_timestamp,
             role=init_admin.role,
+            requires_password_change=init_admin.requires_password_change,
         )
     return created
 

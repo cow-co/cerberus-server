@@ -2,10 +2,9 @@ import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typogr
 import { useState } from "react";
 import { styled } from '@mui/material/styles';
 import { useMutation } from "@tanstack/react-query";
-import { login, updatePassword } from "../api/UserApi";
+import { updatePassword } from "../api/UserApi";
 import { useAppDispatch } from "../state/hooks";
 import { updateUsername } from "../state/authSlice";
-import type { LoginResponse } from "../api/data-model/UserModels";
 import { useNavigate } from "react-router";
 
 
@@ -81,6 +80,12 @@ export default () => {
     } else {
       setPasswordConfError(null);
     }
+    if (password === newPassword) {
+      setPasswordError("New password must differ from the old one!");
+      isValid = false;
+    } else {
+      setPasswordError(null);
+    }
     if (isValid) {
       pwChangeMutation.mutate({
         old_password: password,
@@ -95,7 +100,7 @@ export default () => {
   return (
     <SignInContainer>
       <Card variant="outlined">
-        <Typography component="h1" variant="h4">Sign In to CERBERUS</Typography>
+        <Typography component="h1" variant="h4">Change Your Password</Typography>
         {alert}
         <Box 
           sx={{

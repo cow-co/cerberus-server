@@ -71,4 +71,6 @@ class PasswordUpdateRequestDTO(BaseModel):
     def check_matched_passwords(self) -> Self:
         if self.password != self.password_confirmation:
             raise ValueError("Password and confirmation must match!")
+        if self.old_password == self.password:
+            raise ValueError("You must choose a new password which is different than the old one!")
         return self

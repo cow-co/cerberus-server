@@ -1,5 +1,5 @@
-from typing import cast
 import uuid
+from typing import cast
 
 from cerberus_backend.model.common.enums import UserRole
 from cerberus_backend.model.common.settings import sec_cache

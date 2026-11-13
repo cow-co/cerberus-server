@@ -2,7 +2,7 @@ import { AppBar, Button, Toolbar, Typography } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import { logout } from "../../api/UserApi";
 import { useMutation } from "@tanstack/react-query";
-import { updateUsername } from "../../state/authSlice";
+import { setNeedsPWChange, updateUsername } from "../../state/authSlice";
 import { useNavigate } from "react-router";
 
 export default () => {
@@ -15,7 +15,9 @@ export default () => {
     onSuccess: () => {
       console.log("Signed Out");
       dispatch(updateUsername(null));
+      dispatch(setNeedsPWChange(false));
       localStorage.removeItem("username");
+      localStorage.removeItem("requiresPWChange");
       navigate("/signin");
     },
   });
