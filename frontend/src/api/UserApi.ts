@@ -25,13 +25,15 @@ export const login = async (
         body: JSON.stringify(request),
       });
       if (!response.ok) {
-        const content = response.json();
-        throw new APIResponseError(JSON.stringify(content));
+        const content = await response.json();
+        console.error("Fetch error");
+        throw new APIResponseError(content.message);
       }
       return response.json();
     } else {
-      const content = csrfResponse.json();
-      throw new APIResponseError(JSON.stringify(content));
+      const content = await csrfResponse.json();
+      console.error("CSRF token error");
+      throw new APIResponseError(content.message);
     }
   } catch (err) {
     console.warn(err);
@@ -49,12 +51,14 @@ export const logout = async (): Promise<void> => {
         headers: { "X-CSRF-Token": content.csrf_token },
       });
       if (!response.ok) {
-        const content = response.json();
-        throw Error(JSON.stringify(content));
+        const content = await response.json();
+        console.error("Fetch error");
+        throw Error(content.message);
       }
     } else {
-      const content = csrfResponse.json();
-      throw Error(JSON.stringify(content));
+      const content = await csrfResponse.json();
+      console.error("CSRF token error");
+      throw Error(content.message);
     }
   } catch (err) {
     console.warn(err);
@@ -68,8 +72,9 @@ export const getUsers = async (): Promise<UserResponse[]> => {
     if (response.ok) {
       return response.json();
     } else {
-        const content = response.json();
-        throw Error(JSON.stringify(content));
+        const content = await response.json();
+        console.error("Fetch error");
+        throw Error(content.message);
     }
   } catch (err) {
     console.warn(err);
