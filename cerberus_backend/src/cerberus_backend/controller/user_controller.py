@@ -1,3 +1,4 @@
+from typing import cast
 import uuid
 
 from cerberus_backend.model.common.enums import UserRole
@@ -16,6 +17,7 @@ from cerberus_backend.model.http.user import (
     UserResponseDTO,
     UserWithPasswordDTO,
 )
+from cerberus_backend.utils.security_utils import verify_pwd
 
 
 def create_user(user: UserRequestDTO) -> UserResponseDTO:
@@ -25,16 +27,16 @@ def create_user(user: UserRequestDTO) -> UserResponseDTO:
     return new_user
 
 
-def get_user_by_name(name: str) -> UserWithPasswordDTO | None:
-    return get_user_in_db_by_name(name)
+def get_user_by_name(name: str, include_password: bool = False) -> UserResponseDTO | None:
+    return get_user_in_db_by_name(name, include_password)
 
 
 def get_all_users() -> list[UserResponseDTO]:
     return get_all_users_in_db()
 
 
-def get_user(user_id: uuid.UUID) -> UserResponseDTO | None:
-    return get_user_in_db(user_id)
+def get_user(user_id: uuid.UUID, include_password: bool = False) -> UserResponseDTO | None:
+    return get_user_in_db(user_id, include_password)
 
 
 def set_user_lock(user_id: uuid.UUID, lock_state: bool):
@@ -44,5 +46,7 @@ def set_user_lock(user_id: uuid.UUID, lock_state: bool):
         enable_account(user_id)
 
 
-def change_password(user_id: uuid.UUID, new_password: str) -> None:
-    update_user_password(user_id, new_password)
+def change_password(user_id: uuid.UUID, old_password: str, new_password: str) -> None:
+    user_account: UserWithPasswordDTO | None = cast(UserWithPasswordDTO | None, get_user_in_db(user_id, True))
+    if user_account and verify_pwd(old_password, user_account.password_hash):
+        update_user_password(user_id, new_password)

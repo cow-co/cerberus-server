@@ -13,7 +13,7 @@ from cerberus_backend.utils.security_utils import verify_pwd
 
 
 def authenticate(req: LoginRequestDTO) -> TokenDTO:
-    user_account = user_controller.get_user_by_name(req.username)
+    user_account = user_controller.get_user_by_name(req.username, True)
     if user_account and verify_pwd(req.password, user_account.password_hash):
         if user_account.is_locked:
             logger.warning(f"User with ID {user_account.id} is locked!")

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlmodel import Field, Session, SQLModel, select
 
@@ -43,38 +43,58 @@ def get_all_users_in_db() -> list[UserResponseDTO]:
     return users
 
 
-def get_user_in_db(user_id: uuid.UUID) -> UserResponseDTO | None:
+def get_user_in_db(user_id: uuid.UUID, include_password: bool = False) -> UserResponseDTO | None:
     user = None
     with Session(engine) as sesh:
         statement = select(User).where(User.id == user_id)
         results = sesh.exec(statement)
         found = results.first()
         if found:
-            user = UserResponseDTO(
-                id=found.id,
-                username=found.username,
-                is_locked=found.is_locked,
-                logout_timestamp=found.logout_timestamp,
-                role=found.role,
-            )
+            if include_password:
+                user = UserWithPasswordDTO(
+                    id=found.id,
+                    username=found.username,
+                    is_locked=found.is_locked,
+                    logout_timestamp=found.logout_timestamp,
+                    role=found.role,
+                    password_hash=found.password_hash,
+                )
+            else:
+                user = UserResponseDTO(
+                    id=found.id,
+                    username=found.username,
+                    is_locked=found.is_locked,
+                    logout_timestamp=found.logout_timestamp,
+                    role=found.role,
+                )
+    
     return user
 
 
-def get_user_in_db_by_name(name: str) -> UserWithPasswordDTO | None:
+def get_user_in_db_by_name(name: str, include_password: bool = False) -> UserResponseDTO | None:
     user = None
     with Session(engine) as sesh:
         statement = select(User).where(User.username == name)
         results = sesh.exec(statement)
         found = results.first()
         if found:
-            user = UserWithPasswordDTO(
-                id=found.id,
-                username=found.username,
-                password_hash=found.password_hash,
-                is_locked=found.is_locked,
-                logout_timestamp=found.logout_timestamp,
-                role=found.role,
-            )
+            if include_password:
+                user = UserWithPasswordDTO(
+                    id=found.id,
+                    username=found.username,
+                    is_locked=found.is_locked,
+                    logout_timestamp=found.logout_timestamp,
+                    role=found.role,
+                    password_hash=found.password_hash,
+                )
+            else:
+                user = UserResponseDTO(
+                    id=found.id,
+                    username=found.username,
+                    is_locked=found.is_locked,
+                    logout_timestamp=found.logout_timestamp,
+                    role=found.role,
+                )
     return user
 
 
@@ -170,5 +190,6 @@ def update_user_password(user_id: uuid.UUID, new_password: str) -> None:
         found = results.first()
         if found:
             found.password_hash = generate_pwd_hash(new_password)
+            found.logout_timestamp = datetime.now(UTC)
             sesh.add(found)
             sesh.commit()

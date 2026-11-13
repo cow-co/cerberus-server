@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Annotated
 
 import jwt
@@ -33,7 +33,7 @@ def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserRespo
             logger.warning("User provided a token with an invalid 'sub' field!")
             raise BadCredentialsException("Invalid Token")
         iat: int = payload.get("iat", 0)
-        if user.logout_timestamp and datetime.fromtimestamp(iat) <= user.logout_timestamp:
+        if user.logout_timestamp and datetime.fromtimestamp(iat, UTC) <= user.logout_timestamp:
             logger.warning("User provided an old token from before they logged out!")
             raise BadCredentialsException("You are logged out, and must log back in again!")
         if user.is_locked:

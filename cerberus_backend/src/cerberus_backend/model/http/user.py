@@ -54,6 +54,7 @@ class UserWithPasswordDTO(UserResponseDTO):
 
 
 class PasswordUpdateRequestDTO(BaseModel):
+    old_password: str
     password: str
     password_confirmation: str
 
