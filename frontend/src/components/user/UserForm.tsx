@@ -1,4 +1,4 @@
-import { Box, Button, Card, Container, FormControl, FormLabel, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Box, Button, Card, FormControl, FormLabel, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createUser, getRoles } from "../../api/UserApi";
@@ -53,14 +53,28 @@ export default () => {
   };
 
   return (
-    <Container>
-      <Card>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <Card
+        sx={{
+          display: 'flex',
+          justifyContent: "center",
+          alignItems: "center",
+          width: "60%",
+        }}
+      >
         <Box 
           sx={{
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
             gap: 2,
+            p: "20px",
           }}
         >
           <FormControl fullWidth>
@@ -114,6 +128,6 @@ export default () => {
           <Button fullWidth variant="contained" onClick={submit}>Create</Button>
         </Box>
       </Card>
-    </Container>
+    </Box>
   );
 }
