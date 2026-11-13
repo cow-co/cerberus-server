@@ -17,3 +17,10 @@ export type UserResponse = {
   is_locked: boolean;
   logout_timestamp?: string;
 }
+
+export type CreateUserRequest = {
+  username: string;
+  password: string;
+  password_confirmation: string;
+  role: string;
+}

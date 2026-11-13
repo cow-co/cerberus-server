@@ -7,6 +7,14 @@ from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.db.user import User
 
 
+def test_roles_list(client: TestClient):
+    res = client.get("/api/users/roles")
+    assert res.status_code == 200
+    assert len(res.json()) == 2
+    assert "ADMIN" in res.json()
+    assert "USER" in res.json()
+
+
 def test_user_list_no_new_added(authenticated_client: TestClient):
     res = authenticated_client.get("/api/users")
     assert res.status_code == 200

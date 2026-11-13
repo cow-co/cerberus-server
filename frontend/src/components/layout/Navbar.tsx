@@ -1,11 +1,26 @@
 import { AppBar, Button, Toolbar, Typography } from "@mui/material";
-import { useAppSelector } from "../../state/hooks";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
+import { logout } from "../../api/UserApi";
+import { useMutation } from "@tanstack/react-query";
+import { updateUsername } from "../../state/authSlice";
+import { useNavigate } from "react-router";
 
 export default () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const username = useAppSelector(state => state.auth.username);
-  // TODO execute a logout when logout is clicked
-  // TODO On logout, remove username from localstorage
-  const loginBtn = username ? <Button color="inherit">Log Out</Button> : <Button color="inherit" href="/signin">Log In</Button>;
+  
+  const signoutMutation = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      console.log("Signed Out");
+      dispatch(updateUsername(null));
+      localStorage.removeItem("username");
+      navigate("/signin");
+    },
+  });
+
+  const loginBtn = username ? <Button color="inherit" onClick={() => signoutMutation.mutate()}>Log Out</Button> : <Button color="inherit" href="/signin">Log In</Button>;
   return (
     <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
       <Toolbar>
