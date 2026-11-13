@@ -1,4 +1,6 @@
 import uuid
+from os import getenv
+from pathlib import Path
 
 from pydantic import BaseModel
 
@@ -13,13 +15,18 @@ class Settings(BaseModel):
     INITIAL_ADMIN_USERNAME: str = "initial_admin"
     INITIAL_ADMIN_PASSWORD: str = "pwd-for-init-admin-account"
     CSRF_SECRET: str = "some_anti_csarf_token_secret"
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:8000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:5173"]  # Defaults to the vite dev server port
+    DB_CONNECT_STRING: str = "sqlite://"
 
 
 class SecurityCache(BaseModel):
     initial_admin_id: uuid.UUID | None = None
 
 
-# TODO Read this in from a config file
-config = Settings()
+envfile = getenv("CERBERUS_SETTINGS_FILE")
+if envfile:
+    content = Path(envfile).read_text()
+    config = Settings.model_validate_json(content)
+else:
+    config = Settings()
 sec_cache = SecurityCache()

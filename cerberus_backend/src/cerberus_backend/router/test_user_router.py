@@ -8,7 +8,7 @@ from cerberus_backend.model.db.user import User
 
 
 def test_user_list_no_new_added(authenticated_client: TestClient):
-    res = authenticated_client.get("/users")
+    res = authenticated_client.get("/api/users")
     assert res.status_code == 200
     assert len(res.json()) == 3
 
@@ -22,7 +22,7 @@ def test_user_list_with_content(authenticated_client: TestClient):
             )
         )
         session.commit()
-    res = authenticated_client.get("/users")
+    res = authenticated_client.get("/api/users")
     users = res.json()
     assert res.status_code == 200
     assert len(users) == 4
@@ -32,7 +32,7 @@ def test_user_list_with_content(authenticated_client: TestClient):
 
 
 def test_not_found_user(authenticated_client: TestClient):
-    res = authenticated_client.get(f"/users/{uuid.uuid4()}")
+    res = authenticated_client.get(f"/api/users/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
@@ -45,7 +45,7 @@ def test_user_with_content(authenticated_client: TestClient):
         session.add(user)
         session.commit()
         session.refresh(user)
-    res = authenticated_client.get(f"/users/{user.id}")
+    res = authenticated_client.get(f"/api/users/{user.id}")
     user = res.json()
     assert res.status_code == 200
     assert user["username"] == "test"
@@ -54,19 +54,19 @@ def test_user_with_content(authenticated_client: TestClient):
 
 
 def test_failed_creates(admin_client: TestClient):
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={},
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 422
 
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "test",
             "password": "testlkasjdfl;kjsad",
@@ -75,10 +75,10 @@ def test_failed_creates(admin_client: TestClient):
     )
     assert res.status_code == 422
 
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "test",
             "password": "testlkasjdfl;kjsad",
@@ -88,10 +88,10 @@ def test_failed_creates(admin_client: TestClient):
     )
     assert res.status_code == 422
 
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "",
             "password": "testlkasjdfl;kjsad",
@@ -101,10 +101,10 @@ def test_failed_creates(admin_client: TestClient):
     )
     assert res.status_code == 422
 
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "test",
             "password": "",
@@ -123,10 +123,10 @@ def test_failed_creates(admin_client: TestClient):
         session.commit()
         session.refresh(user)
 
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "initial",
             "password": "testlkasjdfl;",
@@ -136,11 +136,11 @@ def test_failed_creates(admin_client: TestClient):
     )
     assert res.status_code == 409
 
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
     csrf = res.json()["csrf_token"]
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "someone",
             "password": "test",
@@ -153,7 +153,7 @@ def test_failed_creates(admin_client: TestClient):
 
 def test_failed_create_bad_csrf(admin_client: TestClient):
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "test",
             "password": "testlkasjdfl;kjsad",
@@ -162,7 +162,7 @@ def test_failed_create_bad_csrf(admin_client: TestClient):
     )
     # Reused CSRF
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "testy",
             "password": "testlkasjdfl;",
@@ -175,7 +175,7 @@ def test_failed_create_bad_csrf(admin_client: TestClient):
     res = admin_client.get("/security/csrf")
     admin_client.cookies.update(res.cookies)
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "testy",
             "password": "testlkasjdfl;",
@@ -187,7 +187,7 @@ def test_failed_create_bad_csrf(admin_client: TestClient):
 
 def test_failed_create_not_permitted(authenticated_client: TestClient):
     res = authenticated_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "test",
             "password": "testlkasjdfl;kjsad",
@@ -199,7 +199,7 @@ def test_failed_create_not_permitted(authenticated_client: TestClient):
 
 def test_creates(admin_client: TestClient):
     res = admin_client.post(
-        "/users",
+        "/api/users",
         json={
             "username": "test",
             "password": "testlkasjdfl;kjsad",
@@ -211,22 +211,22 @@ def test_creates(admin_client: TestClient):
 
 def test_failed_enable_bad_csrf(admin_client: TestClient):
     # Reused
-    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
-    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
+    res = admin_client.patch(f"/api/users/{uuid.uuid4()}/enable")
+    res = admin_client.patch(f"/api/users/{uuid.uuid4()}/enable")
     assert res.status_code == 403
 
     # Missing CSRF
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
-    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
+    res = admin_client.patch(f"/api/users/{uuid.uuid4()}/enable")
     assert res.status_code == 403
 
 
 def test_failed_enable_not_permitted(authenticated_client: TestClient):
-    res = authenticated_client.patch(f"/users/{uuid.uuid4()}/enable")
+    res = authenticated_client.patch(f"/api/users/{uuid.uuid4()}/enable")
     assert res.status_code == 403
 
 
 def test_enables(admin_client: TestClient):
-    res = admin_client.patch(f"/users/{uuid.uuid4()}/enable")
+    res = admin_client.patch(f"/api/users/{uuid.uuid4()}/enable")
     assert res.status_code == 200

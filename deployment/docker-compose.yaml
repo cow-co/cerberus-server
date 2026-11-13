@@ -1,4 +1,77 @@
 services:
-  # TODO Postgres
-  # TODO Backend
-  # TODO Frontend
+  # cerberus_db:
+  #   container_name: cerberus_db
+  #   hostname: cerberus-db
+  #   # postgres 18.6-debian13
+  #   image: dhi.io/postgres@sha256:65bbd15f3cdbc687f3c7c03694d2373efcae6b410cf401cbdf9f03e0ad795773
+  #   restart: always
+  #   env:
+  #     POSTGRES_PASSWORD_FILE: /run/secrets/postgres-passwd
+  #   volumes:
+  #     - db_data:/var/lib/postgresql
+  #   networks:
+  #     - cerberus_net
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   cap_drop:
+  #     - NET_RAW
+  #     - NET_BIND_SERVICE
+
+  cerberus_backend:
+    container_name: cerberus_backend
+    hostname: cerberus-rest-api
+    image: cerberus_backend:latest
+    restart: always
+    # environment:
+    #   CERBERUS_SETTINGS_FILE: "/app/config/config.json"
+    # volumes:
+    #   - ./backend/config.json:/app/config/config.json:ro
+    networks:
+      - cerberus_net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
+      - NET_BIND_SERVICE
+
+  cerberus_frontend:
+    container_name: cerberus_frontend
+    hostname: cerberus-ui
+    image: cerberus_frontend:latest
+    restart: always
+    depends_on:
+      cerberus_backend:
+        condition: service_started
+    networks:
+      - cerberus_net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
+      - NET_BIND_SERVICE
+
+  cerberus_rp:
+    container_name: cerberus_rp
+    hostname: cerberus
+    # NGinx 1.31.8 debian13
+    image: dhi.io/nginx@sha256:bd653042e33ea48fde85d24dac4ff840eb152a2db12e86790851babcfbd10b80
+    restart: always
+    depends_on:
+      cerberus_backend:
+        condition: service_started
+    volumes:
+      # - ./certs/cerberus.key
+      # - ./certs/cerberus.crt
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/default.conf:ro
+    ports:
+      - 80:80
+    networks:
+      - cerberus_net
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - NET_RAW
+networks:
+  cerberus_net:
+    driver: bridge

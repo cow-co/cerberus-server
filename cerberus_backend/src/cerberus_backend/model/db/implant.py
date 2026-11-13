@@ -102,9 +102,7 @@ def create_db_implant(beacon: Beacon) -> BeaconResponseDTO:
                                 name=a.spec.name,
                                 param_type=a.spec.param_type,
                             ),
-                            value=a.value_str
-                            if a.value_str
-                            else (a.value_int if a.value_int else a.value_bool),
+                            value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
                         )
                         for a in t.task_args
                     ],

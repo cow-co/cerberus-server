@@ -15,9 +15,7 @@ from cerberus_backend.utils.exceptions import (
     UnauthorisedException,
 )
 
-auth_scheme = APIKeyCookie(
-    name=config.TOKEN_COOKIE, scheme_name="Cookie auth", auto_error=False
-)
+auth_scheme = APIKeyCookie(name=config.TOKEN_COOKIE, scheme_name="Cookie auth", auto_error=False)
 
 
 def get_logged_in_user(token: Annotated[str, Depends(auth_scheme)]) -> UserResponseDTO:

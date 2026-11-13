@@ -4,10 +4,10 @@ from cerberus_backend.model.common.settings import config
 
 
 def test_logs_in(client: TestClient):
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
@@ -22,10 +22,10 @@ def test_logs_in(client: TestClient):
 
 
 def test_fails_log_in_locked(client: TestClient):
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "locked",
             "password": "testlkasjdfl;kjsad",
@@ -37,10 +37,10 @@ def test_fails_log_in_locked(client: TestClient):
 
 
 def test_fails_log_in(client: TestClient):
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "password": "testlkasjdfl;kjsad",
         },
@@ -49,10 +49,10 @@ def test_fails_log_in(client: TestClient):
     assert res.status_code == 422
     assert config.TOKEN_COOKIE not in res.cookies
 
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
         },
@@ -61,10 +61,10 @@ def test_fails_log_in(client: TestClient):
     assert res.status_code == 422
     assert config.TOKEN_COOKIE not in res.cookies
 
-    csrf_res = client.get("/security/csrf")
+    csrf_res = client.get("/api/security/csrf")
     client.cookies.update(csrf_res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad2",
@@ -74,10 +74,10 @@ def test_fails_log_in(client: TestClient):
     assert res.status_code == 401
     assert config.TOKEN_COOKIE not in res.cookies
 
-    csrf_res = client.get("/security/csrf")
+    csrf_res = client.get("/api/security/csrf")
     client.cookies.update(csrf_res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial2",
             "password": "testlkasjdfl;kjsad",
@@ -89,11 +89,11 @@ def test_fails_log_in(client: TestClient):
 
 
 def test_fails_log_in_bad_csrf(client: TestClient):
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     # Reused CSRF token
     client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
@@ -101,7 +101,7 @@ def test_fails_log_in_bad_csrf(client: TestClient):
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
@@ -112,10 +112,10 @@ def test_fails_log_in_bad_csrf(client: TestClient):
     assert config.TOKEN_COOKIE not in res.cookies
 
     # Missing CSRF token
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
@@ -126,52 +126,58 @@ def test_fails_log_in_bad_csrf(client: TestClient):
 
 
 def test_logout(authenticated_client: TestClient):
-    res = authenticated_client.delete("/security/unauthenticate")
+    res = authenticated_client.delete("/api/security/unauthenticate")
     assert res.status_code == 200
 
-    res = authenticated_client.get("/security/csrf")
+    res = authenticated_client.get("/api/security/csrf")
     authenticated_client.cookies.update(res.cookies)
-    res = authenticated_client.delete("/security/unauthenticate",
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},)
+    res = authenticated_client.delete(
+        "/api/security/unauthenticate",
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
     assert res.status_code == 401
 
 
 def test_fails_logout(client: TestClient):
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
-    res2 = client.delete("/security/unauthenticate",
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},)
+    res2 = client.delete(
+        "/api/security/unauthenticate",
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
     assert res2.status_code == 401
 
 
 def test_fails_logout_bad_csrf(client: TestClient):
     # Missing CSRF token
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
         },
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
-    res = client.delete("/security/unauthenticate")
+    res = client.delete("/api/security/unauthenticate")
     assert res.status_code == 403
 
     # Reused CSRF token
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
         },
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
-    res = client.delete("/security/unauthenticate",
-        headers={"X-CSRF-Token": res.json()["csrf_token"]},)
+    res = client.delete(
+        "/api/security/unauthenticate",
+        headers={"X-CSRF-Token": res.json()["csrf_token"]},
+    )
     assert res.status_code == 403

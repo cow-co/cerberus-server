@@ -30,9 +30,7 @@ def authenticate(req: LoginRequestDTO) -> str:
             config.JWT_SECRET,
             algorithm=config.JWT_ALG,
         )
-        return TokenDTO(
-            token=token, username=user_account.username, user_id=user_account.id
-        )
+        return TokenDTO(token=token, username=user_account.username, user_id=user_account.id)
     raise BadCredentialsException(msg="Invalid credentials")
 
 

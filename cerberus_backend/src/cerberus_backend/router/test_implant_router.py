@@ -8,7 +8,7 @@ from cerberus_backend.model.db.implant import Implant
 
 
 def test_empty_implant_list(authenticated_client: TestClient):
-    res = authenticated_client.get("/implants")
+    res = authenticated_client.get("/api/implants")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
@@ -25,7 +25,7 @@ def test_implant_list_with_content(authenticated_client: TestClient):
             )
         )
         session.commit()
-    res = authenticated_client.get("/implants")
+    res = authenticated_client.get("/api/implants")
     imps = res.json()
     assert res.status_code == 200
     assert len(imps) == 1
@@ -37,7 +37,7 @@ def test_implant_list_with_content(authenticated_client: TestClient):
 
 
 def test_not_found_implant(authenticated_client: TestClient):
-    res = authenticated_client.get(f"/implants/{uuid.uuid4()}")
+    res = authenticated_client.get(f"/api/implants/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
@@ -53,7 +53,7 @@ def test_implant_with_content(authenticated_client: TestClient):
         session.add(imp)
         session.commit()
         session.refresh(imp)
-    res = authenticated_client.get(f"/implants/{imp.id}")
+    res = authenticated_client.get(f"/api/implants/{imp.id}")
     imp = res.json()
     assert res.status_code == 200
     assert imp["hostname"] == "test"
@@ -65,14 +65,14 @@ def test_implant_with_content(authenticated_client: TestClient):
 
 def test_failed_beacons(authenticated_client: TestClient):
     res = authenticated_client.post(
-        "/implants/beacon",
+        "/api/implants/beacon",
         json={
             "major_ver": 1,
         },
     )
     assert res.status_code == 422
     res = authenticated_client.post(
-        "/implants/beacon",
+        "/api/implants/beacon",
         json={
             "minor_ver": 1,
         },
@@ -82,7 +82,7 @@ def test_failed_beacons(authenticated_client: TestClient):
 
 def test_beacons(client: TestClient):
     res = client.post(
-        "/implants/beacon",
+        "/api/implants/beacon",
         json={
             "minor_ver": 2,
             "major_ver": 1,
@@ -102,7 +102,7 @@ def test_beacons(client: TestClient):
         session.commit()
         session.refresh(imp)
     res = client.post(
-        "/implants/beacon",
+        "/api/implants/beacon",
         json={
             "implant_id": str(imp.id),
             "hostname": "test",
@@ -114,7 +114,7 @@ def test_beacons(client: TestClient):
     assert res.status_code == 200
 
     res = client.post(
-        "/implants/beacon",
+        "/api/implants/beacon",
         json={
             "implant_id": str(uuid.uuid4()),
             "major_ver": 1,

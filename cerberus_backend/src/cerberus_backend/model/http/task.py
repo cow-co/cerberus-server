@@ -32,7 +32,7 @@ class TaskTypeResponseDTO(TaskTypeBase):
 
 
 class TaskArgBase(BaseModel):
-    spec: TaskParamBase
+    spec: TaskParamResponseDTO
     value: str | int | bool | None = None
 
 

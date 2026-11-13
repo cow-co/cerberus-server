@@ -28,9 +28,7 @@ async def login(
 
     result = security_controller.authenticate(creds)
     resp = JSONResponse(
-        jsonable_encoder(
-            LoginResponseDTO(user_id=result.user_id, username=result.username)
-        ),
+        jsonable_encoder(LoginResponseDTO(user_id=result.user_id, username=result.username)),
     )
     resp.set_cookie(
         config.TOKEN_COOKIE,
@@ -44,6 +42,11 @@ async def login(
 
     csrf_protect.unset_csrf_cookie(resp)
     return resp
+
+
+@router.get("/whoami")
+def whoami(user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)]) -> LoginResponseDTO:
+    return LoginResponseDTO(user_id=user.id, username=user.username)
 
 
 @router.delete("/unauthenticate")

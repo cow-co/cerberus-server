@@ -2,10 +2,10 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
+from fastapi.encoders import jsonable_encoder
 from fastapi.logger import logger
 from fastapi.responses import JSONResponse
 from fastapi_csrf_protect import CsrfProtect
-from fastapi.encoders import jsonable_encoder
 
 from cerberus_backend.controller import task_controller
 from cerberus_backend.controller.dependencies import security_dependencies
