@@ -13,11 +13,11 @@ RUN uv cache clean
 
 WORKDIR /app
 
-RUN uv sync --locked --no-dev --no-install-project --no-editable
+RUN uv sync --locked --no-build --no-dev --no-install-project --no-editable
 
 COPY /src /app/src
 
-RUN uv sync --locked --no-dev --no-editable
+RUN uv sync --locked --no-build --no-dev --no-editable
 
 # Python 3.15.2-debian13
 FROM dhi.io/python@sha256:a827761ad5c765368c5a31a67752b5b05846add889beceab18ddd7846ad20910 AS runtime
