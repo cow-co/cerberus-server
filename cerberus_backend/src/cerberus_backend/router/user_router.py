@@ -32,7 +32,7 @@ def get_users(
     return user_controller.get_all_users()
 
 
-@router.patch("/change_password")
+@router.patch("/change-password")
 async def update_password(
     body: PasswordUpdateRequestDTO,
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],

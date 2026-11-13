@@ -166,6 +166,6 @@ def update_user_password(user_id: uuid.UUID, new_password: str) -> None:
         results = sesh.exec(statement)
         found = results.first()
         if found:
-            found.hashed_password = generate_pwd_hash(new_password)
+            found.password_hash = generate_pwd_hash(new_password)
             sesh.add(found)
             sesh.commit()

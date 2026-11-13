@@ -238,3 +238,86 @@ def test_failed_enable_not_permitted(authenticated_client: TestClient):
 def test_enables(admin_client: TestClient):
     res = admin_client.patch(f"/api/users/{uuid.uuid4()}/enable")
     assert res.status_code == 200
+
+
+def test_changes_password(authenticated_client: TestClient):
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    assert res.status_code == 200
+
+
+def test_fails_change_password_mismatch(authenticated_client: TestClient):
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsa",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    assert res.status_code == 422
+
+
+def test_fails_change_password_missing(authenticated_client: TestClient):
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    assert res.status_code == 422
+
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsa",
+        },
+    )
+    assert res.status_code == 422
+
+
+def test_fails_change_password_unauthenticated(client: TestClient):
+    res = client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    assert res.status_code == 401
+
+
+def test_fails_change_password_bad_csrf(authenticated_client: TestClient):
+    # Reusing CSRF token
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    assert res.status_code == 403
+
+    # Missing CSRF token
+    res = authenticated_client.get("/api/security/csrf")
+    authenticated_client.cookies.update(res.cookies)
+    authenticated_client.headers.update({"X-CSRF-Token": ""})
+    res = authenticated_client.patch(
+        "/api/users/change-password",
+        json={
+            "password": "testlkasjdfl;kjsad",
+            "password_confirmation": "testlkasjdfl;kjsad",
+        },
+    )
+    assert res.status_code == 403
