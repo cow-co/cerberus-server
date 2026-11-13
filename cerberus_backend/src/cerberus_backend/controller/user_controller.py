@@ -9,6 +9,7 @@ from cerberus_backend.model.db.user import (
     get_all_users_in_db,
     get_user_in_db,
     get_user_in_db_by_name,
+    update_user_password,
 )
 from cerberus_backend.model.http.user import (
     UserRequestDTO,
@@ -41,3 +42,7 @@ def set_user_lock(user_id: uuid.UUID, lock_state: bool):
         disable_account(user_id)
     else:
         enable_account(user_id)
+
+
+def change_password(user_id: uuid.UUID, new_password: str) -> None:
+    update_user_password(user_id, new_password)

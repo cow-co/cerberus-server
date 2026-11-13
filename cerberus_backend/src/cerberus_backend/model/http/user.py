@@ -50,3 +50,23 @@ class UserResponseDTO(UserBase):
 
 class UserWithPasswordDTO(UserResponseDTO):
     password_hash: str
+
+
+class PasswordUpdateRequestDTO(BaseModel):
+    password: str
+    password_confirmation: str
+
+    @field_validator("password", mode="after")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if len(value) == 0:
+            raise ValueError("Empty passwords are not allowed!")
+        if zxcvbn(value)["score"] < config.ZXCVBN_MIN_SCORE:
+            raise ValueError("Password is too easy to guess!")
+        return value
+
+    @model_validator(mode="after")
+    def check_matched_passwords(self) -> Self:
+        if self.password != self.password_confirmation:
+            raise ValueError("Password and confirmation must match!")
+        return self

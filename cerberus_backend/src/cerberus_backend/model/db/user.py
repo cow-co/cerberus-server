@@ -158,3 +158,14 @@ def disable_account(user_id: uuid.UUID) -> None:
             found.is_locked = True
             sesh.add(found)
             sesh.commit()
+
+
+def update_user_password(user_id: uuid.UUID, new_password: str) -> None:
+    with Session(engine) as sesh:
+        statement = select(User).where(User.id == user_id)
+        results = sesh.exec(statement)
+        found = results.first()
+        if found:
+            found.hashed_password = generate_pwd_hash(new_password)
+            sesh.add(found)
+            sesh.commit()
