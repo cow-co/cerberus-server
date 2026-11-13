@@ -52,10 +52,10 @@ def client_fixture():
 @pytest.fixture(name="authenticated_client")
 def authenticated_client_fixture():
     client = TestClient(app)
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "user",
             "password": "testlkasjdfl;kjsad",
@@ -63,7 +63,7 @@ def authenticated_client_fixture():
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     client.cookies.update(res.cookies)
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     client.headers.update({"X-CSRF-Token": res.json()["csrf_token"]})
     yield client
@@ -72,10 +72,10 @@ def authenticated_client_fixture():
 @pytest.fixture(name="admin_client")
 def admin_client_fixture():
     client = TestClient(app)
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     res = client.post(
-        "/security/authenticate",
+        "/api/security/authenticate",
         json={
             "username": "initial",
             "password": "testlkasjdfl;kjsad",
@@ -83,7 +83,7 @@ def admin_client_fixture():
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     client.cookies.update(res.cookies)
-    res = client.get("/security/csrf")
+    res = client.get("/api/security/csrf")
     client.cookies.update(res.cookies)
     client.headers.update({"X-CSRF-Token": res.json()["csrf_token"]})
     yield client

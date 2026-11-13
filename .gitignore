@@ -7,3 +7,4 @@
 cerberus_backend/src/cerberus_backend/__pycache__/__init__.cpython-314.pyc
 deployment/backend/config.json
 **/deployment
+**/*.egg-info

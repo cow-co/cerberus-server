@@ -1,3 +1,4 @@
+from typing import cast
 import uuid
 
 from sqlmodel import Field, Relationship, Session, SQLModel, select
@@ -201,13 +202,13 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
                         name=a.spec.name,
                         param_type=a.spec.param_type,
                     ),
-                    value_str=a.value
+                    value_str=cast(str, a.value)
                     if a.spec.param_type == ParamType.STRING
                     else None,
-                    value_int=a.value
+                    value_int=cast(int, a.value)
                     if a.spec.param_type == ParamType.INTEGER
                     else None,
-                    value_bool=a.value
+                    value_bool=cast(bool, a.value)
                     if a.spec.param_type == ParamType.BOOLEAN
                     else None,
                 )

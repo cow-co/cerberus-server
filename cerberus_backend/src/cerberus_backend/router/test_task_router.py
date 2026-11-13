@@ -9,7 +9,7 @@ from cerberus_backend.model.db.task import Task, TaskArg, TaskParam, TaskType
 
 
 def test_empty_task_type_list(authenticated_client: TestClient):
-    res = authenticated_client.get("/task-types")
+    res = authenticated_client.get("/api/task-types")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
@@ -23,7 +23,7 @@ def test_task_type_list_with_content(authenticated_client: TestClient):
             )
         )
         session.commit()
-    res = authenticated_client.get("/task-types")
+    res = authenticated_client.get("/api/task-types")
     tts = res.json()
     assert res.status_code == 200
     assert len(tts) == 1
@@ -44,7 +44,7 @@ def test_task_type_list_with_params(authenticated_client: TestClient):
             )
         )
         session.commit()
-    res = authenticated_client.get("/task-types")
+    res = authenticated_client.get("/api/task-types")
     tts = res.json()
     assert res.status_code == 200
     assert len(tts) == 1
@@ -53,7 +53,7 @@ def test_task_type_list_with_params(authenticated_client: TestClient):
 
 
 def test_non_existent_task_type(authenticated_client: TestClient):
-    res = authenticated_client.get(f"/task-types/{uuid.uuid4()}")
+    res = authenticated_client.get(f"/api/task-types/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
@@ -66,7 +66,7 @@ def test_task_type_with_content(authenticated_client: TestClient):
         session.add(tt)
         session.commit()
         session.refresh(tt)
-    res = authenticated_client.get(f"/task-types/{tt.id}")
+    res = authenticated_client.get(f"/api/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
@@ -85,7 +85,7 @@ def test_task_type_with_content(authenticated_client: TestClient):
         session.add(tt)
         session.commit()
         session.refresh(tt)
-    res = authenticated_client.get(f"/task-types/{tt.id}")
+    res = authenticated_client.get(f"/api/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
@@ -93,36 +93,36 @@ def test_task_type_with_content(authenticated_client: TestClient):
 
 
 def test_create_task_type(admin_client: TestClient):
-    res = admin_client.post("/task-types", json={"name": "test", "params": []})
+    res = admin_client.post("/api/task-types", json={"name": "test", "params": []})
     assert res.status_code == 200
     assert res.json()["name"] == "test"
 
 
 def test_create_task_type_bad_csrf(admin_client: TestClient):
     # Reused CSRF
-    admin_client.post("/task-types", json={"name": "test", "params": []})
-    res = admin_client.post("/task-types", json={"name": "test", "params": []})
+    admin_client.post("/api/task-types", json={"name": "test", "params": []})
+    res = admin_client.post("/api/task-types", json={"name": "test", "params": []})
     assert res.status_code == 403
 
     # Missing CSRF
-    res = admin_client.get("/security/csrf")
+    res = admin_client.get("/api/security/csrf")
     admin_client.cookies.update(res.cookies)
-    res = admin_client.post("/task-types", json={"name": "test", "params": []})
+    res = admin_client.post("/api/task-types", json={"name": "test", "params": []})
     assert res.status_code == 403
 
 
 def test_create_task_type_bad_content(admin_client: TestClient):
-    res = admin_client.post("/task-types", json={"params": []})
+    res = admin_client.post("/api/task-types", json={"params": []})
     assert res.status_code == 422
 
 
 def test_create_task_type_not_permitted(authenticated_client: TestClient):
-    res = authenticated_client.post("/task-types", json={"name": "test", "params": []})
+    res = authenticated_client.post("/api/task-types", json={"name": "test", "params": []})
     assert res.status_code == 403
 
 
 def test_empty_task_list(authenticated_client: TestClient):
-    res = authenticated_client.get("/tasks")
+    res = authenticated_client.get("/api/tasks")
     assert res.status_code == 200
     assert len(res.json()) == 0
 
@@ -137,7 +137,7 @@ def test_task_list_with_content(authenticated_client: TestClient):
             )
         )
         session.commit()
-    res = authenticated_client.get("/tasks")
+    res = authenticated_client.get("/api/tasks")
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
@@ -149,7 +149,7 @@ def test_task_list_with_args(authenticated_client: TestClient):
         name="test",
         params=[],
     )
-    res = authenticated_client.get("/tasks")
+    res = authenticated_client.get("/api/tasks")
     print(res.json())
     with Session(engine) as session:
         session.add(tt)
@@ -172,7 +172,7 @@ def test_task_list_with_args(authenticated_client: TestClient):
             )
         )
         session.commit()
-    res = authenticated_client.get("/tasks")
+    res = authenticated_client.get("/api/tasks")
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
@@ -181,7 +181,7 @@ def test_task_list_with_args(authenticated_client: TestClient):
 
 
 def test_non_existent_task(authenticated_client: TestClient):
-    res = authenticated_client.get(f"/tasks/{uuid.uuid4()}")
+    res = authenticated_client.get(f"/api/tasks/{uuid.uuid4()}")
     assert res.status_code == 404
 
 
@@ -195,7 +195,7 @@ def test_task_with_content(authenticated_client: TestClient):
         session.add(task)
         session.commit()
         session.refresh(task)
-    res = authenticated_client.get(f"/tasks/{task.id}")
+    res = authenticated_client.get(f"/api/tasks/{task.id}")
     result = res.json()
     assert res.status_code == 200
     assert result["name"] == "test"
@@ -229,7 +229,7 @@ def test_task_with_args(authenticated_client: TestClient):
         session.commit()
         session.refresh(task2)
 
-    res = authenticated_client.get(f"/tasks/{task2.id}")
+    res = authenticated_client.get(f"/api/tasks/{task2.id}")
     result = res.json()
     assert res.status_code == 200
     assert result["name"] == "test2"
@@ -238,16 +238,16 @@ def test_task_with_args(authenticated_client: TestClient):
 
 def test_create_task(authenticated_client: TestClient):
     res = authenticated_client.post(
-        "/tasks",
+        "/api/tasks",
         json={"name": "test", "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     assert res.status_code == 200
     assert res.json()["name"] == "test"
 
-    res = authenticated_client.get("/security/csrf")
+    res = authenticated_client.get("/api/security/csrf")
     authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
-        "/tasks",
+        "/api/tasks",
         json={
             "name": "test",
             "implant_id": str(uuid.uuid4()),
@@ -260,31 +260,31 @@ def test_create_task(authenticated_client: TestClient):
 
 def test_create_task_bad_content(authenticated_client: TestClient):
     res = authenticated_client.post(
-        "/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []}
+        "/api/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []}
     )
     assert res.status_code == 422
 
-    res = authenticated_client.post("/tasks", json={"name": "test", "task_args": []})
+    res = authenticated_client.post("/api/tasks", json={"name": "test", "task_args": []})
     assert res.status_code == 422
 
 
 def test_create_task_bad_csrf(authenticated_client: TestClient):
     authenticated_client.post(
-        "/tasks",
+        "/api/tasks",
         json={"name": "test1", "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     # Reused CSRF token
     res = authenticated_client.post(
-        "/tasks",
+        "/api/tasks",
         json={"name": "test2", "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     assert res.status_code == 403
 
     # Missing CSRF token
-    res = authenticated_client.get("/security/csrf")
+    res = authenticated_client.get("/api/security/csrf")
     authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
-        "/tasks",
+        "/api/tasks",
         json={"name": "test3", "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     assert res.status_code == 403
