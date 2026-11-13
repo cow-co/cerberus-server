@@ -22,13 +22,6 @@ services:
     hostname: cerberus-rest-api
     image: cerberus_backend:latest
     restart: always
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
-      interval: 1m30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-      start_interval: 5s
     # environment:
     #   CERBERUS_SETTINGS_FILE: "/app/config/config.json"
     # volumes:
@@ -48,7 +41,7 @@ services:
     restart: always
     depends_on:
       cerberus_backend:
-        condition: service_healthy
+        condition: service_started
     networks:
       - cerberus_net
     security_opt:
@@ -65,7 +58,7 @@ services:
     restart: always
     depends_on:
       cerberus_backend:
-        condition: service_healthy
+        condition: service_started
     volumes:
       # - ./certs/cerberus.key
       # - ./certs/cerberus.crt
