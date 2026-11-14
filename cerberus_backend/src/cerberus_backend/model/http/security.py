@@ -11,7 +11,11 @@ class LoginRequestDTO(BaseModel):
 class LoginResponseDTO(BaseModel):
     user_id: uuid.UUID
     username: str
+    requires_password_change: bool = False
 
 
 class TokenDTO(LoginResponseDTO):
     token: str
+    user_id: uuid.UUID
+    username: str
+    requires_password_change: bool = False

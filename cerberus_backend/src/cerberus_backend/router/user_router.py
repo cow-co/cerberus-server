@@ -11,6 +11,7 @@ from cerberus_backend.controller import user_controller
 from cerberus_backend.controller.dependencies import security_dependencies
 from cerberus_backend.model.common.enums import UserRole
 from cerberus_backend.model.http.user import (
+    PasswordUpdateRequestDTO,
     UserRequestDTO,
     UserResponseDTO,
 )
@@ -23,12 +24,31 @@ router = APIRouter()
 def get_roles() -> list[str]:
     return [r.value for r in UserRole]
 
+
 @router.get("")
 def get_users(
     user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
 ) -> list[UserResponseDTO]:
     logger.info(f"{user.id} requesting to get all users")
     return user_controller.get_all_users()
+
+
+@router.patch("/change-password")
+async def update_password(
+    body: PasswordUpdateRequestDTO,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
+) -> JSONResponse:
+    await csrf_protect.validate_csrf(request)
+
+    logger.info(f"{user.id} requesting to update password")
+    user_controller.update_user_password(user.id, body.password)
+    response = JSONResponse({"message": "Success"})
+
+    csrf_protect.unset_csrf_cookie(response)
+    return response
 
 
 @router.get("/{user_id}")

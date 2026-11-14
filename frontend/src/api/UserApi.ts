@@ -3,6 +3,7 @@ import type {
   CreateUserRequest,
   LoginRequest,
   LoginResponse,
+  NewPasswordRequest,
   UserResponse,
 } from "./data-model/UserModels";
 
@@ -40,4 +41,8 @@ export const getRoles = async (): Promise<string[]> => {
     console.warn(err);
     throw err;
   }
+}
+
+export const updatePassword = async (payload: NewPasswordRequest): Promise<void> => {
+  return makeAuthenticatedRequest("PATCH", "/users/change-password", payload);
 }

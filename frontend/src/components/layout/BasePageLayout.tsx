@@ -16,11 +16,14 @@ export interface PageProps {
 export default (props: PageProps) => {
   const navigate = useNavigate();
   const username = useAppSelector(state => state.auth.username);
+  const needsPWChange = useAppSelector(state => state.auth.requiresPWChange);
   useEffect(() => {
     if (!username) {
       navigate("/signin");
+    } else if (needsPWChange) {
+      navigate("/change-password");
     }
-  }, [username]);
+  }, [username, needsPWChange]);
   
   const {sidebarProps, mainPanelProps, children} = props;
   return (
