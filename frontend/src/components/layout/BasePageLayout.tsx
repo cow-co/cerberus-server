@@ -3,8 +3,9 @@ import Navbar from "./Navbar"
 import Sidebar, { type SidebarProps } from "./Sidebar"
 import MainPanel, { type MainPanelProps } from "./MainPanel";
 import { Container } from "@mui/material";
-import { useAppSelector } from "../../state/hooks";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import { useNavigate } from "react-router";
+import { setAlertContent } from "../../state/alertSlice";
 
 export interface PageProps {
   sidebarProps: SidebarProps;
@@ -14,9 +15,14 @@ export interface PageProps {
 
 
 export default (props: PageProps) => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const username = useAppSelector(state => state.auth.username);
   const needsPWChange = useAppSelector(state => state.auth.requiresPWChange);
+  
+  useEffect(() => {
+    dispatch(setAlertContent(null));
+  }, []);
   useEffect(() => {
     if (!username) {
       navigate("/signin");

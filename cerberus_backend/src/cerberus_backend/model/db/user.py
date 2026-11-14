@@ -163,3 +163,13 @@ def update_user_password(user_id: uuid.UUID, new_password: str) -> None:
             found.logout_timestamp = datetime.now(UTC)
             sesh.add(found)
             sesh.commit()
+
+def mark_user_needing_pwd_change(user_id: uuid.UUID) -> None:
+    with Session(engine) as sesh:
+        statement = select(User).where(User.id == user_id)
+        results = sesh.exec(statement)
+        found = results.first()
+        if found:
+            found.requires_password_change = True
+            sesh.add(found)
+            sesh.commit()

@@ -44,8 +44,26 @@ async def update_password(
     await csrf_protect.validate_csrf(request)
 
     logger.info(f"{user.id} requesting to update password")
-    user_controller.update_user_password(user.id, body.password)
+    user_controller.change_password(user.id, body.old_password, body.password)
     response = JSONResponse({"message": "Success"})
+
+    csrf_protect.unset_csrf_cookie(response)
+    return response
+
+
+@router.patch("/reset-password/{user_id}")
+async def reset_password(
+    user_id: uuid.UUID,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_admin_user)],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
+) -> JSONResponse:
+    await csrf_protect.validate_csrf(request)
+
+    logger.info(f"{user.id} requesting to update password for {user_id}")
+    new_pass = user_controller.reset_password(user_id)
+    response = JSONResponse({"new_password": new_pass})
 
     csrf_protect.unset_csrf_cookie(response)
     return response

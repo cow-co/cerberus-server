@@ -2,10 +2,14 @@ import { Box, Button, Card, FormControl, FormLabel, InputLabel, MenuItem, Select
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createUser, getRoles } from "../../api/UserApi";
+import { setAlertContent } from "../../state/alertSlice";
+import { useAppDispatch } from "../../state/hooks";
 
 
 export default () => {
   const client = useQueryClient();
+  const dispatch = useAppDispatch();
+
   const rolesQuery = useQuery({queryKey: ["roles"], queryFn: getRoles});
   const [username, setUsername] = useState<string>("");
   const [usernameError, setUsernameError] = useState<string|null>(null);
@@ -21,9 +25,12 @@ export default () => {
     onSuccess: () => {
       client.invalidateQueries({queryKey: ["users"]});
     },
-    // onError: (err) => {
-    //   //setAlertContent(err.message);
-    // },
+    onError: (err) => {
+      dispatch(setAlertContent({
+        alertContent: err.message,
+        alertType: "ERROR",
+      }));
+    },
   });
 
   const submit = () => {
