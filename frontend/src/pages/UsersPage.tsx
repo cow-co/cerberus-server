@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { UserResponse } from "../api/data-model/UserModels";
 import BasePageLayout from "../components/layout/BasePageLayout";
 import UserShow from "../components/user/UserShow";
@@ -7,19 +7,12 @@ import { getUsers } from "../api/UserApi";
 import AddIcon from '@mui/icons-material/Add';
 import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import UserForm from "../components/user/UserForm";
-import { setAlertContent } from "../state/alertSlice";
-import { useAppDispatch } from "../state/hooks";
 
 
 export default () => {
-  const dispatch = useAppDispatch();
   const usersQuery = useQuery({queryKey: ["users"], queryFn: getUsers});
   const [user, setUser] = useState<UserResponse|null>(null);
   const [formShown, setFormShown] = useState<boolean>(false);
-  
-  useEffect(() => {
-    dispatch(setAlertContent(null));
-  }, []);
 
   const sidebarContent = usersQuery.isSuccess ? (
     <List>
