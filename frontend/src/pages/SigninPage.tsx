@@ -1,41 +1,12 @@
-import { Box, Button, Card as MuiCard, FormControl, FormLabel, TextField, Typography, Stack, Alert } from "@mui/material";
+import { Box, Button, FormControl, FormLabel, TextField, Typography, Alert } from "@mui/material";
 import { useState } from "react";
-import { styled } from '@mui/material/styles';
 import { useMutation } from "@tanstack/react-query";
 import { login } from "../api/UserApi";
 import { useAppDispatch } from "../state/hooks";
 import { setNeedsPWChange, updateUsername } from "../state/authSlice";
 import type { LoginResponse } from "../api/data-model/UserModels";
 import { useNavigate } from "react-router";
-
-
-const Card = styled(MuiCard)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignSelf: 'center',
-  width: '100%',
-  padding: theme.spacing(4),
-  gap: theme.spacing(2),
-  margin: 'auto',
-  [theme.breakpoints.up('sm')]: {
-    maxWidth: '450px',
-  },
-  boxShadow:
-    'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
-  ...theme.applyStyles('dark', {
-    boxShadow:
-      'hsla(220, 30%, 5%, 0.5) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.08) 0px 15px 35px -5px',
-  }),
-}));
-
-const SignInContainer = styled(Stack)(({ theme }) => ({
-  height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-  minHeight: '100%',
-  padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(4),
-  },
-}));
+import { StandaloneCard, StandaloneContainer } from "../components/layout/StandaloneCards";
 
 export default () => {
   const navigate = useNavigate();
@@ -87,8 +58,8 @@ export default () => {
   const alert = alertContent ? <Alert severity="error" variant="filled">{alertContent}</Alert> : <></>;
 
   return (
-    <SignInContainer>
-      <Card variant="outlined">
+    <StandaloneContainer>
+      <StandaloneCard variant="outlined">
         <Typography component="h1" variant="h4">Sign In to CERBERUS</Typography>
         {alert}
         <Box 
@@ -131,7 +102,7 @@ export default () => {
           </FormControl>
           <Button fullWidth variant="contained" onClick={submit}>Sign In</Button>
         </Box>
-      </Card>
-    </SignInContainer>
+      </StandaloneCard>
+    </StandaloneContainer>
   );
 }
