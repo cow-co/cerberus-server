@@ -1,17 +1,9 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
 
-const AlertType = {
-  SUCCESS: 0,
-  WARNING: 1,
-  ERROR: 2,
-} as const;
-
-export type AlertType = (typeof AlertType)[keyof typeof AlertType];
-
 export type AlertContent = {
   alertContent: string | null;
-  alertType: AlertType | null;
+  alertType: null | "SUCCESS" | "WARNING" | "ERROR";
 }
 
 
