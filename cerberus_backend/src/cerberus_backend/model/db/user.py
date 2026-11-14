@@ -25,22 +25,37 @@ class User(SQLModel, table=True):
     requires_password_change: bool = Field(default=False)
 
 
+def _to_correct_dto(dao: User, include_password: bool = False) -> UserResponseDTO:
+    user = None
+    if include_password:
+        user = UserWithPasswordDTO(
+            id=dao.id,
+            username=dao.username,
+            is_locked=dao.is_locked,
+            logout_timestamp=dao.logout_timestamp,
+            role=dao.role,
+            password_hash=dao.password_hash,
+            requires_password_change=dao.requires_password_change,
+        )
+    else:
+        user = UserResponseDTO(
+            id=dao.id,
+            username=dao.username,
+            is_locked=dao.is_locked,
+            logout_timestamp=dao.logout_timestamp,
+            role=dao.role,
+            requires_password_change=dao.requires_password_change,
+        )
+    return user
+
+
+
 def get_all_users_in_db() -> list[UserResponseDTO]:
     users = []
     with Session(engine) as sesh:
         statement = select(User)
         results = sesh.exec(statement)
-        users = [
-            UserResponseDTO(
-                id=res.id,
-                username=res.username,
-                is_locked=res.is_locked,
-                logout_timestamp=res.logout_timestamp,
-                role=res.role,
-                requires_password_change=res.requires_password_change,
-            )
-            for res in results
-        ]
+        users = [_to_correct_dto(res) for res in results]
     return users
 
 
@@ -51,26 +66,7 @@ def get_user_in_db(user_id: uuid.UUID, include_password: bool = False) -> UserRe
         results = sesh.exec(statement)
         found = results.first()
         if found:
-            if include_password:
-                user = UserWithPasswordDTO(
-                    id=found.id,
-                    username=found.username,
-                    is_locked=found.is_locked,
-                    logout_timestamp=found.logout_timestamp,
-                    role=found.role,
-                    password_hash=found.password_hash,
-                    requires_password_change=found.requires_password_change,
-                )
-            else:
-                user = UserResponseDTO(
-                    id=found.id,
-                    username=found.username,
-                    is_locked=found.is_locked,
-                    logout_timestamp=found.logout_timestamp,
-                    role=found.role,
-                    requires_password_change=found.requires_password_change,
-                )
-    
+            user = _to_correct_dto(found, include_password)    
     return user
 
 
@@ -81,25 +77,7 @@ def get_user_in_db_by_name(name: str, include_password: bool = False) -> UserRes
         results = sesh.exec(statement)
         found = results.first()
         if found:
-            if include_password:
-                user = UserWithPasswordDTO(
-                    id=found.id,
-                    username=found.username,
-                    is_locked=found.is_locked,
-                    logout_timestamp=found.logout_timestamp,
-                    role=found.role,
-                    password_hash=found.password_hash,
-                    requires_password_change=found.requires_password_change,
-                )
-            else:
-                user = UserResponseDTO(
-                    id=found.id,
-                    username=found.username,
-                    is_locked=found.is_locked,
-                    logout_timestamp=found.logout_timestamp,
-                    role=found.role,
-                    requires_password_change=found.requires_password_change,
-                )
+            user = _to_correct_dto(found, include_password)   
     return user
 
 
@@ -117,14 +95,7 @@ def create_user_in_db(user: UserRequestDTO) -> UserResponseDTO:
         sesh.add(to_create)
         sesh.commit()
         sesh.refresh(to_create)
-        created = UserResponseDTO(
-            id=to_create.id,
-            username=to_create.username,
-            is_locked=to_create.is_locked,
-            logout_timestamp=to_create.logout_timestamp,
-            role=to_create.role,
-            requires_password_change=to_create.requires_password_change,
-        )
+        created = _to_correct_dto(to_create)
     return created
 
 
@@ -146,14 +117,7 @@ def setup_initial_admin() -> UserResponseDTO:
         sesh.add(init_admin)
         sesh.commit()
         sesh.refresh(init_admin)
-        created = UserResponseDTO(
-            id=init_admin.id,
-            username=init_admin.username,
-            is_locked=init_admin.is_locked,
-            logout_timestamp=init_admin.logout_timestamp,
-            role=init_admin.role,
-            requires_password_change=init_admin.requires_password_change,
-        )
+        created = _to_correct_dto(init_admin)
     return created
 
 
