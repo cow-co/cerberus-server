@@ -11,6 +11,7 @@ from cerberus_backend.model.db.user import (
     get_all_users_in_db,
     get_user_in_db,
     get_user_in_db_by_name,
+    mark_user_needing_pwd_change,
     update_user_password,
 )
 from cerberus_backend.model.http.user import (
@@ -59,6 +60,7 @@ def reset_password(user_id: uuid.UUID) -> str:
     if user_account:
         new_pass = urandom(32).hex()
         update_user_password(user_id, new_pass)
+        mark_user_needing_pwd_change(user_id)
     else:
         raise NotFoundException("User not found!")
     return new_pass
