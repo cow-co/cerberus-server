@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button, List, ListItem, ListItemButton, ListItemText } from "@mui/material";
 import { getImplants } from "../api/ImplantApi";
 import type { ImplantResponse } from "../api/data-model/ImplantModels";
+import ImplantShow from "../components/implant/ImplantShow";
 
 
 export default () => {
@@ -27,7 +28,7 @@ export default () => {
             <ListItemButton onClick={() => {
                 setImplant(imp);
               }}>
-              <ListItemText>{implantIdentifier}</ListItemText>
+              <ListItemText>{implantIdentifier} ({imp.is_active ? "Active" : "Inactive"})</ListItemText>
             </ListItemButton>
           </ListItem>
         );
