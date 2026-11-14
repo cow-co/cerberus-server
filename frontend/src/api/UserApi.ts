@@ -46,3 +46,8 @@ export const getRoles = async (): Promise<string[]> => {
 export const updatePassword = async (payload: NewPasswordRequest): Promise<void> => {
   return makeAuthenticatedRequest("PATCH", "/users/change-password", payload);
 }
+
+
+export const resetPassword = async (userId: string): Promise<string> => {
+  return makeAuthenticatedRequest("PATCH", `/users/reset-password/${userId}`);
+}

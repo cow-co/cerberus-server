@@ -2,28 +2,47 @@ import { useState } from "react";
 import type { UserResponse } from "../api/data-model/UserModels";
 import BasePageLayout from "../components/layout/BasePageLayout";
 import UserShow from "../components/user/UserShow";
-import { useQuery } from "@tanstack/react-query";
-import { getUsers } from "../api/UserApi";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getUsers, resetPassword } from "../api/UserApi";
 import AddIcon from '@mui/icons-material/Add';
-import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import UserForm from "../components/user/UserForm";
+import { setAlertContent } from "../state/alertSlice";
+import { useAppDispatch } from "../state/hooks";
 
 
 export default () => {
+  const dispatch = useAppDispatch();
   const usersQuery = useQuery({queryKey: ["users"], queryFn: getUsers});
   const [user, setUser] = useState<UserResponse|null>(null);
   const [formShown, setFormShown] = useState<boolean>(false);
+  
+  const pwdResetMutation = useMutation({
+    mutationFn: resetPassword,
+    onSuccess: (data: string) => {
+      dispatch(setAlertContent({
+        alertContent: `${user?.username} password has been reset to ${data}`,
+        alertType: "SUCCESS",
+      }));
+    },
+  });
 
   const sidebarContent = usersQuery.isSuccess ? (
     <List>
       {usersQuery.data!.map(user => {
         return (
-          <ListItemButton onClick={() => {
-              setFormShown(false);
-              setUser(user);
-            }}>
-            <ListItemText>{user.username}</ListItemText>
-          </ListItemButton>
+          <ListItem secondaryAction={<Button variant="contained" onClick={() => {
+            setUser(user);
+            setFormShown(false);
+            pwdResetMutation.mutate(user.id);
+          }}>Reset Password</Button>}>
+            <ListItemButton onClick={() => {
+                setFormShown(false);
+                setUser(user);
+              }}>
+              <ListItemText>{user.username}</ListItemText>
+            </ListItemButton>
+          </ListItem>
         );
       })}
       <ListItemButton onClick={() => {
