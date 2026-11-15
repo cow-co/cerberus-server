@@ -2,6 +2,7 @@ import {
   Box,
   Card,
   Paper,
+  Stack,
   Table,
   TableBody,
   TableCell,
@@ -34,39 +35,41 @@ export default (props: ShowTaskTypeProps) => {
           width: "60%",
         }}
       >
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }}>
-            <TableBody>
-              <TableRow>
-                <TableCell>ID</TableCell>
-                <TableCell>{taskType.id}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>{taskType.name}</TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Typography variant="h6">Parameters</Typography>
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 650 }}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Name</TableCell>
-                <TableCell>Type</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {taskType.params.map((param) => (
+        <Stack direction="column" spacing={2}>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }}>
+              <TableBody>
                 <TableRow>
-                  <TableCell>{param.name}</TableCell>
-                  <TableCell>{param.param_type}</TableCell>
+                  <TableCell>ID</TableCell>
+                  <TableCell>{taskType.id}</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>{taskType.name}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <Typography variant="h6">Parameters</Typography>
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 650 }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Type</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {taskType.params.map((param) => (
+                  <TableRow>
+                    <TableCell>{param.name}</TableCell>
+                    <TableCell>{param.param_type}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Stack>
       </Card>
     </Box>
   );
