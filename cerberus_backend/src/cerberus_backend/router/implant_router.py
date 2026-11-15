@@ -11,6 +11,7 @@ from cerberus_backend.model.http.implant import (
     BeaconResponseDTO,
     ImplantResponseDTO,
 )
+from cerberus_backend.model.http.task import TaskResponseDTO
 from cerberus_backend.model.http.user import UserResponseDTO
 from cerberus_backend.utils.exceptions import NotFoundException
 
@@ -25,6 +26,15 @@ def get_implants(
     return implant_controller.get_all_implants()
 
 
+@router.get("/{implant_id}/tasks")
+def get_tasks_for_implant(
+    implant_id: uuid.UUID,
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> list[TaskResponseDTO]:
+    logger.info(f"{user.id} requesting to get tasks for implant with ID {implant_id}")
+    return implant_controller.get_implant_tasks(implant_id)
+
+
 @router.get("/{implant_id}")
 def get_implant(
     implant_id: uuid.UUID,
@@ -35,7 +45,6 @@ def get_implant(
     if not imp:
         raise NotFoundException(msg=f"Could not find implant with ID {implant_id}!")
     return imp
-
 
 # TODO Beacon endpoint does need at least _some_ auth around it.
 @router.post("/beacon")

@@ -152,6 +152,34 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
     return tasks
 
 
+def get_db_tasks_for_implant(implant_id: uuid.UUID) -> list[TaskResponseDTO]:
+    tasks = []
+    with Session(engine) as sesh:
+        statement = select(Task).where(Task.implant_id == implant_id)
+        results = sesh.exec(statement)
+        tasks = [
+            TaskResponseDTO(
+                id=res.id,
+                name=res.name,
+                implant_id=res.implant_id,
+                task_args=[
+                    TaskArgResponseDTO(
+                        id=a.id,
+                        spec=TaskParamResponseDTO(
+                            id=a.spec.id,
+                            name=a.spec.name,
+                            param_type=a.spec.param_type,
+                        ),
+                        value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
+                    )
+                    for a in res.args
+                ],
+            )
+            for res in results
+        ]
+    return tasks
+
+
 def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
     task = None
     print(task_id)

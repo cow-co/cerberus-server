@@ -66,6 +66,14 @@ def get_tasks(
     return task_controller.get_all_tasks()
 
 
+@router.get("/tasks")
+def get_tasks_for_implant(
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+) -> list[TaskResponseDTO]:
+    logger.info(f"{user.id} requesting to get all tasks")
+    return task_controller.get_all_tasks()
+
+
 @router.get("/tasks/{task_id}")
 def get_task(
     task_id: uuid.UUID,
