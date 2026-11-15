@@ -14,12 +14,10 @@ from cerberus_backend.model.http.task import (
     TaskTypeResponseDTO,
 )
 
-# TODO DAOs should probably have "to_response" and "from_request" methods
-
 
 class TaskType(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str = Field(index=True)  # TODO Make this unique
+    name: str = Field(index=True, unique=True)
 
     params: list[TaskParam] = Relationship(back_populates="tasktype")
 
