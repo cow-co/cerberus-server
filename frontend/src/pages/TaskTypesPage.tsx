@@ -21,7 +21,7 @@ export default () => {
         <ListItemButton onClick={() => {
           setTaskType(tt);
           }}>
-          <ListItemText>tt.name</ListItemText>
+          <ListItemText>{tt.name}</ListItemText>
         </ListItemButton>
         );
       })}

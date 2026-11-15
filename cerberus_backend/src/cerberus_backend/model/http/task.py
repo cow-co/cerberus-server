@@ -1,6 +1,6 @@
 import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from cerberus_backend.model.common.enums import ParamType
 
@@ -11,7 +11,13 @@ class TaskParamBase(BaseModel):
 
 
 class TaskParamRequestDTO(TaskParamBase):
-    pass
+
+    @field_validator("name", mode="after")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if len(value.strip()) == 0:
+            raise ValueError("Empty parameter names are not allowed!")
+        return value.strip()
 
 
 class TaskParamResponseDTO(TaskParamBase):
@@ -24,7 +30,12 @@ class TaskTypeBase(BaseModel):
 
 
 class TaskTypeRequestDTO(TaskTypeBase):
-    pass
+    @field_validator("name", mode="after")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        if len(value.strip()) == 0:
+            raise ValueError("Empty task type names are not allowed!")
+        return value.strip()
 
 
 class TaskTypeResponseDTO(TaskTypeBase):

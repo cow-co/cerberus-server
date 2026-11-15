@@ -4,7 +4,6 @@ import {
   Card,
   FormControl,
   FormLabel,
-  InputLabel,
   MenuItem,
   Select,
   Stack,
@@ -23,7 +22,9 @@ export default () => {
   const paramTypes = ["INTEGER", "STRING", "BOOLEAN"];
 
   const [name, setName] = useState<string>("");
+  const [nameError, setNameError] = useState<string|null>(null);
   const [params, setParams] = useState<TaskTypeParamRequest[]>([]);
+  const [paramErrors, setParamErrors] = useState<string[]>([]);
 
   const createMutation = useMutation({
     mutationFn: createTaskType,
@@ -41,10 +42,29 @@ export default () => {
   });
 
   const submit = () => {
-    createMutation.mutate({
-      name: name,
-      params: params,
+    let valid: boolean = true;
+    if (name.trim().length === 0) {
+      setNameError("Name cannot be empty!");
+      valid = false;
+    }
+
+    let newParamErrors: string[] = [];
+    params.forEach((param, idx) => {
+      if (param.name.trim().length === 0) {
+        newParamErrors[idx] = "Name cannot be empty!";
+        valid = false;
+      } else {
+        newParamErrors[idx] = "";
+      }
     });
+    setParamErrors(newParamErrors);
+
+    if (valid) {
+      createMutation.mutate({
+        name: name,
+        params: params,
+      });
+    }
   };
 
   const updateParamName = (idx: number, newName: string) => {
@@ -90,6 +110,9 @@ export default () => {
               id="name"
               autoFocus
               required
+              error={nameError !== null}
+              helperText={nameError ? nameError : ""}
+              color={nameError ? "error" : "primary"}
               variant="outlined"
               value={name}
               onChange={(evt) => setName(evt.target.value)}
@@ -98,26 +121,25 @@ export default () => {
           <Stack direction="column">
             {params.map((param, idx) => {
               return (
-                <Stack direction="row">
+                <Stack direction="row" spacing={2}>
                   <FormControl fullWidth>
                     <FormLabel>Parameter Name</FormLabel>
                     <TextField
                       id={`param-name-${idx}`}
                       required
+                      error={paramErrors[idx] !== ""}
+                      helperText={paramErrors[idx] ? paramErrors[idx] : ""}
+                      color={paramErrors[idx] === "" ? "error" : "primary"}
                       variant="outlined"
                       value={param.name}
                       onChange={(evt) => updateParamName(idx, evt.target.value)}
                     />
                   </FormControl>
                   <FormControl fullWidth>
-                    <InputLabel id={`param-type-select-label-${idx}`}>
-                      Type
-                    </InputLabel>
+                    <FormLabel>Parameter Type</FormLabel>
                     <Select
-                      labelId={`param-type-select-label-${idx}`}
                       id={`param-type-select-${idx}`}
                       value={param.param_type}
-                      label="Type"
                       onChange={(evt) => updateParamType(idx, evt.target.value)}
                     >
                       {paramTypes.map((pt) => (

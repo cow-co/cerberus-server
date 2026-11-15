@@ -32,3 +32,7 @@ export type NewPasswordRequest = {
   password: string;
   password_confirmation: string;
 }
+
+export type ResetPasswordResponse = {
+  new_password: string;
+}

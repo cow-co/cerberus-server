@@ -4,6 +4,7 @@ import type {
   LoginRequest,
   LoginResponse,
   NewPasswordRequest,
+  ResetPasswordResponse,
   UserResponse,
 } from "./data-model/UserModels";
 
@@ -48,6 +49,6 @@ export const updatePassword = async (payload: NewPasswordRequest): Promise<void>
 }
 
 
-export const resetPassword = async (userId: string): Promise<string> => {
+export const resetPassword = async (userId: string): Promise<ResetPasswordResponse> => {
   return makeAuthenticatedRequest("PATCH", `/users/reset-password/${userId}`);
 }

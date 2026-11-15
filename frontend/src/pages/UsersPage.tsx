@@ -1,59 +1,90 @@
 import { useState } from "react";
-import type { UserResponse } from "../api/data-model/UserModels";
+import type { ResetPasswordResponse, UserResponse } from "../api/data-model/UserModels";
 import BasePageLayout from "../components/layout/BasePageLayout";
 import UserShow from "../components/user/UserShow";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { getUsers, resetPassword } from "../api/UserApi";
-import AddIcon from '@mui/icons-material/Add';
-import { Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import PasswordIcon from "@mui/icons-material/Password";
+import {
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Tooltip,
+} from "@mui/material";
 import UserForm from "../components/user/UserForm";
 import { setAlertContent } from "../state/alertSlice";
 import { useAppDispatch } from "../state/hooks";
 
-
 export default () => {
   const dispatch = useAppDispatch();
-  const usersQuery = useQuery({queryKey: ["users"], queryFn: getUsers});
-  const [user, setUser] = useState<UserResponse|null>(null);
+  const usersQuery = useQuery({ queryKey: ["users"], queryFn: getUsers });
+  const [user, setUser] = useState<UserResponse | null>(null);
   const [formShown, setFormShown] = useState<boolean>(false);
-  
+
   const pwdResetMutation = useMutation({
     mutationFn: resetPassword,
-    onSuccess: (data: string) => {
-      dispatch(setAlertContent({
-        alertContent: `${user?.username} password has been reset to ${data}`,
-        alertType: "SUCCESS",
-      }));
+    onSuccess: (data: ResetPasswordResponse) => {
+      dispatch(
+        setAlertContent({
+          alertContent: `${user?.username} password has been reset to ${data.new_password}`,
+          alertType: "SUCCESS",
+        }),
+      );
     },
   });
 
   const sidebarContent = usersQuery.isSuccess ? (
     <List>
-      {usersQuery.data!.map(user => {
+      {usersQuery.data!.map((user) => {
         return (
-          <ListItem secondaryAction={<Button variant="contained" onClick={() => {
-            setUser(user);
-            setFormShown(false);
-            pwdResetMutation.mutate(user.id);
-          }}>Reset Password</Button>}>
-            <ListItemButton onClick={() => {
+          <ListItem
+            secondaryAction={
+              <Tooltip describeChild title="Reset Password">
+                <IconButton
+                  edge="end"
+                  onClick={() => {
+                    setUser(user);
+                    setFormShown(false);
+                    pwdResetMutation.mutate(user.id);
+                  }}
+                >
+                  <PasswordIcon />
+                </IconButton>
+              </Tooltip>
+            }
+            disablePadding
+          >
+            <ListItemButton
+              onClick={() => {
                 setFormShown(false);
                 setUser(user);
-              }}>
-              <ListItemText>{user.username}</ListItemText>
+              }}
+              dense
+            >
+              <ListItemText primary={user.username} />
             </ListItemButton>
           </ListItem>
         );
       })}
-      <ListItemButton onClick={() => {
-        setUser(null);
-        setFormShown(true);
-      }}>
-        <ListItemIcon><AddIcon /></ListItemIcon>
+      <ListItemButton
+        onClick={() => {
+          setUser(null);
+          setFormShown(true);
+        }}
+      >
+        <ListItemIcon>
+          <AddIcon />
+        </ListItemIcon>
         <ListItemText>Create</ListItemText>
       </ListItemButton>
     </List>
-  ) : <></>;
+  ) : (
+    <></>
+  );
   const sidebarProps = {
     title: "Users",
     children: sidebarContent,
@@ -71,6 +102,9 @@ export default () => {
   };
 
   return (
-    <BasePageLayout mainPanelProps={mainPanelProps} sidebarProps={sidebarProps} />
+    <BasePageLayout
+      mainPanelProps={mainPanelProps}
+      sidebarProps={sidebarProps}
+    />
   );
-}
+};

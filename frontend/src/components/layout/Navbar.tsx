@@ -44,11 +44,11 @@ export default () => {
       sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
     >
       <Toolbar>
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{flexGrow: 1}}>
           CERBERUS
         </Typography>
-        <Button color="inherit">Implants</Button>
-        <Button color="inherit">Task Types</Button>
+        <Button color="inherit" href="/">Implants</Button>
+        <Button color="inherit" href="/task-types">Task Types</Button>
         <Button color="inherit" href="/users">
           Users
         </Button>
