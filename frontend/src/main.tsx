@@ -11,6 +11,7 @@ import { Provider } from 'react-redux'
 import UsersPage from './pages/UsersPage.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import ChangePasswordPage from './pages/ChangePasswordPage.tsx'
+import TaskTypesPage from './pages/TaskTypesPage.tsx'
 
 const darkTheme = createTheme({
   palette: {
@@ -32,7 +33,7 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/signin" element={<SigninPage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route path="/users" element={<UsersPage />} />
-                <Route path="/task-types" />
+                <Route path="/task-types" element={<TaskTypesPage />} />
               </Routes>
             </BrowserRouter>
           </QueryClientProvider>

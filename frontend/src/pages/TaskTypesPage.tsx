@@ -6,6 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import type { TaskTypeResponse } from "../api/data-model/TaskModels";
 import { getTaskTypes } from "../api/TaskApi";
 import TaskTypeShow from "../components/task/TaskTypeShow";
+import TaskTypeForm from "../components/task/TaskTypeForm";
 
 
 export default () => {
