@@ -33,3 +33,14 @@ export type TaskResponse = {
   implant_id: string,
   task_args: ArgResponse[],
 }
+
+export type ArgRequest = {
+  spec: TaskTypeParamResponse,
+  value: string | number | boolean | null,
+}
+
+export type TaskRequest = {
+  name: string,
+  implant_id: string,
+  task_args: ArgRequest[],
+}

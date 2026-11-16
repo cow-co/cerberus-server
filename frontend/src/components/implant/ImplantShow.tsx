@@ -2,7 +2,8 @@ import {
   Box,
   Card,
   List,
-  ListItem,
+  ListItemButton,
+  ListItemText,
   Paper,
   Stack,
   Table,
@@ -15,13 +16,16 @@ import {
 import type { ImplantResponse } from "../../api/data-model/ImplantModels";
 import { getImplantTasks } from "../../api/ImplantApi";
 import { useQuery } from "@tanstack/react-query";
+import type { TaskResponse } from "../../api/data-model/TaskModels";
 
 export interface ShowImplantProps {
   implant: ImplantResponse;
+  onAddTask:  () => void,
+  onSelectTask: (task: TaskResponse) => void,
 }
 
 export default (props: ShowImplantProps) => {
-  const { implant } = props;
+  const { implant, onAddTask, onSelectTask } = props;
   const tasksQuery = useQuery({queryKey: ["implantTasks", implant.implant_id], queryFn: () => getImplantTasks(implant.implant_id)});
   return (
     <Box
@@ -77,7 +81,8 @@ export default (props: ShowImplantProps) => {
         >
           <Typography variant="h6">Tasks Assigned</Typography>
           <List>
-            {tasksQuery.data?.map(task => <ListItem>{task.name}</ListItem>)}
+            {tasksQuery.data?.map(task => <ListItemButton onClick={() => onSelectTask(task)}><ListItemText primary={task.name} /></ListItemButton>)}
+            <ListItemButton onClick={onAddTask}><ListItemText primary="Queue a New Task" /></ListItemButton>
           </List>
         </Card>
       </Stack>
