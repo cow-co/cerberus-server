@@ -3,16 +3,38 @@
 import { useState } from "react"
 import { type ArgRequest, type TaskTypeResponse } from "../../api/data-model/TaskModels";
 import { Button, FormControl, FormLabel, InputLabel, MenuItem, Select, TextField } from "@mui/material";
-import { useQuery } from "@tanstack/react-query";
-import { getTaskTypes } from "../../api/TaskApi";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createTask, getTaskTypes } from "../../api/TaskApi";
+import { useAppDispatch } from "../../state/hooks";
+import { setAlertContent } from "../../state/alertSlice";
 
+export interface TaskFormProps {
+  implant_id: string,
+}
 
-export default () => {
+export default (props: TaskFormProps) => {
+  const { implant_id } = props;
+  const client = useQueryClient();
   const typesQuery = useQuery({queryKey: ["taskTypes"], queryFn: getTaskTypes});
+    const dispatch = useAppDispatch();
+  
   const [name, setName] = useState<string>("");
   const [nameError, setNameError] = useState<string|null>(null);
   const [taskType, setTaskType] = useState<TaskTypeResponse|null>(null);
   const [args, setArgs] = useState<ArgRequest[]>([]);
+
+  const createMutation = useMutation({
+    mutationFn: createTask,
+    onSuccess: () => {
+      client.invalidateQueries({queryKey: ["tasks"]});
+    },
+    onError: (err) => {
+      dispatch(setAlertContent({
+        alertContent: err.message,
+        alertType: "ERROR",
+      }));
+    },
+  });
 
   const selectTaskType = (id: string) => {
     const found = typesQuery.data?.find(tt => tt.id === id)
@@ -26,7 +48,22 @@ export default () => {
   }
 
   const submit = () => {
-    
+    let valid = true;
+
+    if (name.trim().length === 0) {
+      setNameError("You must provide a name!");
+      valid = false;
+    } else {
+      setNameError(null);
+    }
+
+    if (valid) {
+      createMutation.mutate({
+        implant_id,
+        name,
+        task_args: args,
+      })
+    }
   }
 
   return (

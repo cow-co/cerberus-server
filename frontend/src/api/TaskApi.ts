@@ -1,5 +1,5 @@
 import { makeAuthenticatedRequest } from "./ApiUtils";
-import type { TaskTypeRequest, TaskTypeResponse } from "./data-model/TaskModels";
+import type { TaskRequest, TaskResponse, TaskTypeRequest, TaskTypeResponse } from "./data-model/TaskModels";
 
 
 export const getTaskTypes = async (): Promise<TaskTypeResponse[]> => {
@@ -9,4 +9,9 @@ export const getTaskTypes = async (): Promise<TaskTypeResponse[]> => {
 
 export const createTaskType = async (payload: TaskTypeRequest): Promise<TaskTypeResponse> => {
   return makeAuthenticatedRequest("POST", "/task-types", payload);
+}
+
+
+export const createTask = async (payload: TaskRequest): Promise<TaskResponse> => {
+  return makeAuthenticatedRequest("POST", "/tasks", payload);
 }
