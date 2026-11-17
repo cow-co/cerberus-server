@@ -74,7 +74,7 @@ export default () => {
         </DialogContent>
       </Dialog>
       <Dialog open={viewModalOpen} onClose={() => setViewModalOpen(false)}>
-        <DialogTitle>Task {selectedTask?.name}</DialogTitle>
+        <DialogTitle>Task {selectedTask?.tasktype_name}</DialogTitle>
         <DialogContent>
           <TaskShow task={selectedTask} />
         </DialogContent>
