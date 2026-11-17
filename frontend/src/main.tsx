@@ -21,7 +21,6 @@ const darkTheme = createTheme({
 
 const queryClient = new QueryClient();
 
-// TODO Change things so that view-pages are distinct URLs so that we can do things like having links to a specific tasktype etc
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider theme={darkTheme}>
     <StrictMode>
@@ -33,8 +32,14 @@ createRoot(document.getElementById('root')!).render(
                 <Route path="/" element={<ImplantsPage />} />
                 <Route path="/signin" element={<SigninPage />} />
                 <Route path="/change-password" element={<ChangePasswordPage />} />
-                <Route path="/users" element={<UsersPage />} />
-                <Route path="/task-types" element={<TaskTypesPage />} />
+                <Route path="users">
+                  <Route index element={<UsersPage />} />
+                  <Route path="view/*" element={<UsersPage />} />
+                </Route>
+                <Route path="task-types">
+                  <Route index element={<TaskTypesPage />} />
+                  <Route path="view/*" element={<TaskTypesPage />} />
+                </Route>
               </Routes>
             </BrowserRouter>
           </QueryClientProvider>

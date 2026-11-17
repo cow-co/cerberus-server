@@ -1,34 +1,44 @@
-import { useState } from "react";
 import BasePageLayout from "../components/layout/BasePageLayout";
 import { useQuery } from "@tanstack/react-query";
 import { List, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import AddIcon from '@mui/icons-material/Add';
 import type { TaskTypeResponse } from "../api/data-model/TaskModels";
-import { getTaskTypes } from "../api/TaskApi";
+import { getTaskType, getTaskTypes } from "../api/TaskApi";
 import TaskTypeShow from "../components/task/TaskTypeShow";
 import TaskTypeForm from "../components/task/TaskTypeForm";
+import { useLocation } from "react-router";
 
+
+const generateTTQuery = (ttId: string | undefined) => {
+  return useQuery({
+    queryFn: (): Promise<TaskTypeResponse> => {
+      if (ttId) {
+        return getTaskType(ttId);
+      } else {
+        return Promise.reject("No tasktype ID provided");
+      }
+    },
+    queryKey: ["taskType", ttId],
+  })
+}
 
 export default () => {
+  const loc = useLocation();
+  const path_elements = loc.pathname.split("/");
+  const ttId = path_elements.at(-1);
   const taskTypesQuery = useQuery({queryKey: ["taskTypes"], queryFn: getTaskTypes});
-  const [taskType, setTaskType] = useState<TaskTypeResponse|null>(null);
-  const [formShown, setFormShown] = useState<boolean>(false);
+  const taskTypeQuery = generateTTQuery(ttId);
 
   const sidebarContent = taskTypesQuery.isSuccess ? (
     <List>
       {taskTypesQuery.data!.map(tt => {
         return (
-        <ListItemButton onClick={() => {
-          setTaskType(tt);
-          }}>
+        <ListItemButton href={`/task-types/view/${tt.id}`}>
           <ListItemText>{tt.name}</ListItemText>
         </ListItemButton>
         );
       })}
-      <ListItemButton onClick={() => {
-        setTaskType(null);
-        setFormShown(true);
-      }}>
+      <ListItemButton href="/task-types">
         <ListItemIcon><AddIcon /></ListItemIcon>
         <ListItemText>Create</ListItemText>
       </ListItemButton>
@@ -38,15 +48,18 @@ export default () => {
     title: "Task Types",
     children: sidebarContent,
   };
-
+  
   let mainPanelContent = <></>;
-    if (taskType) {
-      mainPanelContent = <TaskTypeShow taskType={taskType} />;
-    } else if (formShown) {
-      mainPanelContent = <TaskTypeForm />;
-    }
+  let title = "Task Type";
+  if (!ttId) {
+    mainPanelContent = <TaskTypeForm />;
+    title = "Create a Task Type";
+  } else if (taskTypeQuery.isSuccess) {
+    mainPanelContent = <TaskTypeShow taskType={taskTypeQuery.data} />;
+    title = taskTypeQuery.data.name;
+  }
   const mainPanelProps = {
-    title: taskType ? taskType.name : "Task Type",
+    title,
     children: mainPanelContent,
   };
 

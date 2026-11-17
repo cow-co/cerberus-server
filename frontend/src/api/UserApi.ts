@@ -22,11 +22,13 @@ export const getUsers = async (): Promise<UserResponse[]> => {
   return makeAuthenticatedRequest("GET", "/users");
 };
 
+export const getUser = async (uid: string): Promise<UserResponse> => {
+  return makeAuthenticatedRequest("GET", `/users/${uid}`);
+};
 
 export const createUser = async (payload: CreateUserRequest): Promise<UserResponse> => {
   return makeAuthenticatedRequest("POST", "/users", payload);
 }
-
 
 export const getRoles = async (): Promise<string[]> => {
   try {
