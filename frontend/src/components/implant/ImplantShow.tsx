@@ -74,11 +74,11 @@ export default (props: ShowImplantProps) => {
           </TableContainer>
           <Typography variant="h6">Tasks Assigned</Typography>
           <List>
-            {tasksQuery.data?.map(task => <ListItemButton onClick={() => onSelectTask(task)}><ListItemText primary={task.name} secondary={
-                <>
-                  {task.}
-                </>
-              }  /></ListItemButton>)}
+            {tasksQuery.data?.map(task => (
+              <ListItemButton onClick={() => onSelectTask(task)}>
+                <ListItemText primary={task.tasktype_name} />
+              </ListItemButton>
+            ))}
             <ListItemButton onClick={onAddTask}>
               <ListItemIcon><AddIcon /></ListItemIcon>
               <ListItemText primary="Queue a New Task"/>

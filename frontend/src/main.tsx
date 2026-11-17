@@ -21,6 +21,7 @@ const darkTheme = createTheme({
 
 const queryClient = new QueryClient();
 
+// TODO Change things so that view-pages are distinct URLs so that we can do things like having links to a specific tasktype etc
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider theme={darkTheme}>
     <StrictMode>

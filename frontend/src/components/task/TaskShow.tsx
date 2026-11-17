@@ -44,8 +44,9 @@ export default (props: ShowTaskProps) => {
                   <TableCell>{task?.id}</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell>Name</TableCell>
-                  <TableCell>{task?.name}</TableCell>
+                  {/*TODO make this a link to the tasktype*/}
+                  <TableCell>Type</TableCell>
+                  <TableCell>{task?.tasktype_name}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

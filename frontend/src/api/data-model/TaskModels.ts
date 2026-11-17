@@ -29,7 +29,8 @@ export type ArgResponse = {
 
 export type TaskResponse = {
   id: string,
-  name: string,
+  tasktype_id: string,
+  tasktype_name: string,
   implant_id: string,
   task_args: ArgResponse[],
 }
@@ -40,7 +41,7 @@ export type ArgRequest = {
 }
 
 export type TaskRequest = {
-  name: string,
+  tasktype_id: string,
   implant_id: string,
   task_args: ArgRequest[],
 }
