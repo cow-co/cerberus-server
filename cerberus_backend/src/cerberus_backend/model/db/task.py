@@ -18,8 +18,8 @@ from cerberus_backend.model.http.task import (
 class TaskType(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str = Field(index=True, unique=True)
-
     params: list[TaskParam] = Relationship(back_populates="tasktype")
+    tasks: list[Task] = Relationship(back_populates="tasktype")
 
 
 class TaskParam(SQLModel, table=True):
@@ -32,8 +32,9 @@ class TaskParam(SQLModel, table=True):
 
 class Task(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str
     implant_id: uuid.UUID = Field(foreign_key="implant.id")
+    tasktype_id: uuid.UUID = Field(foreign_key="tasktype.id")
+    tasktype: TaskType = Relationship(back_populates="tasks")
     args: list[TaskArg] = Relationship(back_populates="task")
 
 
@@ -132,8 +133,9 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
         tasks = [
             TaskResponseDTO(
                 id=res.id,
-                name=res.name,
                 implant_id=res.implant_id,
+                tasktype_id=res.tasktype.id,
+                tasktype_name=res.tasktype.name,
                 task_args=[
                     TaskArgResponseDTO(
                         id=a.id,
@@ -160,8 +162,9 @@ def get_db_tasks_for_implant(implant_id: uuid.UUID) -> list[TaskResponseDTO]:
         tasks = [
             TaskResponseDTO(
                 id=res.id,
-                name=res.name,
                 implant_id=res.implant_id,
+                tasktype_id=res.tasktype.id,
+                tasktype_name=res.tasktype.name,
                 task_args=[
                     TaskArgResponseDTO(
                         id=a.id,
@@ -188,12 +191,11 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
         results = sesh.exec(statement)
         res = results.first()
         if res:
-            print(f"RES IS {res}")
-            print(f"ARGS ARE {res.args}")
             task = TaskResponseDTO(
                 id=res.id,
-                name=res.name,
                 implant_id=res.implant_id,
+                tasktype_id=res.tasktype.id,
+                tasktype_name=res.tasktype.name,
                 task_args=[
                     TaskArgResponseDTO(
                         id=a.id,
@@ -207,7 +209,6 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
                     for a in res.args
                 ],
             )
-            print(f"RES IS NOW {res}")
     return task
 
 
@@ -215,8 +216,8 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
     created = None
     with Session(engine) as sesh:
         to_create = Task(
-            name=task.name,
             implant_id=task.implant_id,
+            tasktype_id=task.tasktype_id,
             args=[
                 TaskArg(
                     spec=TaskParam(
@@ -236,8 +237,9 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
         sesh.refresh(to_create)
         created = TaskResponseDTO(
             id=to_create.id,
-            name=to_create.name,
             implant_id=to_create.implant_id,
+            tasktype_id=to_create.tasktype.id,
+            tasktype_name=to_create.tasktype.name,
             task_args=[
                 TaskArgResponseDTO(
                     id=a.id,

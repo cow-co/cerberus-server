@@ -58,11 +58,11 @@ def test_non_existent_task_type(authenticated_client: TestClient):
 
 
 def test_task_type_with_content(authenticated_client: TestClient):
-    tt = TaskType(
-        name="test",
-        params=[],
-    )
     with Session(engine) as session:
+        tt = TaskType(
+            name="test",
+            params=[],
+        )
         session.add(tt)
         session.commit()
         session.refresh(tt)
@@ -70,25 +70,24 @@ def test_task_type_with_content(authenticated_client: TestClient):
     tt = res.json()
     assert res.status_code == 200
     assert tt["name"] == "test"
-
-    tt = TaskType(
-        name="test",
-        params=[
-            TaskParam(
-                name="test",
-                param_type=ParamType.STRING,
-                tasktype_id=uuid.uuid4(),
-            )
-        ],
-    )
     with Session(engine) as session:
+        tt = TaskType(
+            name="test2",
+            params=[
+                TaskParam(
+                    name="test",
+                    param_type=ParamType.STRING,
+                    tasktype_id=uuid.uuid4(),
+                )
+            ],
+        )
         session.add(tt)
         session.commit()
         session.refresh(tt)
     res = authenticated_client.get(f"/api/task-types/{tt.id}")
     tt = res.json()
     assert res.status_code == 200
-    assert tt["name"] == "test"
+    assert tt["name"] == "test2"
     assert len(tt["params"]) == 1
 
 
@@ -129,10 +128,17 @@ def test_empty_task_list(authenticated_client: TestClient):
 
 def test_task_list_with_content(authenticated_client: TestClient):
     with Session(engine) as session:
+        tt = TaskType(
+            name="test",
+            params=[],
+        )
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
         session.add(
             Task(
                 implant_id=uuid.uuid4(),
-                name="test",
+                tasktype_id=tt.id,
                 args=[],
             )
         )
@@ -141,24 +147,22 @@ def test_task_list_with_content(authenticated_client: TestClient):
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
-    assert ts[0]["name"] == "test"
+    assert ts[0]["tasktype_name"] == "test"
 
 
 def test_task_list_with_args(authenticated_client: TestClient):
-    tt = TaskType(
-        name="test",
-        params=[],
-    )
-    res = authenticated_client.get("/api/tasks")
-    print(res.json())
     with Session(engine) as session:
+        tt = TaskType(
+            name="test",
+            params=[],
+        )
         session.add(tt)
         session.commit()
         session.refresh(tt)
         session.add(
             Task(
                 implant_id=uuid.uuid4(),
-                name="test",
+                tasktype_id=tt.id,
                 args=[
                     TaskArg(
                         spec=TaskParam(
@@ -176,7 +180,7 @@ def test_task_list_with_args(authenticated_client: TestClient):
     ts = res.json()
     assert res.status_code == 200
     assert len(ts) == 1
-    assert ts[0]["name"] == "test"
+    assert ts[0]["tasktype_name"] == "test"
     assert len(ts[0]["task_args"]) == 1
 
 
@@ -186,44 +190,51 @@ def test_non_existent_task(authenticated_client: TestClient):
 
 
 def test_task_with_content(authenticated_client: TestClient):
-    task = Task(
-        implant_id=uuid.uuid4(),
-        name="test",
-        args=[],
-    )
     with Session(engine) as session:
+        tt = TaskType(
+            name="test",
+            params=[],
+        )
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
+        task = Task(
+            implant_id=uuid.uuid4(),
+            tasktype_id=tt.id,
+            args=[],
+        )
         session.add(task)
         session.commit()
         session.refresh(task)
     res = authenticated_client.get(f"/api/tasks/{task.id}")
     result = res.json()
     assert res.status_code == 200
-    assert result["name"] == "test"
+    assert result["tasktype_name"] == "test"
 
 
 def test_task_with_args(authenticated_client: TestClient):
-    tt = TaskType(
-        name="test",
-        params=[],
-    )
-    task2 = Task(
-        implant_id=uuid.uuid4(),
-        name="test2",
-        args=[
-            TaskArg(
-                spec=TaskParam(
-                    id=uuid.uuid4(),
-                    name="test",
-                    param_type=ParamType.STRING,
-                ),
-                value=12,
-            )
-        ],
-    )
     with Session(engine) as session:
+        tt = TaskType(
+            name="test",
+            params=[],
+        )
         session.add(tt)
         session.commit()
         session.refresh(tt)
+        task2 = Task(
+            implant_id=uuid.uuid4(),
+            tasktype_id=tt.id,
+            args=[
+                TaskArg(
+                    spec=TaskParam(
+                        id=uuid.uuid4(),
+                        name="test",
+                        param_type=ParamType.STRING,
+                    ),
+                    value=12,
+                )
+            ],
+        )
         task2.args[0].spec.tasktype_id = tt.id
         session.add(task2)
         session.commit()
@@ -232,57 +243,68 @@ def test_task_with_args(authenticated_client: TestClient):
     res = authenticated_client.get(f"/api/tasks/{task2.id}")
     result = res.json()
     assert res.status_code == 200
-    assert result["name"] == "test2"
+    assert result["tasktype_name"] == "test"
     assert len(result["task_args"]) == 1
 
 
 def test_create_task(authenticated_client: TestClient):
+    with Session(engine) as session:
+        tt = TaskType(
+            name="test",
+            params=[],
+        )
+        session.add(tt)
+        session.commit()
+        session.refresh(tt)
     res = authenticated_client.post(
         "/api/tasks",
-        json={"name": "test", "implant_id": str(uuid.uuid4()), "task_args": []},
+        json={"tasktype_id": str(tt.id), "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     assert res.status_code == 200
-    assert res.json()["name"] == "test"
+    assert res.json()["tasktype_name"] == "test"
 
     res = authenticated_client.get("/api/security/csrf")
     authenticated_client.cookies.update(res.cookies)
     res = authenticated_client.post(
         "/api/tasks",
         json={
-            "name": "test",
+            "tasktype_id": str(tt.id),
             "implant_id": str(uuid.uuid4()),
         },
         headers={"X-CSRF-Token": res.json()["csrf_token"]},
     )
     assert res.status_code == 200
-    assert res.json()["name"] == "test"
+    assert res.json()["tasktype_name"] == "test"
 
 
 def test_create_task_bad_content(authenticated_client: TestClient):
     res = authenticated_client.post("/api/tasks", json={"implant_id": str(uuid.uuid4()), "task_args": []})
     assert res.status_code == 422
 
-    res = authenticated_client.post("/api/tasks", json={"name": "test", "task_args": []})
+    res = authenticated_client.post("/api/tasks", json={"tasktype_id": str(uuid.uuid4()), "task_args": []})
+    assert res.status_code == 422
+
+    res = authenticated_client.post("/api/tasks", json={"implant_id": "test", "task_args": []})
+    assert res.status_code == 422
+
+    res = authenticated_client.post("/api/tasks", json={"tasktype_id": "Test", "task_args": []})
     assert res.status_code == 422
 
 
-def test_create_task_bad_csrf(authenticated_client: TestClient):
-    authenticated_client.post(
-        "/api/tasks",
-        json={"name": "test1", "implant_id": str(uuid.uuid4()), "task_args": []},
-    )
+def test_create_task_bad_csrf(admin_client: TestClient):
+    admin_client.post("/api/task-types", json={"name": "test", "params": []})
     # Reused CSRF token
-    res = authenticated_client.post(
+    res = admin_client.post(
         "/api/tasks",
-        json={"name": "test2", "implant_id": str(uuid.uuid4()), "task_args": []},
+        json={"tasktype_id": str(uuid.uuid4()), "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     assert res.status_code == 403
 
     # Missing CSRF token
-    res = authenticated_client.get("/api/security/csrf")
-    authenticated_client.cookies.update(res.cookies)
-    res = authenticated_client.post(
+    res = admin_client.get("/api/security/csrf")
+    admin_client.cookies.update(res.cookies)
+    res = admin_client.post(
         "/api/tasks",
-        json={"name": "test3", "implant_id": str(uuid.uuid4()), "task_args": []},
+        json={"tasktype_id": str(uuid.uuid4()), "implant_id": str(uuid.uuid4()), "task_args": []},
     )
     assert res.status_code == 403

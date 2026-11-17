@@ -17,21 +17,27 @@ export default () => {
   const [viewModalOpen, setViewModalOpen] = useState<boolean>(false);
   const [selectedTask, setSelectedTask] = useState<TaskResponse|null>(null);
 
-  let implantIdentifier = implant?.implant_id;
-  if (implant?.hostname) {
-    implantIdentifier = implant.hostname;
-  } else if (implant?.ip_addr) {
-    implantIdentifier = implant.ip_addr;
+  const impIdent = (imp: ImplantResponse): string => {
+    let implantIdentifier = imp.implant_id;
+    if (imp.hostname) {
+      implantIdentifier = imp.hostname;
+    } else if (imp.ip_addr) {
+      implantIdentifier = imp.ip_addr;
+    }
+    return implantIdentifier;
   }
+
+  const implantIdentifier = implant ? impIdent(implant) : "";
 
   const sidebarContent = implantsQuery.isSuccess ? (
     <List>
       {implantsQuery.data!.map(imp => {
+        imp
         return (
           <ListItemButton onClick={() => {
               setImplant(imp);
             }}>
-            <ListItemText>{implantIdentifier} ({imp.is_active ? "Active" : "Inactive"})</ListItemText>
+            <ListItemText>{impIdent(imp)} ({imp.is_active ? "Active" : "Inactive"})</ListItemText>
           </ListItemButton>
         );
       })}
@@ -64,13 +70,13 @@ export default () => {
       <Dialog open={addModalOpen} onClose={() => setAddModalOpen(false)}>
         <DialogTitle>Create a Task</DialogTitle>
         <DialogContent>
-          <TaskForm implant_id={implant!.implant_id} />
+          <TaskForm implant_id={implant?.implant_id} />
         </DialogContent>
       </Dialog>
       <Dialog open={viewModalOpen} onClose={() => setViewModalOpen(false)}>
-        <DialogTitle>Task {selectedTask!.name}</DialogTitle>
+        <DialogTitle>Task {selectedTask?.name}</DialogTitle>
         <DialogContent>
-          <TaskShow task={selectedTask!} />
+          <TaskShow task={selectedTask} />
         </DialogContent>
       </Dialog>
     </>

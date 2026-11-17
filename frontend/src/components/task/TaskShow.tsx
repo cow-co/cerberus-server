@@ -14,7 +14,7 @@ import {
 import type { TaskResponse } from "../../api/data-model/TaskModels";
 
 export interface ShowTaskProps {
-  task: TaskResponse;
+  task?: TaskResponse|null;
 }
 
 export default (props: ShowTaskProps) => {
@@ -41,11 +41,11 @@ export default (props: ShowTaskProps) => {
               <TableBody>
                 <TableRow>
                   <TableCell>ID</TableCell>
-                  <TableCell>{task.id}</TableCell>
+                  <TableCell>{task?.id}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell>Name</TableCell>
-                  <TableCell>{task.name}</TableCell>
+                  <TableCell>{task?.name}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
@@ -61,7 +61,7 @@ export default (props: ShowTaskProps) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {task.task_args.map((arg) => (
+                {task?.task_args.map((arg) => (
                   <TableRow>
                     <TableCell>{arg.spec.name}</TableCell>
                     <TableCell>{arg.spec.param_type}</TableCell>

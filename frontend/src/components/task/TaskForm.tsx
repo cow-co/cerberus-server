@@ -9,7 +9,7 @@ import { useAppDispatch } from "../../state/hooks";
 import { setAlertContent } from "../../state/alertSlice";
 
 export interface TaskFormProps {
-  implant_id: string,
+  implant_id?: string,
 }
 
 export default (props: TaskFormProps) => {
@@ -56,13 +56,16 @@ export default (props: TaskFormProps) => {
     } else {
       setNameError(null);
     }
-
-    if (valid) {
-      createMutation.mutate({
-        implant_id,
-        name,
-        task_args: args,
-      })
+    if (implant_id === undefined) {
+      valid = false;
+    } else {
+      if (valid) {
+        createMutation.mutate({
+          implant_id,
+          name,
+          task_args: args,
+        })
+      }
     }
   }
 

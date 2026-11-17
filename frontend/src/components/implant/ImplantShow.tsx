@@ -3,6 +3,7 @@ import {
   Card,
   List,
   ListItemButton,
+  ListItemIcon,
   ListItemText,
   Paper,
   Stack,
@@ -17,6 +18,7 @@ import type { ImplantResponse } from "../../api/data-model/ImplantModels";
 import { getImplantTasks } from "../../api/ImplantApi";
 import { useQuery } from "@tanstack/react-query";
 import type { TaskResponse } from "../../api/data-model/TaskModels";
+import AddIcon from '@mui/icons-material/Add';
 
 export interface ShowImplantProps {
   implant: ImplantResponse;
@@ -35,15 +37,15 @@ export default (props: ShowImplantProps) => {
         alignItems: "center",
       }}
     >
-      <Stack spacing={2}>
-        <Card
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "60%",
-          }}
-        >
+      <Card
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "60%",
+        }}
+      >
+        <Stack spacing={2}>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }}>
               <TableBody>
@@ -70,23 +72,20 @@ export default (props: ShowImplantProps) => {
               </TableBody>
             </Table>
           </TableContainer>
-        </Card>
-        <Card
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "60%",
-          }}
-        >
           <Typography variant="h6">Tasks Assigned</Typography>
           <List>
-            {tasksQuery.data?.map(task => <ListItemButton onClick={() => onSelectTask(task)}><ListItemText primary={task.name} /></ListItemButton>)}
-            <ListItemButton onClick={onAddTask}><ListItemText primary="Queue a New Task" /></ListItemButton>
+            {tasksQuery.data?.map(task => <ListItemButton onClick={() => onSelectTask(task)}><ListItemText primary={task.name} secondary={
+                <>
+                  {task.}
+                </>
+              }  /></ListItemButton>)}
+            <ListItemButton onClick={onAddTask}>
+              <ListItemIcon><AddIcon /></ListItemIcon>
+              <ListItemText primary="Queue a New Task"/>
+            </ListItemButton>
           </List>
-        </Card>
-      </Stack>
-      
+        </Stack>
+      </Card>
     </Box>
   );
 };

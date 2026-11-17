@@ -56,13 +56,14 @@ class TaskArgRequestDTO(TaskArgBase):
 
 
 class TaskBase(BaseModel):
-    name: str
+    tasktype_id: uuid.UUID
     implant_id: uuid.UUID
     task_args: list[TaskArgBase] = []
 
 
 class TaskResponseDTO(TaskBase):
     id: uuid.UUID
+    tasktype_name: str
 
 
 class TaskRequestDTO(TaskBase):
