@@ -67,7 +67,7 @@ export default (props: ShowImplantProps) => {
                 </TableRow>
                 <TableRow>
                   <TableCell>Is Active?</TableCell>
-                  <TableCell>{implant.is_active ? "❌" : "✅"}</TableCell>
+                  <TableCell>{implant.is_active ? "✅" : "❌"}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>

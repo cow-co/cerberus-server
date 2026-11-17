@@ -7,9 +7,10 @@ import { getTaskType, getTaskTypes } from "../api/TaskApi";
 import TaskTypeShow from "../components/task/TaskTypeShow";
 import TaskTypeForm from "../components/task/TaskTypeForm";
 import { useLocation } from "react-router";
+import { isUUID } from "../utils";
 
 
-const generateTTQuery = (ttId: string | undefined) => {
+const generateTTQuery = (ttId: string | null) => {
   return useQuery({
     queryFn: (): Promise<TaskTypeResponse> => {
       if (ttId) {
@@ -25,7 +26,11 @@ const generateTTQuery = (ttId: string | undefined) => {
 export default () => {
   const loc = useLocation();
   const path_elements = loc.pathname.split("/");
-  const ttId = path_elements.at(-1);
+  const maybeId = path_elements.at(-1);
+  if (!maybeId) {
+    return <></>;
+  }
+  let ttId: string|null = isUUID(maybeId) ? maybeId : null;
   const taskTypesQuery = useQuery({queryKey: ["taskTypes"], queryFn: getTaskTypes});
   const taskTypeQuery = generateTTQuery(ttId);
 

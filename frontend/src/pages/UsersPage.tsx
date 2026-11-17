@@ -18,8 +18,9 @@ import UserForm from "../components/user/UserForm";
 import { setAlertContent } from "../state/alertSlice";
 import { useAppDispatch } from "../state/hooks";
 import { useLocation } from "react-router";
+import { isUUID } from "../utils";
 
-const generateUserQuery = (userId: string | undefined) => {
+const generateUserQuery = (userId: string | null) => {
   return useQuery({
     queryFn: (): Promise<UserResponse> => {
       if (userId) {
@@ -35,7 +36,11 @@ const generateUserQuery = (userId: string | undefined) => {
 export default () => {
   const loc = useLocation();
   const path_elements = loc.pathname.split("/");
-  const userId = path_elements.at(-1);
+  const maybeId = path_elements.at(-1);
+  if (!maybeId) {
+    return <></>;
+  }
+  let userId: string|null = isUUID(maybeId) ? maybeId : null;
   const dispatch = useAppDispatch();
   const usersQuery = useQuery({ queryKey: ["users"], queryFn: getUsers });
   const userQuery = generateUserQuery(userId);

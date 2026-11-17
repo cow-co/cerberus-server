@@ -12,6 +12,7 @@ import {
   Typography,
 } from "@mui/material";
 import type { TaskResponse } from "../../api/data-model/TaskModels";
+import { Link } from "react-router";
 
 export interface ShowTaskProps {
   task?: TaskResponse|null;
@@ -44,9 +45,8 @@ export default (props: ShowTaskProps) => {
                   <TableCell>{task?.id}</TableCell>
                 </TableRow>
                 <TableRow>
-                  {/*TODO make this a link to the tasktype*/}
                   <TableCell>Type</TableCell>
-                  <TableCell>{task?.tasktype_name}</TableCell>
+                  <TableCell><Link to={`/task-types/${task?.tasktype_id}`}>{task?.tasktype_name}</Link></TableCell>
                 </TableRow>
               </TableBody>
             </Table>
