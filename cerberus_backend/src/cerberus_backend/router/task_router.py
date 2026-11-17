@@ -10,6 +10,7 @@ from fastapi_csrf_protect import CsrfProtect
 from cerberus_backend.controller import task_controller
 from cerberus_backend.controller.dependencies import security_dependencies
 from cerberus_backend.model.http.task import (
+    TaskArgRequestDTO,
     TaskRequestDTO,
     TaskResponseDTO,
     TaskTypeRequestDTO,
@@ -101,3 +102,22 @@ async def create_task(
 
     csrf_protect.unset_csrf_cookie(response)
     return response
+
+
+@router.patch("/tasks/{task_id}")
+async def update_task(
+    task_id: uuid.UUID,
+    new_args: list[TaskArgRequestDTO],
+    user: Annotated[UserResponseDTO, Depends(security_dependencies.get_logged_in_user)],
+    request: Request,
+    response: Response,
+    csrf_protect: CsrfProtect = Depends(),
+) -> TaskResponseDTO:
+    await csrf_protect.validate_csrf(request)
+
+    logger.info(f"{user.id} requesting to update a task")
+    response = JSONResponse(jsonable_encoder(task_controller.update_task(task_id, new_args)))
+
+    csrf_protect.unset_csrf_cookie(response)
+    return response
+    

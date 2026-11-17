@@ -6,6 +6,7 @@ from sqlmodel import Field, Relationship, Session, SQLModel, select
 from cerberus_backend.model.common.enums import ParamType
 from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.http.task import (
+    TaskArgRequestDTO,
     TaskArgResponseDTO,
     TaskParamResponseDTO,
     TaskRequestDTO,
@@ -13,6 +14,7 @@ from cerberus_backend.model.http.task import (
     TaskTypeRequestDTO,
     TaskTypeResponseDTO,
 )
+from cerberus_backend.utils.exceptions import NotFoundException
 
 
 class TaskType(SQLModel, table=True):
@@ -254,3 +256,46 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
             ],
         )
     return created
+
+
+def update_db_task(task_id: uuid.UUID, new_args: list[TaskArgRequestDTO]) -> TaskResponseDTO:
+    with Session(engine) as sesh:
+        stmt = select(Task).where(Task.id == task_id)
+        found = sesh.exec(stmt).first()
+        if not found:
+            raise NotFoundException("Task not found!")
+        found.args=[
+            TaskArg(
+                spec=TaskParam(
+                    id=a.spec.id,
+                    name=a.spec.name,
+                    param_type=a.spec.param_type,
+                ),
+                value_str=cast(str, a.value) if a.spec.param_type == ParamType.STRING else None,
+                value_int=cast(int, a.value) if a.spec.param_type == ParamType.INTEGER else None,
+                value_bool=cast(bool, a.value) if a.spec.param_type == ParamType.BOOLEAN else None,
+            )
+            for a in new_args
+        ]
+        sesh.add(found)
+        sesh.commit()
+        created = TaskResponseDTO(
+            id=found.id,
+            implant_id=found.implant_id,
+            tasktype_id=found.tasktype.id,
+            tasktype_name=found.tasktype.name,
+            task_args=[
+                TaskArgResponseDTO(
+                    id=a.id,
+                    spec=TaskParamResponseDTO(
+                        id=a.spec.id,
+                        name=a.spec.name,
+                        param_type=a.spec.param_type,
+                    ),
+                    value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
+                )
+                for a in found.args
+            ],
+        )
+        return created
+    
