@@ -3,7 +3,7 @@ from typing import cast
 
 from sqlmodel import Field, Relationship, Session, SQLModel, select
 
-from cerberus_backend.model.common.enums import ParamType
+from cerberus_backend.model.common.enums import ParamType, TaskStatus
 from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.http.task import (
     TaskArgRequestDTO,
@@ -38,6 +38,7 @@ class Task(SQLModel, table=True):
     tasktype_id: uuid.UUID = Field(foreign_key="tasktype.id")
     tasktype: TaskType = Relationship(back_populates="tasks")
     args: list[TaskArg] = Relationship(back_populates="task")
+    status: TaskStatus = Field(default=TaskStatus.PENDING)
 
 
 class TaskArg(SQLModel, table=True):
@@ -150,6 +151,7 @@ def get_all_db_tasks() -> list[TaskResponseDTO]:
                     )
                     for a in res.args
                 ],
+                status=res.status,
             )
             for res in results
         ]
@@ -179,6 +181,7 @@ def get_db_tasks_for_implant(implant_id: uuid.UUID) -> list[TaskResponseDTO]:
                     )
                     for a in res.args
                 ],
+                status=res.status,
             )
             for res in results
         ]
@@ -210,6 +213,7 @@ def get_db_task_by_id(task_id: uuid.UUID) -> TaskResponseDTO | None:
                     )
                     for a in res.args
                 ],
+                status=res.status,
             )
     return task
 
@@ -254,6 +258,7 @@ def create_db_task(task: TaskRequestDTO) -> TaskResponseDTO:
                 )
                 for a in to_create.args
             ],
+            status=to_create.status,
         )
     return created
 
@@ -296,6 +301,7 @@ def update_db_task(task_id: uuid.UUID, new_args: list[TaskArgRequestDTO]) -> Tas
                 )
                 for a in found.args
             ],
+            status=found.status,
         )
         return created
     

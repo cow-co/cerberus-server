@@ -2,6 +2,7 @@ import uuid
 
 from sqlmodel import Field, Session, SQLModel, select
 
+from cerberus_backend.model.common.enums import TaskStatus
 from cerberus_backend.model.db.db_setup import engine
 from cerberus_backend.model.db.task import Task
 from cerberus_backend.model.http.implant import (
@@ -85,14 +86,15 @@ def create_db_implant(beacon: Beacon) -> BeaconResponseDTO:
         sesh.add(imp)
         sesh.commit()
         sesh.refresh(imp)
-        stmt = select(Task).where(Task.implant_id == imp.id)
+        stmt = select(Task).where(Task.implant_id == imp.id).where(Task.status == TaskStatus.PENDING)
         tasks = sesh.exec(stmt)
         res = BeaconResponseDTO(
             implant_id=imp.id,
             tasks=[
                 TaskResponseDTO(
                     id=t.id,
-                    name=t.name,
+                    tasktype_name=t.tasktype.name,
+                    tasktype_id=t.tasktype_id,
                     implant_id=t.implant_id,
                     task_args=[
                         TaskArgResponseDTO(
@@ -104,10 +106,15 @@ def create_db_implant(beacon: Beacon) -> BeaconResponseDTO:
                             ),
                             value=a.value_str if a.value_str else (a.value_int if a.value_int else a.value_bool),
                         )
-                        for a in t.task_args
+                        for a in t.args
                     ],
+                    status=t.status,
                 )
                 for t in tasks
             ],
         )
+        for task in tasks:
+            task.status = TaskStatus.SENT
+            sesh.add(task)
+        sesh.commit()
     return res

@@ -48,7 +48,6 @@ def create_task(task: TaskRequestDTO) -> TaskResponseDTO:
     if not tt:
         raise NotFoundException("That task type does not exist!")
     _check_task_args(task.task_args, tt)
-
     return create_db_task(task)
 
 

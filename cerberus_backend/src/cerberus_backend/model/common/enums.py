@@ -10,3 +10,9 @@ class ParamType(StrEnum):
 class UserRole(StrEnum):
     USER = "USER"
     ADMIN = "ADMIN"
+
+class TaskStatus(StrEnum): 
+    PENDING = "PENDING"
+    SENT = "SENT"
+    FAILED = "FAILED"
+    SUCCESSFUL = "SUCCESSFUL"

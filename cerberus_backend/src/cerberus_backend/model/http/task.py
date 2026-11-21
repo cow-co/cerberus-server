@@ -2,7 +2,7 @@ import uuid
 
 from pydantic import BaseModel, field_validator
 
-from cerberus_backend.model.common.enums import ParamType
+from cerberus_backend.model.common.enums import ParamType, TaskStatus
 
 
 class TaskParamBase(BaseModel):
@@ -64,6 +64,7 @@ class TaskBase(BaseModel):
 class TaskResponseDTO(TaskBase):
     id: uuid.UUID
     tasktype_name: str
+    status: TaskStatus
 
 
 class TaskRequestDTO(TaskBase):
